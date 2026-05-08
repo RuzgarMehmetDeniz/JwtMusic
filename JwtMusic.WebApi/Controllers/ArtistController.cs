@@ -11,7 +11,6 @@ namespace JwtMusic.WebApi.Controllers
     {
         private readonly IArtistService _artistService; 
 
-
         public ArtistController(IArtistService artistService)
         {
             _artistService = artistService;
