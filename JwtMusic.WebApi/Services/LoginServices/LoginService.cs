@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace JwtMusic.WebApi.Services.LoginService
+namespace JwtMusic.WebApi.Services.LoginServices
 {
     public class LoginService : ILoginService
     {

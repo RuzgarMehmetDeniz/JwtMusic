@@ -1,6 +1,6 @@
 ﻿using JwtMusic.WebApi.Dtos;
 
-namespace JwtMusic.WebApi.Services.LoginService
+namespace JwtMusic.WebApi.Services.LoginServices
 {
     public interface ILoginService
     {

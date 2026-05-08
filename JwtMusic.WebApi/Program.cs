@@ -1,6 +1,20 @@
+using AutoMapper;
+using JwtMusic.WebApi.Context;
+using JwtMusic.WebApi.Entities;
+using JwtMusic.WebApi.Services.ArtistServices;
+using JwtMusic.WebApi.Services.LoginServices;
+using JwtMusic.WebApi.Services.RegisterServices;
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddIdentity<AppUser , IdentityRole>().AddEntityFrameworkStores<JwtContext>().AddDefaultTokenProviders();
+
+builder.Services.AddDbContext<JwtContext>();
+builder.Services.AddScoped<IRegisterService, RegisterService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IMapper, Mapper>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -17,7 +31,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
