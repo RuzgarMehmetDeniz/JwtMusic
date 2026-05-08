@@ -9,7 +9,8 @@ namespace JwtMusic.WebApi.Controllers
     [ApiController]
     public class ArtistController : ControllerBase
     {
-        private readonly IArtistService _artistService;
+        private readonly IArtistService _artistService; 
+
 
         public ArtistController(IArtistService artistService)
         {
