@@ -15,6 +15,7 @@ namespace JwtMusic.WebApi.Controllers
         {
             _artistService = artistService;
         }
+        [HttpGet]
         public async Task<IActionResult> ArtistList()
         {
             var values = await _artistService.GetAllArtistsAsync();

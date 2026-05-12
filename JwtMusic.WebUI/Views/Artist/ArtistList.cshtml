@@ -1,0 +1,1448 @@
+﻿@model List<JwtMusic.WebUI.Dtos.ResultArtistDto>
+@{
+	Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SoundWave – Discover Your Next Favorite Artist</title>
+	<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<style>
+		:root {
+			--bg-base: #080810;
+			--bg-surface: #0f0f1a;
+			--bg-card: #13131f;
+			--bg-card-hover: #1a1a2e;
+			--accent-cyan: #00e5ff;
+			--accent-violet: #7c3aed;
+			--accent-pink: #f72585;
+			--accent-green: #06ffa5;
+			--text-primary: #f0f0ff;
+			--text-secondary: #8888aa;
+			--text-muted: #44445a;
+			--border: rgba(255,255,255,0.06);
+			--glow-cyan: 0 0 30px rgba(0,229,255,0.25);
+			--glow-violet: 0 0 40px rgba(124,58,237,0.3);
+			--player-h: 82px;
+			--radius-card: 18px;
+			--radius-pill: 50px;
+		}
+
+
+		*, *::before, *::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+
+		html {
+			scroll-behavior: smooth;
+		}
+
+
+		body {
+			background: var(--bg-base);
+			color: var(--text-primary);
+			font-family: 'DM Sans', sans-serif;
+			min-height: 100vh;
+			padding-bottom: calc(var(--player-h) + 24px);
+			overflow-x: hidden;
+		}
+
+
+			/* ── NOISE TEXTURE OVERLAY ── */
+			body::before {
+				content: '';
+				position: fixed;
+				inset: 0;
+				background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+				pointer-events: none;
+				z-index: 0;
+				opacity: .4;
+			}
+
+
+		/* ── NAVBAR ── */
+		nav {
+			position: sticky;
+			top: 0;
+			z-index: 100;
+			display: flex;
+			align-items: center;
+			gap: 2rem;
+			padding: 0 clamp(1.5rem, 5vw, 3.5rem);
+			height: 68px;
+			background: rgba(8,8,16,0.85);
+			backdrop-filter: blur(20px);
+			border-bottom: 1px solid var(--border);
+		}
+
+
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			text-decoration: none;
+			flex-shrink: 0;
+		}
+
+		.logo-icon {
+			width: 34px;
+			height: 34px;
+			background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1rem;
+			color: #fff;
+			box-shadow: var(--glow-cyan);
+		}
+
+		.logo-text {
+			font-family: 'Clash Display', sans-serif;
+			font-size: 1.25rem;
+			font-weight: 700;
+			background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			letter-spacing: -0.5px;
+		}
+
+
+		.nav-links {
+			display: flex;
+			align-items: center;
+			gap: 0.25rem;
+			list-style: none;
+			flex: 1;
+		}
+
+			.nav-links a {
+				text-decoration: none;
+				color: var(--text-secondary);
+				font-size: 0.875rem;
+				font-weight: 500;
+				padding: 0.5rem 0.9rem;
+				border-radius: 8px;
+				transition: all 0.2s;
+				letter-spacing: 0.01em;
+			}
+
+				.nav-links a:hover, .nav-links a.active {
+					color: var(--text-primary);
+					background: rgba(255,255,255,0.06);
+				}
+
+			.nav-links .premium-link a {
+				color: var(--accent-cyan);
+				background: rgba(0,229,255,0.08);
+				border: 1px solid rgba(0,229,255,0.2);
+			}
+
+				.nav-links .premium-link a:hover {
+					background: rgba(0,229,255,0.15);
+				}
+
+
+		.nav-right {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+		}
+
+
+		.search-wrap {
+			position: relative;
+			display: flex;
+			align-items: center;
+		}
+
+			.search-wrap i {
+				position: absolute;
+				left: 14px;
+				color: var(--text-muted);
+				font-size: 0.9rem;
+				pointer-events: none;
+			}
+
+		.search-input {
+			background: rgba(255,255,255,0.05);
+			border: 1px solid var(--border);
+			color: var(--text-primary);
+			border-radius: var(--radius-pill);
+			padding: 0.5rem 1rem 0.5rem 2.4rem;
+			font-size: 0.8rem;
+			width: 240px;
+			outline: none;
+			transition: all 0.25s;
+			font-family: 'DM Sans', sans-serif;
+		}
+
+			.search-input::placeholder {
+				color: var(--text-muted);
+			}
+
+			.search-input:focus {
+				border-color: rgba(0,229,255,0.4);
+				background: rgba(0,229,255,0.04);
+				box-shadow: 0 0 0 3px rgba(0,229,255,0.08);
+				width: 280px;
+			}
+
+
+		.avatar {
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, var(--accent-violet), var(--accent-pink));
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 0.8rem;
+			font-weight: 600;
+			color: #fff;
+			cursor: pointer;
+			border: 2px solid rgba(255,255,255,0.1);
+			flex-shrink: 0;
+			transition: transform 0.2s;
+		}
+
+			.avatar:hover {
+				transform: scale(1.08);
+			}
+
+
+		/* ── HERO ── */
+		.hero {
+			position: relative;
+			padding: clamp(3rem, 8vw, 5.5rem) clamp(1.5rem, 5vw, 3.5rem);
+			display: grid;
+			grid-template-columns: 1fr auto;
+			gap: 3rem;
+			align-items: center;
+			overflow: hidden;
+			min-height: 440px;
+		}
+
+
+		.hero-bg {
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(ellipse 70% 80% at 10% 50%, rgba(124,58,237,0.25) 0%, transparent 60%), radial-gradient(ellipse 50% 60% at 80% 20%, rgba(0,229,255,0.12) 0%, transparent 55%), radial-gradient(ellipse 40% 50% at 60% 80%, rgba(247,37,133,0.1) 0%, transparent 50%);
+			pointer-events: none;
+		}
+
+
+		.hero-content {
+			position: relative;
+			z-index: 1;
+			max-width: 560px;
+		}
+
+
+		.hero-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			background: rgba(0,229,255,0.1);
+			border: 1px solid rgba(0,229,255,0.25);
+			color: var(--accent-cyan);
+			font-size: 0.75rem;
+			font-weight: 600;
+			padding: 5px 14px;
+			border-radius: var(--radius-pill);
+			margin-bottom: 1.25rem;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+		}
+
+
+		.hero-title {
+			font-family: 'Clash Display', sans-serif;
+			font-size: clamp(2.4rem, 5vw, 3.75rem);
+			font-weight: 700;
+			line-height: 1.08;
+			letter-spacing: -1.5px;
+			margin-bottom: 1.25rem;
+		}
+
+			.hero-title span {
+				background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 50%, var(--accent-pink) 100%);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-clip: text;
+			}
+
+
+		.hero-sub {
+			color: var(--text-secondary);
+			font-size: 1.05rem;
+			line-height: 1.7;
+			font-weight: 300;
+			margin-bottom: 2rem;
+			max-width: 440px;
+		}
+
+
+		.hero-cta {
+			display: flex;
+			gap: 0.75rem;
+			flex-wrap: wrap;
+		}
+
+		.btn-primary {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+			color: #fff;
+			border: none;
+			border-radius: var(--radius-pill);
+			padding: 0.75rem 1.75rem;
+			font-size: 0.9rem;
+			font-weight: 600;
+			cursor: pointer;
+			font-family: 'DM Sans', sans-serif;
+			transition: all 0.25s;
+			box-shadow: 0 4px 20px rgba(0,229,255,0.25);
+			text-decoration: none;
+		}
+
+			.btn-primary:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 8px 30px rgba(0,229,255,0.4);
+			}
+
+
+		.btn-ghost {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			background: rgba(255,255,255,0.06);
+			border: 1px solid var(--border);
+			color: var(--text-primary);
+			border-radius: var(--radius-pill);
+			padding: 0.75rem 1.75rem;
+			font-size: 0.9rem;
+			font-weight: 500;
+			cursor: pointer;
+			font-family: 'DM Sans', sans-serif;
+			transition: all 0.2s;
+			text-decoration: none;
+		}
+
+			.btn-ghost:hover {
+				background: rgba(255,255,255,0.1);
+			}
+
+
+		/* Hero Featured Card */
+		.hero-featured {
+			position: relative;
+			z-index: 1;
+			width: 280px;
+			flex-shrink: 0;
+		}
+
+
+		.featured-card {
+			background: linear-gradient(145deg, rgba(124,58,237,0.3), rgba(8,8,16,0.9));
+			border: 1px solid rgba(124,58,237,0.3);
+			border-radius: 24px;
+			overflow: hidden;
+			backdrop-filter: blur(20px);
+			box-shadow: 0 30px 60px rgba(0,0,0,0.5), var(--glow-violet);
+			transition: transform 0.3s;
+			cursor: pointer;
+		}
+
+			.featured-card:hover {
+				transform: translateY(-6px);
+			}
+
+
+		.featured-img {
+			width: 100%;
+			height: 220px;
+			background: linear-gradient(160deg, #4a1d96, #7c3aed, #c026d3, #ec4899);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 5rem;
+			position: relative;
+			overflow: hidden;
+		}
+
+			.featured-img::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(to bottom, transparent 50%, rgba(8,8,16,0.8));
+			}
+
+			.featured-img .artist-emoji {
+				position: relative;
+				z-index: 1;
+				filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
+			}
+
+
+		.featured-body {
+			padding: 1.25rem;
+		}
+
+		.featured-tag {
+			font-size: 0.68rem;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			color: var(--accent-cyan);
+			margin-bottom: 0.4rem;
+		}
+
+		.featured-name {
+			font-family: 'Clash Display', sans-serif;
+			font-size: 1.4rem;
+			font-weight: 700;
+			letter-spacing: -0.5px;
+			margin-bottom: 0.3rem;
+		}
+
+		.featured-stats {
+			color: var(--text-secondary);
+			font-size: 0.8rem;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			margin-bottom: 1rem;
+		}
+
+		.featured-actions {
+			display: flex;
+			gap: 0.6rem;
+		}
+
+		.btn-follow-sm {
+			flex: 1;
+			background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+			border: none;
+			border-radius: var(--radius-pill);
+			color: #fff;
+			font-size: 0.8rem;
+			font-weight: 600;
+			padding: 0.5rem;
+			cursor: pointer;
+			font-family: 'DM Sans', sans-serif;
+			transition: all 0.2s;
+		}
+
+			.btn-follow-sm:hover {
+				opacity: 0.85;
+			}
+
+		.btn-play-sm {
+			width: 36px;
+			height: 36px;
+			background: rgba(255,255,255,0.1);
+			border: 1px solid var(--border);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--text-primary);
+			cursor: pointer;
+			transition: all 0.2s;
+			font-size: 0.85rem;
+		}
+
+			.btn-play-sm:hover {
+				background: rgba(255,255,255,0.18);
+			}
+
+
+		/* ── MAIN CONTENT ── */
+		main {
+			padding: 0 clamp(1.5rem, 5vw, 3.5rem);
+		}
+
+
+		/* ── SECTION HEADER ── */
+		.section-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 1.5rem;
+		}
+
+		.section-title {
+			font-family: 'Clash Display', sans-serif;
+			font-size: 1.6rem;
+			font-weight: 700;
+			letter-spacing: -0.5px;
+		}
+
+		.see-all {
+			color: var(--accent-cyan);
+			font-size: 0.85rem;
+			font-weight: 500;
+			cursor: pointer;
+			text-decoration: none;
+			transition: opacity 0.2s;
+		}
+
+			.see-all:hover {
+				opacity: 0.7;
+			}
+
+
+		/* ── FILTERS ── */
+		.filters {
+			display: flex;
+			gap: 0.6rem;
+			flex-wrap: wrap;
+			margin-bottom: 2rem;
+		}
+
+		.chip {
+			padding: 0.45rem 1.2rem;
+			border-radius: var(--radius-pill);
+			font-size: 0.82rem;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.22s;
+			border: 1px solid var(--border);
+			background: rgba(255,255,255,0.04);
+			color: var(--text-secondary);
+			user-select: none;
+		}
+
+			.chip:hover {
+				border-color: rgba(255,255,255,0.15);
+				color: var(--text-primary);
+				background: rgba(255,255,255,0.08);
+			}
+
+			.chip.active {
+				background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+				border-color: transparent;
+				color: #fff;
+				box-shadow: 0 4px 18px rgba(0,229,255,0.2);
+			}
+
+
+		/* ── ARTIST GRID ── */
+		.artist-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			gap: 1.25rem;
+			margin-bottom: 3rem;
+		}
+
+
+		/* ── ARTIST CARD ── */
+		.artist-card {
+			background: var(--bg-card);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-card);
+			overflow: hidden;
+			cursor: pointer;
+			transition: transform 0.28s cubic-bezier(0.25,0.8,0.25,1), box-shadow 0.28s, border-color 0.28s;
+			position: relative;
+		}
+
+			.artist-card:hover {
+				transform: translateY(-8px);
+				box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.12);
+				border-color: rgba(0,229,255,0.2);
+			}
+
+			.artist-card[style*="display: none"] {
+				display: none !important;
+			}
+
+
+		.card-img-wrap {
+			position: relative;
+			width: 100%;
+			aspect-ratio: 1;
+			overflow: hidden;
+		}
+
+		.card-img {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 4rem;
+			transition: transform 0.35s;
+		}
+
+		.artist-card:hover .card-img {
+			transform: scale(1.07);
+		}
+
+
+		.card-play-overlay {
+			position: absolute;
+			inset: 0;
+			background: rgba(0,0,0,0.35);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: opacity 0.25s;
+		}
+
+		.artist-card:hover .card-play-overlay {
+			opacity: 1;
+		}
+
+
+		.play-circle {
+			width: 52px;
+			height: 52px;
+			background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.15rem;
+			color: #fff;
+			box-shadow: 0 8px 24px rgba(0,229,255,0.5);
+			transform: scale(0.85);
+			transition: transform 0.2s;
+			border: none;
+			cursor: pointer;
+		}
+
+		.artist-card:hover .play-circle {
+			transform: scale(1);
+		}
+
+
+		.card-body {
+			padding: 1rem;
+		}
+
+		.card-name {
+			font-family: 'Clash Display', sans-serif;
+			font-size: 1rem;
+			font-weight: 600;
+			letter-spacing: -0.3px;
+			margin-bottom: 0.2rem;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.card-genre {
+			font-size: 0.75rem;
+			color: var(--text-secondary);
+			margin-bottom: 0.65rem;
+		}
+
+		.card-footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.5rem;
+		}
+
+		.card-listeners {
+			font-size: 0.72rem;
+			color: var(--text-muted);
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+			.card-listeners i {
+				color: var(--accent-cyan);
+				font-size: 0.65rem;
+			}
+
+
+		.btn-follow {
+			font-size: 0.72rem;
+			font-weight: 600;
+			padding: 0.3rem 0.85rem;
+			border-radius: var(--radius-pill);
+			border: 1px solid rgba(0,229,255,0.35);
+			background: rgba(0,229,255,0.06);
+			color: var(--accent-cyan);
+			cursor: pointer;
+			font-family: 'DM Sans', sans-serif;
+			transition: all 0.2s;
+			white-space: nowrap;
+		}
+
+			.btn-follow:hover, .btn-follow.following {
+				background: rgba(0,229,255,0.15);
+				border-color: var(--accent-cyan);
+			}
+
+			.btn-follow.following {
+				background: rgba(6,255,165,0.1);
+				border-color: var(--accent-green);
+				color: var(--accent-green);
+			}
+
+
+		/* ── NO RESULTS ── */
+		.no-results {
+			text-align: center;
+			padding: 4rem 1rem;
+			color: var(--text-muted);
+			display: none;
+			grid-column: 1 / -1;
+		}
+
+			.no-results i {
+				font-size: 3rem;
+				margin-bottom: 1rem;
+				display: block;
+			}
+
+			.no-results p {
+				font-size: 1rem;
+			}
+
+
+		/* ── PLAYER ── */
+		.player {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: var(--player-h);
+			z-index: 200;
+			background: rgba(10,10,20,0.92);
+			backdrop-filter: blur(30px);
+			border-top: 1px solid var(--border);
+			display: grid;
+			grid-template-columns: 1fr 1.8fr 1fr;
+			align-items: center;
+			padding: 0 clamp(1rem, 4vw, 2.5rem);
+			gap: 1rem;
+		}
+
+
+		/* Player left */
+		.player-track {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			min-width: 0;
+		}
+
+		.player-cover {
+			width: 48px;
+			height: 48px;
+			border-radius: 10px;
+			background: linear-gradient(135deg, #4a1d96, #7c3aed, #c026d3);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.4rem;
+			flex-shrink: 0;
+			box-shadow: 0 4px 16px rgba(124,58,237,0.4);
+		}
+
+		.player-info {
+			min-width: 0;
+		}
+
+		.player-song {
+			font-size: 0.85rem;
+			font-weight: 600;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.player-artist {
+			font-size: 0.75rem;
+			color: var(--text-secondary);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.player-heart {
+			background: none;
+			border: none;
+			color: var(--text-muted);
+			font-size: 1rem;
+			cursor: pointer;
+			padding: 4px;
+			transition: color 0.2s;
+			flex-shrink: 0;
+		}
+
+			.player-heart:hover, .player-heart.liked {
+				color: var(--accent-pink);
+			}
+
+
+		/* Player center */
+		.player-center {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.player-controls {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.ctrl-btn {
+			background: none;
+			border: none;
+			color: var(--text-secondary);
+			font-size: 1rem;
+			cursor: pointer;
+			padding: 6px;
+			border-radius: 50%;
+			transition: all 0.18s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 36px;
+			height: 36px;
+		}
+
+			.ctrl-btn:hover {
+				color: var(--text-primary);
+				background: rgba(255,255,255,0.07);
+			}
+
+		.ctrl-play {
+			width: 44px;
+			height: 44px;
+			background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+			color: #fff;
+			font-size: 1.1rem;
+			box-shadow: var(--glow-cyan);
+		}
+
+			.ctrl-play:hover {
+				transform: scale(1.06);
+				opacity: 0.9;
+				background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+			}
+
+
+		.player-progress {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			width: 100%;
+			max-width: 500px;
+		}
+
+		.time-label {
+			font-size: 0.68rem;
+			color: var(--text-muted);
+			min-width: 32px;
+			text-align: center;
+		}
+
+		.progress-bar-wrap {
+			flex: 1;
+			height: 4px;
+			background: rgba(255,255,255,0.1);
+			border-radius: 4px;
+			cursor: pointer;
+			position: relative;
+		}
+
+		.progress-fill {
+			height: 100%;
+			border-radius: 4px;
+			background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+			width: 35%;
+			transition: width 0.1s;
+			position: relative;
+		}
+
+			.progress-fill::after {
+				content: '';
+				position: absolute;
+				right: -5px;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 10px;
+				height: 10px;
+				background: #fff;
+				border-radius: 50%;
+				opacity: 0;
+				transition: opacity 0.15s;
+				box-shadow: var(--glow-cyan);
+			}
+
+		.progress-bar-wrap:hover .progress-fill::after {
+			opacity: 1;
+		}
+
+
+		/* Player right */
+		.player-right {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 0.75rem;
+		}
+
+		.vol-btn {
+			background: none;
+			border: none;
+			color: var(--text-secondary);
+			font-size: 1rem;
+			cursor: pointer;
+			transition: color 0.18s;
+		}
+
+			.vol-btn:hover {
+				color: var(--text-primary);
+			}
+
+		.volume-bar-wrap {
+			width: 90px;
+			height: 4px;
+			background: rgba(255,255,255,0.1);
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.volume-fill {
+			height: 100%;
+			border-radius: 4px;
+			background: rgba(255,255,255,0.4);
+			width: 70%;
+		}
+
+		.queue-btn {
+			background: none;
+			border: none;
+			color: var(--text-muted);
+			font-size: 0.95rem;
+			cursor: pointer;
+			transition: color 0.18s;
+			padding: 4px;
+		}
+
+			.queue-btn:hover {
+				color: var(--accent-cyan);
+			}
+
+
+		/* ── GRADIENT ARTIST COLORS ── */
+		.grad-1 {
+			background: linear-gradient(160deg, #6d28d9, #8b5cf6, #a78bfa);
+		}
+
+		.grad-2 {
+			background: linear-gradient(160deg, #be185d, #ec4899, #f9a8d4);
+		}
+
+		.grad-3 {
+			background: linear-gradient(160deg, #b45309, #f59e0b, #fde68a);
+		}
+
+		.grad-4 {
+			background: linear-gradient(160deg, #1e3a5f, #1d4ed8, #60a5fa);
+		}
+
+		.grad-5 {
+			background: linear-gradient(160deg, #14532d, #16a34a, #4ade80);
+		}
+
+		.grad-6 {
+			background: linear-gradient(160deg, #7f1d1d, #dc2626, #fca5a5);
+		}
+
+		.grad-7 {
+			background: linear-gradient(160deg, #0f172a, #1e40af, #93c5fd);
+		}
+
+		.grad-8 {
+			background: linear-gradient(160deg, #701a75, #a21caf, #e879f9);
+		}
+
+		.grad-9 {
+			background: linear-gradient(160deg, #7c2d12, #ea580c, #fdba74);
+		}
+
+		.grad-10 {
+			background: linear-gradient(160deg, #1e1b4b, #6d28d9, #a5b4fc);
+		}
+
+		.grad-11 {
+			background: linear-gradient(160deg, #064e3b, #0d9488, #5eead4);
+		}
+
+		.grad-12 {
+			background: linear-gradient(160deg, #312e81, #4338ca, #818cf8);
+		}
+
+
+		/* ── RESPONSIVE ── */
+		@@media (max-width: 768px) {
+			.nav-links {
+				display: none;
+			}
+
+			.hero {
+				grid-template-columns: 1fr;
+			}
+
+			.hero-featured {
+				display: none;
+			}
+
+			.artist-grid {
+				grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+				gap: 1rem;
+			}
+
+			.player {
+				grid-template-columns: 1fr auto;
+			}
+
+			.player-right {
+				display: none;
+			}
+
+			.player-center {
+				max-width: 260px;
+			}
+		}
+
+		@@media (max-width: 480px) {
+			.artist-grid {
+				grid-template-columns: 1fr 1fr;
+			}
+
+			.search-input {
+				width: 160px;
+			}
+
+				.search-input:focus {
+					width: 160px;
+				}
+		}
+
+
+		/* ── ANIMATIONS ── */
+		@@keyframes fadeUp {
+			from {
+				opacity: 0;
+				transform: translateY(24px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.hero-content {
+			animation: fadeUp 0.65s ease both;
+		}
+
+		.hero-featured {
+			animation: fadeUp 0.65s 0.15s ease both;
+		}
+
+
+		/* Waveform animation on player */
+		.waveform {
+			display: flex;
+			align-items: center;
+			gap: 2px;
+			height: 16px;
+			margin-left: 6px;
+		}
+
+			.waveform span {
+				display: block;
+				width: 3px;
+				border-radius: 3px;
+				background: var(--accent-cyan);
+				animation: wave 1.2s ease-in-out infinite;
+			}
+
+				.waveform span:nth-child(1) {
+					height: 6px;
+					animation-delay: 0s;
+				}
+
+				.waveform span:nth-child(2) {
+					height: 14px;
+					animation-delay: 0.1s;
+				}
+
+				.waveform span:nth-child(3) {
+					height: 10px;
+					animation-delay: 0.2s;
+				}
+
+				.waveform span:nth-child(4) {
+					height: 16px;
+					animation-delay: 0.3s;
+				}
+
+				.waveform span:nth-child(5) {
+					height: 8px;
+					animation-delay: 0.4s;
+				}
+
+		@@keyframes wave {
+			0%, 100% {
+				transform: scaleY(1);
+			}
+
+			50% {
+				transform: scaleY(0.35);
+			}
+		}
+
+		.waveform.paused span {
+			animation-play-state: paused;
+		}
+	</style>
+</head>
+<body>
+
+
+	<!-- ── NAVBAR ── -->
+	<nav>
+		<a href="#" class="logo">
+			<div class="logo-icon"><i class="bi bi-soundwave"></i></div>
+			<span class="logo-text">SoundWave</span>
+		</a>
+		<ul class="nav-links">
+			<li><a href="#" class="active">Home</a></li>
+			<li><a href="#artists">Artists</a></li>
+			<li><a href="#">Trending</a></li>
+			<li><a href="#">Genres</a></li>
+			<li class="premium-link"><a href="#"><i class="bi bi-lightning-charge-fill"></i> Premium</a></li>
+		</ul>
+		<div class="nav-right">
+			<div class="search-wrap">
+				<i class="bi bi-search"></i>
+				<input class="search-input" type="text" id="searchInput" placeholder="Search artists, songs, albums...">
+			</div>
+			<div class="avatar" title="Your Profile">JD</div>
+		</div>
+	</nav>
+
+
+	<!-- ── HERO ── -->
+	<section class="hero">
+		<div class="hero-bg"></div>
+		<div class="hero-content">
+			<div class="hero-badge"><i class="bi bi-stars"></i> New Releases Available</div>
+			<h1 class="hero-title">Discover Your<br>Next <span>Favorite</span><br>Artist</h1>
+			<p class="hero-sub">Explore millions of songs and artists. Follow your favorites, discover new voices, and let the music move you.</p>
+			<div class="hero-cta">
+				<a href="#artists" class="btn-primary"><i class="bi bi-play-fill"></i> Start Exploring</a>
+				<a href="#" class="btn-ghost"><i class="bi bi-fire"></i> Trending Now</a>
+			</div>
+		</div>
+		<div class="hero-featured">
+			<div class="featured-card" onclick="playArtist('The Weeknd','Blinding Lights','🌙','grad-7')">
+				<div class="card-img-wrap" style="height:220px;">
+					<div class="card-img grad-7" style="height:100%;font-size:5rem;">🌙</div>
+				</div>
+				<div class="featured-body">
+					<div class="featured-tag">🔥 Featured Artist</div>
+					<div class="featured-name">The Weeknd</div>
+					<div class="featured-stats"><i class="bi bi-headphones"></i> 111.2M monthly listeners</div>
+					<div class="featured-actions">
+						<button class="btn-follow-sm">Follow</button>
+						<button class="btn-play-sm"><i class="bi bi-play-fill"></i></button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+
+	<!-- ── MAIN ── -->
+	<main>
+		<section id="artists">
+			<div class="section-header">
+				<h2 class="section-title">Popular Artists</h2>
+				<a href="#" class="see-all">See all <i class="bi bi-arrow-right"></i></a>
+			</div>
+
+
+			<!-- Filters -->
+			<div class="filters" id="filters">
+				<button class="chip active" data-filter="all">All</button>
+				<button class="chip" data-filter="pop">Pop</button>
+				<button class="chip" data-filter="r&b">R&amp;B</button>
+				<button class="chip" data-filter="rock">Rock</button>
+				<button class="chip" data-filter="hip-hop">Hip-Hop</button>
+				<button class="chip" data-filter="electronic">Electronic</button>
+				<button class="chip" data-filter="alternative">Alternative</button>
+			</div>
+
+
+			<!-- Artist Grid -->
+			<div class="artist-grid" id="artistGrid">
+				@foreach (var item in Model)
+				{
+					<div class="artist-card" data-genre="@item.Bio" data-name="@item.Name">
+						<div class="card-img-wrap">
+							<img src="@item.ImageUrl" class="card-img grad-7">
+							<div class="card-play-overlay">
+								<button class="play-circle" onclick="playArtist('The Weeknd','Blinding Lights','🌙','grad-7')"><i class="bi bi-play-fill"></i></button>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="card-name">@item.Name</div>
+							<div class="card-genre">@item.Bio</div>
+							<div class="card-footer">
+								<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
+								<button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
+							</div>
+						</div>
+					</div>
+				}
+				<!-- No results fallback -->
+				<div class="no-results" id="noResults">
+					<i class="bi bi-music-note-beamed"></i>
+					<p>No artists found. Try a different search or filter.</p>
+				</div>
+
+
+			</div>
+		</section>
+	</main>
+
+
+	<!-- ── PLAYER ── -->
+	<div class="player" id="player">
+		<!-- Left: Track Info -->
+		<div class="player-track">
+			<div class="player-cover" id="playerCover">🌙</div>
+			<div class="player-info">
+				<div class="player-song" id="playerSong">Blinding Lights</div>
+				<div class="player-artist" id="playerArtist">The Weeknd</div>
+			</div>
+			<button class="player-heart" id="heartBtn" onclick="toggleHeart(this)" title="Like"><i class="bi bi-heart"></i></button>
+			<div class="waveform" id="waveform">
+				<span></span><span></span><span></span><span></span><span></span>
+			</div>
+		</div>
+
+
+		<!-- Center: Controls + Progress -->
+		<div class="player-center">
+			<div class="player-controls">
+				<button class="ctrl-btn" title="Shuffle"><i class="bi bi-shuffle"></i></button>
+				<button class="ctrl-btn" title="Previous" onclick="prevTrack()"><i class="bi bi-skip-start-fill"></i></button>
+				<button class="ctrl-btn ctrl-play" id="playBtn" onclick="togglePlay()" title="Play/Pause"><i class="bi bi-play-fill" id="playIcon"></i></button>
+				<button class="ctrl-btn" title="Next" onclick="nextTrack()"><i class="bi bi-skip-end-fill"></i></button>
+				<button class="ctrl-btn" title="Repeat"><i class="bi bi-repeat"></i></button>
+			</div>
+			<div class="player-progress">
+				<span class="time-label" id="currentTime">1:24</span>
+				<div class="progress-bar-wrap" id="progressBar" onclick="seekTo(event)">
+					<div class="progress-fill" id="progressFill"></div>
+				</div>
+				<span class="time-label">4:02</span>
+			</div>
+		</div>
+
+
+		<!-- Right: Volume -->
+		<div class="player-right">
+			<button class="queue-btn" title="Queue"><i class="bi bi-collection"></i></button>
+			<button class="vol-btn" title="Volume"><i class="bi bi-volume-up-fill" id="volIcon"></i></button>
+			<div class="volume-bar-wrap" id="volumeBar" onclick="setVolume(event)">
+				<div class="volume-fill" id="volumeFill"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<script>
+		// ── STATE ──
+		let isPlaying = false;
+		let isLiked = false;
+		let progressInterval;
+		let progressVal = 35;
+		let volumeVal = 70;
+
+
+		const tracks = [
+		{ song:'Blinding Lights', artist:'The Weeknd', emoji:'🌙', grad:'grad-7' },
+		{ song:'Levitating', artist:'Dua Lipa', emoji:'💫', grad:'grad-2' },
+		{ song:'Anti-Hero', artist:'Taylor Swift', emoji:'🌟', grad:'grad-3' },
+		{ song:'Bad Guy', artist:'Billie Eilish', emoji:'🖤', grad:'grad-5' },
+		{ song:'Shape of You', artist:'Ed Sheeran', emoji:'🎸', grad:'grad-9' },
+		];
+		let trackIdx = 0;
+
+
+		// ── PLAY / PAUSE ──
+		function togglePlay() {
+		isPlaying = !isPlaying;
+		const icon = document.getElementById('playIcon');
+		const waveform = document.getElementById('waveform');
+		if (isPlaying) {
+		icon.className = 'bi bi-pause-fill';
+		waveform.classList.remove('paused');
+		startProgress();
+		} else {
+		icon.className = 'bi bi-play-fill';
+		waveform.classList.add('paused');
+		clearInterval(progressInterval);
+		}
+		}
+
+
+		function startProgress() {
+		clearInterval(progressInterval);
+		progressInterval = setInterval(() => {
+		progressVal += 0.1;
+		if (progressVal >= 100) { progressVal = 0; nextTrack(); }
+		document.getElementById('progressFill').style.width = progressVal + '%';
+		const totalSec = 242;
+		const cur = Math.floor(totalSec * progressVal / 100);
+		document.getElementById('currentTime').textContent =
+		Math.floor(cur/60) + ':' + String(cur%60).padStart(2,'0');
+		}, 300);
+		}
+
+
+		// ── SEEK ──
+		function seekTo(e) {
+		const bar = document.getElementById('progressBar');
+		const rect = bar.getBoundingClientRect();
+		progressVal = ((e.clientX - rect.left) / rect.width) * 100;
+		document.getElementById('progressFill').style.width = progressVal + '%';
+		}
+
+
+		// ── VOLUME ──
+		function setVolume(e) {
+		const bar = document.getElementById('volumeBar');
+		const rect = bar.getBoundingClientRect();
+		volumeVal = ((e.clientX - rect.left) / rect.width) * 100;
+		volumeVal = Math.min(100, Math.max(0, volumeVal));
+		document.getElementById('volumeFill').style.width = volumeVal + '%';
+		const volIcon = document.getElementById('volIcon');
+		if (volumeVal === 0) volIcon.className = 'bi bi-volume-mute-fill';
+		else if (volumeVal < 50) volIcon.className = 'bi bi-volume-down-fill';
+		else volIcon.className = 'bi bi-volume-up-fill';
+		}
+
+
+		// ── PREV / NEXT ──
+		function nextTrack() {
+		trackIdx = (trackIdx + 1) % tracks.length;
+		loadTrack(trackIdx);
+		}
+		function prevTrack() {
+		trackIdx = (trackIdx - 1 + tracks.length) % tracks.length;
+		loadTrack(trackIdx);
+		}
+		function loadTrack(idx) {
+		const t = tracks[idx];
+		updatePlayer(t.artist, t.song, t.emoji, t.grad);
+		progressVal = 0;
+		}
+
+
+		// ── UPDATE PLAYER ──
+		function updatePlayer(artist, song, emoji, grad) {
+		document.getElementById('playerSong').textContent = song;
+		document.getElementById('playerArtist').textContent = artist;
+		const cover = document.getElementById('playerCover');
+		cover.textContent = emoji;
+		cover.className = 'player-cover ' + grad;
+		progressVal = 0;
+		document.getElementById('progressFill').style.width = '0%';
+		document.getElementById('currentTime').textContent = '0:00';
+		if (!isPlaying) { isPlaying = true; togglePlay(); }
+		else { clearInterval(progressInterval); startProgress(); }
+		}
+
+
+		// ── PLAY FROM ARTIST CARD ──
+		function playArtist(artist, song, emoji, grad) {
+		updatePlayer(artist, song, emoji, grad);
+		// scroll to player hint
+		}
+
+
+		// ── HEART ──
+		function toggleHeart(btn) {
+		isLiked = !isLiked;
+		btn.classList.toggle('liked');
+		btn.innerHTML = isLiked ? '<i class="bi bi-heart-fill"></i>' : '<i class="bi bi-heart"></i>';
+		}
+
+
+		// ── FOLLOW ──
+		function toggleFollow(btn) {
+		const following = btn.classList.toggle('following');
+		btn.textContent = following ? '✓ Following' : 'Follow';
+		}
+
+
+		// ── FILTERS ──
+		document.getElementById('filters').addEventListener('click', e => {
+		const chip = e.target.closest('.chip');
+		if (!chip) return;
+		document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+		chip.classList.add('active');
+		filterCards(chip.dataset.filter, document.getElementById('searchInput').value);
+		});
+
+
+		// ── SEARCH ──
+		document.getElementById('searchInput').addEventListener('input', e => {
+		const activeFilter = document.querySelector('.chip.active').dataset.filter;
+		filterCards(activeFilter, e.target.value);
+		});
+
+
+		function filterCards(genre, query) {
+		const cards = document.querySelectorAll('.artist-card');
+		const q = query.trim().toLowerCase();
+		let visible = 0;
+		cards.forEach(card => {
+		const nameMatch = card.dataset.name.toLowerCase().includes(q);
+		const genreMatch = genre === 'all' || card.dataset.genre === genre;
+		const show = nameMatch && genreMatch;
+		card.style.display = show ? '' : 'none';
+		if (show) visible++;
+		});
+		document.getElementById('noResults').style.display = visible === 0 ? 'flex' : 'none';
+		}
+
+
+		// ── INIT: start waveform paused ──
+		document.getElementById('waveform').classList.add('paused');
+	</script>
+</body>
+</html>
+
+
+
+

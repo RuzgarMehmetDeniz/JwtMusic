@@ -14,7 +14,7 @@ builder.Services.AddDbContext<JwtContext>();
 builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IArtistService, ArtistService>();
-builder.Services.AddScoped<IMapper, Mapper>();
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
