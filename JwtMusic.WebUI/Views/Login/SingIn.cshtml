@@ -2,4 +2,691 @@
 @{
     Layout = null;
 }
+@{
+    Layout = null;
+    ViewData["Title"] = "Sign In – SoundWave";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-base:       #06060f;
+            --bg-panel:      #0a0a18;
+            --glass-bg:      rgba(14, 14, 28, 0.8);
+            --glass-border:  rgba(255, 255, 255, 0.07);
+            --accent-lime:   #c8ff57;
+            --accent-cyan:   #00e5ff;
+            --accent-violet: #7c3aed;
+            --accent-pink:   #f72585;
+            --text-primary:  #f0f0ff;
+            --text-secondary:#8888aa;
+            --text-muted:    #44445a;
+            --input-bg:      rgba(255,255,255,0.04);
+            --input-border:  rgba(255,255,255,0.08);
+            --radius-card:   24px;
+            --radius-input:  14px;
+            --radius-pill:   50px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100%;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* ── PAGE LAYOUT ── */
+        .login-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* ─────────────────────────
+           LEFT — VISUAL PANEL
+        ───────────────────────── */
+        .visual-panel {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: clamp(2.5rem, 6vw, 4.5rem) clamp(2rem, 5vw, 4rem);
+            background: var(--bg-panel);
+        }
+
+        .vp-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 20% 20%, rgba(0,229,255,0.18) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 70% at 80% 60%, rgba(124,58,237,0.28) 0%, transparent 55%),
+                radial-gradient(ellipse 40% 40% at 50% 90%, rgba(247,37,133,0.12) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .vp-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: .45;
+            pointer-events: none;
+        }
+
+        /* Logo */
+        .vp-logo {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .vp-logo-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: #fff;
+            box-shadow: 0 0 24px rgba(0,229,255,0.35);
+            flex-shrink: 0;
+        }
+        .vp-logo-text {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Center vinyl / disc art */
+        .vp-center {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .vinyl-wrap {
+            position: relative;
+            width: 230px; height: 230px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* outer ring glow */
+        .vinyl-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -18px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                rgba(0,229,255,0.25),
+                rgba(124,58,237,0.25),
+                rgba(247,37,133,0.2),
+                rgba(0,229,255,0.25)
+            );
+            animation: spin 8s linear infinite;
+            filter: blur(12px);
+        }
+
+        .vinyl {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background:
+                repeating-radial-gradient(
+                    circle at center,
+                    #111128 0px,
+                    #111128 4px,
+                    #1a1a35 5px,
+                    #1a1a35 9px
+                );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            animation: spin 12s linear infinite;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 20px 60px rgba(0,0,0,0.6);
+        }
+        .vinyl-center {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e0040, #7c3aed, #00e5ff);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 0 24px rgba(0,229,255,0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        @@keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        .vp-tagline {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 0.9rem;
+        }
+        .vp-tagline .g-cyan {
+            background: linear-gradient(135deg, var(--accent-cyan), #00b4cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .vp-tagline .g-lime {
+            background: linear-gradient(135deg, var(--accent-lime), #a3e635);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .vp-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 340px;
+        }
+
+        /* Bottom now-playing strip */
+        .np-strip {
+            position: relative;
+            z-index: 2;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            backdrop-filter: blur(20px);
+            border-radius: 18px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .np-cover {
+            width: 46px; height: 46px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4a1d96, #7c3aed, #c026d3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(124,58,237,0.4);
+        }
+        .np-meta { flex: 1; min-width: 0; }
+        .np-song   { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .np-artist { font-size: 0.72rem; color: var(--text-secondary); }
+        .np-wave {
+            display: flex; align-items: center; gap: 2px;
+        }
+        .np-wave span {
+            display: block; width: 3px; border-radius: 3px;
+            background: var(--accent-cyan);
+            animation: barWave 1.4s ease-in-out infinite;
+        }
+        .np-wave span:nth-child(1) { height: 8px;  animation-delay: 0s; }
+        .np-wave span:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+        .np-wave span:nth-child(3) { height: 10px; animation-delay: 0.2s; }
+        .np-wave span:nth-child(4) { height: 16px; animation-delay: 0.3s; }
+        .np-wave span:nth-child(5) { height: 7px;  animation-delay: 0.4s; }
+
+        @@keyframes barWave {
+            0%, 100% { transform: scaleY(1); }
+            50%       { transform: scaleY(0.25); }
+        }
+
+        /* ─────────────────────────
+           RIGHT — FORM PANEL
+        ───────────────────────── */
+        .form-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 3rem);
+            background: var(--bg-base);
+            overflow-y: auto;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-card);
+            padding: clamp(2rem, 5vw, 2.75rem);
+            backdrop-filter: blur(40px);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.04),
+                0 30px 80px rgba(0,0,0,0.6),
+                0 0 60px rgba(0,229,255,0.06);
+            position: relative;
+            overflow: hidden;
+            animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @@keyframes cardIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* top glow line — cyan this time */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 8%; right: 8%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-lime), transparent);
+        }
+
+        /* ── Card header ── */
+        .card-head { text-align: center; margin-bottom: 2.25rem; }
+        .card-icon-wrap {
+            display: inline-flex;
+            align-items: center; justify-content: center;
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(124,58,237,0.25));
+            border: 1px solid rgba(0,229,255,0.25);
+            border-radius: 16px;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 28px rgba(0,229,255,0.18);
+        }
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 0.35rem;
+        }
+        .card-subtitle { font-size: 0.85rem; color: var(--text-secondary); font-weight: 300; }
+
+        /* ── Input groups ── */
+        .input-group-sw {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .input-icon {
+            position: absolute;
+            left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            pointer-events: none;
+            transition: color 0.25s;
+            z-index: 2;
+        }
+        .input-group-sw:focus-within .input-icon { color: var(--accent-cyan); }
+
+        .sw-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-input);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            padding: 0.85rem 1rem 0.85rem 2.6rem;
+            outline: none;
+            transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+        }
+        .sw-input::placeholder { color: var(--text-muted); }
+        .sw-input:focus {
+            border-color: rgba(0,229,255,0.45);
+            background: rgba(0,229,255,0.04);
+            box-shadow: 0 0 0 3px rgba(0,229,255,0.09), 0 4px 16px rgba(0,0,0,0.2);
+        }
+        .sw-input.has-toggle { padding-right: 2.8rem; }
+
+        /* validation error state */
+        .input-group-sw.is-invalid .sw-input {
+            border-color: rgba(247,37,133,0.5);
+        }
+        .field-error {
+            font-size: 0.72rem;
+            color: var(--accent-pink);
+            padding-left: 4px;
+            margin-top: 5px;
+            display: none;
+        }
+        .input-group-sw.is-invalid .field-error { display: block; }
+
+        /* eye toggle */
+        .pw-toggle {
+            position: absolute;
+            right: 12px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: color 0.2s;
+            z-index: 2;
+        }
+        .pw-toggle:hover { color: var(--text-secondary); }
+
+        /* ── Remember / Forgot row ── */
+        .extras-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .remember-wrap { display: flex; align-items: center; gap: 8px; }
+        .sw-checkbox {
+            width: 17px; height: 17px;
+            border: 1.5px solid var(--input-border);
+            border-radius: 5px;
+            background: var(--input-bg);
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .sw-checkbox:checked {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            border-color: transparent;
+        }
+        .sw-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 3px; top: 1px;
+            width: 6px; height: 9px;
+            border: 2px solid #fff;
+            border-top: none; border-left: none;
+            transform: rotate(40deg);
+        }
+        .remember-label { font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; }
+        .forgot-link {
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        .forgot-link:hover { opacity: 0.7; text-decoration: underline; }
+
+        /* ── Submit ── */
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 55%, var(--accent-pink) 100%);
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s;
+            box-shadow: 0 6px 24px rgba(0,229,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(0,229,255,0.38);
+        }
+        .btn-login:active { transform: translateY(0); }
+        .btn-arrow { transition: transform 0.25s; }
+        .btn-login:hover .btn-arrow { transform: translateX(3px); }
+
+        /* ── Divider ── */
+        .divider {
+            display: flex; align-items: center; gap: 1rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-muted); font-size: 0.75rem;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1;
+            height: 1px; background: var(--input-border);
+        }
+
+        /* ── Register link ── */
+        .register-link {
+            text-align: center;
+            font-size: 0.83rem;
+            color: var(--text-secondary);
+        }
+        .register-link a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        .register-link a:hover { opacity: 0.75; text-decoration: underline; }
+
+        /* ── ASP.NET Validation Summary ── */
+        .validation-summary-errors {
+            background: rgba(247,37,133,0.08);
+            border: 1px solid rgba(247,37,133,0.25);
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            color: var(--accent-pink);
+        }
+        .validation-summary-errors ul { margin: 0; padding-left: 1.1rem; }
+        .validation-summary-valid { display: none; }
+        .field-validation-error { font-size: 0.72rem; color: var(--accent-pink); }
+
+        /* ── RESPONSIVE ── */
+        @@media (max-width: 860px) {
+            .login-page { grid-template-columns: 1fr; }
+            .visual-panel { display: none; }
+            .form-panel { min-height: 100vh; background: var(--bg-panel); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-page">
+
+        <!-- ══════════════════════════════
+             LEFT  —  VISUAL PANEL
+        ══════════════════════════════ -->
+        <aside class="visual-panel">
+            <div class="vp-bg"></div>
+
+            <!-- Logo -->
+            <a href="#" class="vp-logo">
+                <div class="vp-logo-icon"><i class="bi bi-soundwave"></i></div>
+                <span class="vp-logo-text">SoundWave</span>
+            </a>
+
+            <!-- Vinyl + copy -->
+            <div class="vp-center">
+                <div class="vinyl-wrap">
+                    <div class="vinyl">
+                        <div class="vinyl-center">🎵</div>
+                    </div>
+                </div>
+                <h2 class="vp-tagline">
+                    Your Music,<br>
+                    <span class="g-cyan">Your Mood,</span><br>
+                    <span class="g-lime">Everywhere.</span>
+                </h2>
+                <p class="vp-desc">
+                    Sign in and pick up right where you left off —
+                    playlists, favorites, and everything you love.
+                </p>
+            </div>
+
+            <!-- Now Playing strip -->
+            <div class="np-strip">
+                <div class="np-cover">🌙</div>
+                <div class="np-meta">
+                    <div class="np-song">Blinding Lights</div>
+                    <div class="np-artist">The Weeknd</div>
+                </div>
+                <div class="np-wave">
+                    <span></span><span></span><span></span><span></span><span></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ══════════════════════════════
+             RIGHT  —  LOGIN FORM
+        ══════════════════════════════ -->
+        <section class="form-panel">
+            <div class="login-card">
+
+                <div class="card-head">
+                    <div class="card-icon-wrap">🔑</div>
+                    <h1 class="card-title">Welcome Back</h1>
+                    <p class="card-subtitle">Sign in to continue listening.</p>
+                </div>
+
+                <!-- ASP.NET Validation Summary -->
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                <form method="post" id="loginForm" novalidate>
+
+                    @Html.AntiForgeryToken()
+
+                    <!-- Username -->
+                    <div class="input-group-sw" id="grp-username">
+                        <i class="bi bi-at input-icon"></i>
+                        <input asp-for="UserName"
+                               class="sw-input"
+                               type="text"
+                               name="UserName"
+                               id="UserName"
+                               placeholder="Username"
+                               autocomplete="username" />
+                        <span asp-validation-for="UserName" class="field-validation-error field-error"></span>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group-sw" id="grp-password">
+                        <i class="bi bi-lock input-icon"></i>
+                        <input asp-for="Password"
+                               class="sw-input has-toggle"
+                               type="password"
+                               name="Password"
+                               id="Password"
+                               placeholder="Password"
+                               autocomplete="current-password" />
+                        <button type="button" class="pw-toggle" onclick="togglePassword()" title="Show / Hide">
+                            <i class="bi bi-eye" id="pwEyeIcon"></i>
+                        </button>
+                        <span asp-validation-for="Password" class="field-validation-error field-error"></span>
+                    </div>
+
+                    <!-- Remember me + Forgot -->
+                    <div class="extras-row">
+                        <label class="remember-wrap">
+                            <input type="checkbox" class="sw-checkbox" name="RememberMe" id="rememberMe" />
+                            <span class="remember-label">Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-login">
+                        <i class="bi bi-headphones"></i>
+                        Sign In
+                        <i class="bi bi-arrow-right btn-arrow"></i>
+                    </button>
+
+                    <div class="divider">or</div>
+
+                    <p class="register-link">
+                        Don't have an account?
+                        <a asp-action="Register" asp-controller="Login">Create one free</a>
+                    </p>
+
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        /* ── PASSWORD TOGGLE ── */
+        function togglePassword() {
+            const pw   = document.getElementById('Password');
+            const icon = document.getElementById('pwEyeIcon');
+            if (pw.type === 'password') {
+                pw.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                pw.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+
+        /* ── CLIENT-SIDE VALIDATION ── */
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            let valid = true;
+
+            const fields = [
+                { id: 'UserName', grp: 'grp-username', msg: 'Username is required.' },
+                { id: 'Password', grp: 'grp-password', msg: 'Password is required.' },
+            ];
+
+            fields.forEach(f => {
+                const el  = document.getElementById(f.id);
+                const grp = document.getElementById(f.grp);
+                const err = grp.querySelector('.field-error, .field-validation-error');
+                if (!el.value.trim()) {
+                    grp.classList.add('is-invalid');
+                    if (err && !err.textContent.trim()) err.textContent = f.msg;
+                    if (err) err.style.display = 'block';
+                    valid = false;
+                } else {
+                    grp.classList.remove('is-invalid');
+                    if (err) err.style.display = 'none';
+                }
+            });
+
+            if (!valid) e.preventDefault();
+        });
+
+        /* ── CLEAR ERROR ON INPUT ── */
+        document.querySelectorAll('.sw-input').forEach(input => {
+            input.addEventListener('input', () => {
+                const grp = input.closest('.input-group-sw');
+                if (!grp) return;
+                grp.classList.remove('is-invalid');
+                const err = grp.querySelector('.field-error, .field-validation-error');
+                if (err) err.style.display = 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>
+
 
