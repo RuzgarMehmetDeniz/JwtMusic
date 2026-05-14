@@ -4,7 +4,6 @@ namespace JwtMusic.WebUI.Controllers
 {
     public class ErrorController : Controller
     {
-
         public IActionResult Forbidden403()
         {
             return View();
