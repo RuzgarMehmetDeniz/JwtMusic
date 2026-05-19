@@ -1,5 +1,6 @@
 ﻿using JwtMusic.WebApi.Dtos;
 using JwtMusic.WebApi.Services.ArtistServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ namespace JwtMusic.WebApi.Controllers
             _artistService = artistService;
         }
         [HttpGet]
+        [Authorize(Roles = "Premium")]
         public async Task<IActionResult> ArtistList()
         {
             var values = await _artistService.GetAllArtistsAsync();
