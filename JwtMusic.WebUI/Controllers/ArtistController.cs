@@ -10,6 +10,7 @@ namespace JwtMusic.WebUI.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly HttpClient _httpClient;
+
         public ArtistController(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
         {
             _httpClientFactory = httpClientFactory;
