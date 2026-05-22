@@ -19,7 +19,6 @@ namespace JwtMusic.WebUI.Controllers
             _httpClient = httpClient;
         }
 
-
         public async Task<IActionResult> ArtistList()
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("JwtToken");
