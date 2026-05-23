@@ -14,24 +14,42 @@ namespace JwtMusic.WebUI.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        public IActionResult SingIn()
+        [HttpGet]
+        public IActionResult SignIn()
         {
-            return View();
+            // Dosya adın SingIn olduğu için view adını açıkça belirttik
+            return View("SingIn");
         }
+
         [HttpPost]
-        public async Task<IActionResult> SingIn(LoginDto loginDto)
+        public async Task<IActionResult> SignIn(LoginDto loginDto)
         {
             var client = _httpClientFactory.CreateClient();
-            var JsonData = JsonConvert.SerializeObject(loginDto);
-            StringContent stringContent = new StringContent(JsonData, Encoding.UTF8, "application/json");
+            var jsonData = JsonConvert.SerializeObject(loginDto);
+            StringContent stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
             var responseMessage = await client.PostAsync("https://localhost:7185/api/Login", stringContent);
 
-            var responseJson = await responseMessage.Content.ReadAsStringAsync();
-            var tokenResponse = JsonConvert.DeserializeObject<ResponseTokenDto>(responseJson);
-            string token = tokenResponse.Token;
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var responseJson = await responseMessage.Content.ReadAsStringAsync();
+                var tokenResponse = JsonConvert.DeserializeObject<ResponseTokenDto>(responseJson);
+                string token = tokenResponse?.Token;
 
-            HttpContext.Session.SetString("JwtToken", token);
-            return View();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    HttpContext.Session.SetString("JwtToken", token);
+                    return RedirectToAction("ArtistList", "Artist");
+                }
+            }
+
+            ViewBag.ErrorMessage = "Kullanıcı adı veya şifre hatalı!";
+            return View("SingIn"); // Hata durumunda yine senin sayfana döner
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return Content("Bu sayfayı görmek için Premium üye olmalısınız.");
         }
     }
 }

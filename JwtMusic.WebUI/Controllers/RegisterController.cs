@@ -13,26 +13,31 @@ namespace JwtMusic.WebUI.Controllers
         {
             _httpClientFactory = httpClientFactory;
         }
+
         [HttpGet]
-        public async Task<IActionResult > SignUp()
+        public IActionResult SignUp() // async ihtiyacı olmadığı için kaldırıldı
         {
             return View();
         }
+
         [HttpPost]
-        public async Task<IActionResult > SignUp(RegisterDto registerDto)
+        public async Task<IActionResult> SignUp(RegisterDto registerDto)
         {
             var client = _httpClientFactory.CreateClient();
             var json = JsonSerializer.Serialize(registerDto);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
+
             var response = await client.PostAsync("https://localhost:7185/api/Register", content);
+
             if (response.IsSuccessStatusCode)
             {
+                // Kayıt sonrası senin giriş sayfana yönlendirir
                 return RedirectToAction("SignIn", "Login");
             }
-            else
-            {
-                return View();
-            }
+
+            // Kayıt başarısızsa ekranda bir hata göstermek istersen kullanılabilir
+            ViewBag.ErrorMessage = "Kayıt işlemi başarısız. Lütfen bilgilerinizi kontrol edin.";
+            return View();
         }
     }
 }
