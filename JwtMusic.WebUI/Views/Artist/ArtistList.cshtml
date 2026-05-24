@@ -7,10 +7,13 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>SoundWave – Discover Your Next Favorite Artist</title>
+	<title>SoundWave – Bir Sonraki Favori Sanatçınızı Keşfedin</title>
 	<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 	<style>
+		.artist-card.hide {
+			display: none !important;
+		}
 		:root {
 			--bg-base: #080810;
 			--bg-surface: #0f0f1a;
@@ -1132,16 +1135,15 @@
 			<span class="logo-text">SoundWave</span>
 		</a>
 		<ul class="nav-links">
-			<li><a href="#" class="active">Home</a></li>
-			<li><a href="#artists">Artists</a></li>
-			<li><a href="#">Trending</a></li>
-			<li><a href="#">Genres</a></li>
+			<li><a href="#artists">Sanatçılar</a></li>
+			<li><a href="#">Şarkılar</a></li>
+			<li><a href="#">Türler</a></li>
 			<li class="premium-link"><a href="#"><i class="bi bi-lightning-charge-fill"></i> Premium</a></li>
 		</ul>
 		<div class="nav-right">
 			<div class="search-wrap">
 				<i class="bi bi-search"></i>
-				<input class="search-input" type="text" id="searchInput" placeholder="Search artists, songs, albums...">
+				<input class="search-input" type="text" id="searchInput" placeholder="Sanatçıları, şarkıları, albümleri ara...">
 			</div>
 			<div class="avatar" title="Your Profile">JD</div>
 		</div>
@@ -1152,30 +1154,33 @@
 	<section class="hero">
 		<div class="hero-bg"></div>
 		<div class="hero-content">
-			<div class="hero-badge"><i class="bi bi-stars"></i> New Releases Available</div>
-			<h1 class="hero-title">Discover Your<br>Next <span>Favorite</span><br>Artist</h1>
-			<p class="hero-sub">Explore millions of songs and artists. Follow your favorites, discover new voices, and let the music move you.</p>
+			<div class="hero-badge"><i class="bi bi-stars"></i> Yeni Şarkılar Mevcut</div>
+			<h1 class="hero-title">Yeni <br>Favori <span>Sanatçınızı </span><br>Keşfedin</h1>
+			<p class="hero-sub">Milyonlarca şarkı ve sanatçıyı keşfedin. Favorilerinizi takip edin, yeni sesler keşfedin ve müziğin sizi harekete geçirmesine izin verin.</p>
 			<div class="hero-cta">
-				<a href="#artists" class="btn-primary"><i class="bi bi-play-fill"></i> Start Exploring</a>
-				<a href="#" class="btn-ghost"><i class="bi bi-fire"></i> Trending Now</a>
+				<a href="#artists" class="btn-primary"><i class="bi bi-play-fill"></i>Keşfetmeye Başlayın</a>
+				<a href="#" class="btn-ghost"><i class="bi bi-fire"></i> Şuanda Trend Olan </a>
 			</div>
 		</div>
-		<div class="hero-featured">
-			<div class="featured-card" onclick="playArtist('The Weeknd','Blinding Lights','🌙','grad-7')">
-				<div class="card-img-wrap" style="height:220px;">
-					<div class="card-img grad-7" style="height:100%;font-size:5rem;">🌙</div>
+		@foreach (var item in Model.Take(1))
+		{
+			<div class="artist-card" data-genre="@item.Bio" data-name="@item.Name">
+				<div class="card-img-wrap">
+					<img src="@item.ImageUrl" class="card-img grad-7">
+					<div class="card-play-overlay">
+						<button class="play-circle" onclick="playArtist('The Weeknd','Blinding Lights','🌙','grad-7')"><i class="bi bi-play-fill"></i></button>
+					</div>
 				</div>
-				<div class="featured-body">
-					<div class="featured-tag">🔥 Featured Artist</div>
-					<div class="featured-name">The Weeknd</div>
-					<div class="featured-stats"><i class="bi bi-headphones"></i> 111.2M monthly listeners</div>
-					<div class="featured-actions">
-						<button class="btn-follow-sm">Follow</button>
-						<button class="btn-play-sm"><i class="bi bi-play-fill"></i></button>
+				<div class="card-body">
+					<div class="card-name">@item.Name</div>
+					<div class="card-genre">@item.Bio</div>
+					<div class="card-footer">
+						<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
+						<button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
 					</div>
 				</div>
 			</div>
-		</div>
+		}
 	</section>
 
 
@@ -1183,49 +1188,71 @@
 	<main>
 		<section id="artists">
 			<div class="section-header">
-				<h2 class="section-title">Popular Artists</h2>
-				<a href="#" class="see-all">See all <i class="bi bi-arrow-right"></i></a>
+				<h2 class="section-title">Popüler Sanatçılar</h2>
+				<a href="#" class="see-all">Tümünü gör <i class="bi bi-arrow-right"></i></a>
 			</div>
-			<!-- Filters -->
+
 			<div class="filters" id="filters">
-				<button class="chip active" data-filter="all">All</button>
+				<button class="chip active" data-filter="all">Hepsi</button>
 				<button class="chip" data-filter="pop">Pop</button>
-				<button class="chip" data-filter="r&b">R&amp;B</button>
+				<button class="chip" data-filter="r&b">R&B</button>
 				<button class="chip" data-filter="rock">Rock</button>
 				<button class="chip" data-filter="hip-hop">Hip-Hop</button>
-				<button class="chip" data-filter="electronic">Electronic</button>
-				<button class="chip" data-filter="alternative">Alternative</button>
+				<button class="chip" data-filter="electronic">Elektronik</button>
+				<button class="chip" data-filter="alternative">Alternatif</button>
 			</div>
 
-
-			<!-- Artist Grid -->
 			<div class="artist-grid" id="artistGrid">
-				@foreach (var item in Model)
+				@if (Model != null && Model.Any())
 				{
-					<div class="artist-card" data-genre="@item.Bio" data-name="@item.Name">
-						<div class="card-img-wrap">
-							<img src="@item.ImageUrl" class="card-img grad-7">
-							<div class="card-play-overlay">
-								<button class="play-circle" onclick="playArtist('The Weeknd','Blinding Lights','🌙','grad-7')"><i class="bi bi-play-fill"></i></button>
+					@foreach (var item in Model)
+					{
+						// C# tarafında arama terimlerini tamamen küçük harf ve harf-rakam dışı karaktersiz hale getiriyoruz
+						var rawBio = item.Bio ?? "";
+						var cleanGenre = rawBio.ToString().ToLower()
+						.Replace(" ", "")
+						.Replace("-", "")
+						.Replace("&", "")
+						.Replace("ı", "i")
+						.Replace("ğ", "g")
+						.Replace("ü", "u")
+						.Replace("ş", "s")
+						.Replace("ö", "o")
+						.Replace("ç", "c");
+
+						// CSS'teki ezme probleminden kaçınmak için inline "display" stilini sildik, sadece .hide sınıfını kullanacağız
+						<div class="artist-card" data-genre="@cleanGenre">
+							<div class="card-img-wrap">
+								<img src="@item.ImageUrl" class="card-img grad-7">
+								<div class="card-play-overlay">
+									<button class="play-circle" onclick="playArtist('@item.Name', '', '🌙', 'grad-7')">
+										<i class="bi bi-play-fill"></i>
+									</button>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="card-name">@item.Name</div>
+								<div class="card-genre">@item.Bio</div>
+								<div class="card-footer">
+									<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
+									<button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
+								</div>
 							</div>
 						</div>
-						<div class="card-body">
-							<div class="card-name">@item.Name</div>
-							<div class="card-genre">@item.Bio</div>
-							<div class="card-footer">
-								<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
-								<button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
-							</div>
-						</div>
+					}
+				}
+				else
+				{
+					<div style="width: 100%; text-align: center; padding: 40px 0; color: var(--text-secondary); grid-column: 1 / -1;">
+						<i class="bi bi-exclamation-circle" style="font-size: 3rem; display: block; margin-bottom: 10px;"></i>
+						<p>Veritabanından hiçbir sanatçı verisi yüklenemedi (Model Boş).</p>
 					</div>
 				}
-				<!-- No results fallback -->
-				<div class="no-results" id="noResults">
+
+				<div id="noResults" class="no-results">
 					<i class="bi bi-music-note-beamed"></i>
-					<p>No artists found. Try a different search or filter.</p>
+					<p>Hiç sanatçı bulunamadı. Farklı bir arama veya filtre deneyin.</p>
 				</div>
-
-
 			</div>
 		</section>
 	</main>
@@ -1440,7 +1467,56 @@
 	</script>
 </body>
 </html>
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const filterButtons = document.querySelectorAll(".chip");
+		const artistCards = document.querySelectorAll(".artist-card");
+		const noResults = document.getElementById("noResults");
 
+		// Sayfa ilk yüklendiğinde uyarının görünmesini engellemek için CSS sınıflarını temiz tutuyoruz
+		if (noResults) noResults.style.display = "none";
 
+		filterButtons.forEach(button => {
+			button.addEventListener("click", function () {
+				// 1. Aktif buton tasarımını güncelle
+				filterButtons.forEach(btn => btn.classList.remove("active"));
+				this.classList.add("active");
 
+				// 2. Filtre ismini normalize et (Örn: "hip-hop" -> "hiphop")
+				const selectedFilter = this.getAttribute("data-filter")
+										   .toLowerCase()
+										   .replace("-", "")
+										   .replace("&", "")
+										   .replace(" ", "")
+										   .trim();
 
+				let visibleCount = 0;
+
+				// 3. Kartları tara ve .hide sınıfını ekle/çıkar
+				artistCards.forEach(card => {
+					const artistGenres = card.getAttribute("data-genre") || "";
+
+					if (selectedFilter === "all") {
+						card.classList.remove("hide");
+						visibleCount++;
+					} else {
+						// Eğer kartın temizlenmiş tür bilgisinde butonun temizlenmiş filtresi geçiyorsa göster
+						if (artistGenres.includes(selectedFilter)) {
+							card.classList.remove("hide");
+							visibleCount++;
+						} else {
+							card.classList.add("hide");
+						}
+					}
+				});
+
+				// 4. CSS yapınızdaki display: none / display: grid kurallarına göre uyarıyı tetikle
+				if (visibleCount === 0) {
+					if (noResults) noResults.style.display = "block";
+				} else {
+					if (noResults) noResults.style.display = "none";
+				}
+			});
+		});
+	});
+</script>

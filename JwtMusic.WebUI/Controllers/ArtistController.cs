@@ -22,11 +22,7 @@ namespace JwtMusic.WebUI.Controllers
             var token = _httpContextAccessor.HttpContext?.Session.GetString("JwtToken")?.Trim().Replace("\"", "");
 
             var client = _httpClientFactory.CreateClient();
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.GetAsync("https://localhost:7185/api/Artist");
 
             if (response.IsSuccessStatusCode)
