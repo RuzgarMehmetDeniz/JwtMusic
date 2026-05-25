@@ -15,6 +15,7 @@
         public bool IsVerified { get; set; }
 
         public DateTime CreatedDate { get; set; }
+        public string RequiredRole { get; set; }
 
         // Relational Property
         public List<Song> Songs { get; set; }

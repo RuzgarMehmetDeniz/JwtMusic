@@ -26,30 +26,24 @@ namespace JwtMusic.WebApi.Services.ArtistServices
 
         public async Task<List<ResultArtistDto>> GetAllArtistsAsync()
         {
-           var values = await _context.Artists.ToListAsync();
-            return _mapper.Map<List<ResultArtistDto>>(values);
-        }
-        public async Task<GetArtistWithMusicsDto> GetArtistByIdAsync(int id)
-        {
-            var artist = await _context.Artists
-                .Where(x => x.ArtistId == id)
-                .Select(x => new GetArtistWithMusicsDto
-                {
-                    ArtistId = x.ArtistId,
-                    Name = x.Name,
-                    ImageUrl = x.ImageUrl,
-                    // Eğer sanatçının şarkılarını da detayda listelemek istersen:
-                    Songs = x.Songs.Select(s => new ResultMusicDto
+            var values = await _context.Artists
+                .Join(_context.Roles,
+                    artist => artist.RequiredRole,
+                    role => role.Id,
+                    (artist, role) => new ResultArtistDto
                     {
-                        MusicId = s.SongId,
-                        Title = s.Title,
-                        FilePath = s.AudioUrl,
-                        RequiredRole = s.IsPremium ? "Premium" : "Basic"
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
+                        ArtistId = artist.ArtistId,
+                        Name = artist.Name,
+                        ImageUrl = artist.ImageUrl,
+                        Bio = artist.Bio,
+                        MonthlyListeners = artist.MonthlyListeners,
+                        IsVerified = artist.IsVerified,
+                        RequiredRoleId = artist.RequiredRole,
+                        RequiredRoleName = role.Name
+                    })
+                .ToListAsync();
 
-            return artist;
+            return values;
         }
     }
 }

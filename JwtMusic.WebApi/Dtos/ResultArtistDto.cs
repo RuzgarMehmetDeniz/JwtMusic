@@ -15,6 +15,8 @@ namespace JwtMusic.WebApi.Dtos
         public long MonthlyListeners { get; set; }
 
         public bool IsVerified { get; set; }
+        public string RequiredRoleId { get; set; }
+        public string RequiredRoleName { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

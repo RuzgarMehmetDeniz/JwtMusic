@@ -28,13 +28,6 @@ namespace JwtMusic.WebApi.Controllers
             return Ok(values);
         }
 
-        [HttpGet("GetArtistWithMusics/{id}")]
-        [Authorize(Roles = "Premium,Gold,Basic")]
-        public async Task<IActionResult> GetArtistWithMusics(int id)
-        {
-            var values = await _artistService.GetArtistByIdAsync(id);
-            return Ok(values);
-        }
 
         [HttpPost]
         public async Task<IActionResult> ArtistList(CreateArtistDto createArtistDto)
@@ -43,33 +36,5 @@ namespace JwtMusic.WebApi.Controllers
             return Ok("İşlem Başarılı");
         }
 
-        [HttpGet("GetArtistTopTrack/{artistId}")]
-        [Authorize(Roles = "Premium,Gold,Basic")]
-        public async Task<IActionResult> GetArtistTopTrack(int artistId)
-        {
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (string.IsNullOrEmpty(userRole))
-            {
-                return Forbid();
-            }
-
-            var topTrack = await _songService.GetArtistTopTrackAsync(artistId);
-
-            if (topTrack == null)
-            {
-                return NotFound("Bu sanatçıya ait şarkı bulunamadı.");
-            }
-
-            // Şarkı Premium ise; Basic ve Gold kullanıcılarına engelle, 403 Forbidden dön
-            if (topTrack.RequiredRole == "Premium")
-            {
-                if (userRole == "Basic" || userRole == "Gold")
-                {
-                    return Forbid();
-                }
-            }
-
-            return Ok(topTrack);
-        }
     }
 }
