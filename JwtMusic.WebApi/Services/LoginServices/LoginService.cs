@@ -42,14 +42,16 @@ namespace JwtMusic.WebApi.Services.LoginServices
             var roles = await _userManager.GetRolesAsync(appuser);
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, appuser.Id),
-                new Claim(ClaimTypes.Email, appuser.Email),
-                new Claim(ClaimTypes.Name, appuser.Name),
-                new Claim(ClaimTypes.Surname, appuser.Surname)
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, appuser.Id),
+        new Claim(ClaimTypes.Email, appuser.Email ?? ""),
+        // DÜZELTME: Name alanına gerçek ad yerine sistemin eşleşme aradığı UserName değerini veriyoruz
+        new Claim(ClaimTypes.Name, appuser.UserName ?? ""),
+        new Claim("FirstName", appuser.Name ?? ""),
+        new Claim("LastName", appuser.Surname ?? "")
+    };
 
-            foreach(var role in roles)
+            foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
@@ -57,11 +59,12 @@ namespace JwtMusic.WebApi.Services.LoginServices
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // DÜZELTME: UtcNow yerine Now kullanarak yerel saat uyuşmazlığını çözüyoruz
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(int.Parse(jwtSettings["ExpireMinutes"]!)),
+                expires: DateTime.Now.AddMinutes(int.Parse(jwtSettings["ExpireMinutes"]!)),
                 signingCredentials: credentials
             );
 

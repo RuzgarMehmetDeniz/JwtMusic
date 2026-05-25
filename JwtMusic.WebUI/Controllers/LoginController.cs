@@ -15,14 +15,14 @@ namespace JwtMusic.WebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult SignIn()
+        public IActionResult SingIn()
         {
             // Dosya adın SingIn olduğu için view adını açıkça belirttik
             return View("SingIn");
         }
 
         [HttpPost]
-        public async Task<IActionResult> SignIn(LoginDto loginDto)
+        public async Task<IActionResult> SingIn(LoginDto loginDto)
         {
             var client = _httpClientFactory.CreateClient();
             var jsonData = JsonConvert.SerializeObject(loginDto);

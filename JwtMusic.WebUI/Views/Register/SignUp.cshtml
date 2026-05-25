@@ -2,7 +2,7 @@
 
 @{
     Layout = null;
-    ViewData["Title"] = "Create Account – SoundWave";
+    ViewData["Title"] = "Hesap Oluştur – SoundWave";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -803,66 +803,33 @@
             <!-- Hero Copy -->
             <div class="hero-content">
                 <div class="hero-kicker">
-                    <i class="bi bi-stars"></i> Now in Open Beta
+                    <i class="bi bi-stars"></i> Şimdi Açık Beta'da
                 </div>
                 <h1 class="hero-title">
-                    Feel The<br>
-                    <span class="hl-cyan">Music</span><br>
-                    <span class="hl-lime">Everywhere</span>
+                    Hisset<br>
+                    <span class="hl-cyan">Müzik</span><br>
+                    <span class="hl-lime">Her Yerde</span>
                 </h1>
                 <p class="hero-desc">
-                    Create your account and discover millions of songs,
-                    artists and playlists crafted just for you.
+                    Hesap oluşturun ve sizin için özel olarak hazırlanmış milyonlarca şarkı,
+                    sanatçı ve çalma listesi keşfedin.
                 </p>
                 <div class="hero-stats">
                     <div class="stat-item">
                         <span class="stat-num">80M+</span>
-                        <span class="stat-label">Tracks</span>
+                        <span class="stat-label">Parça</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-num">4.2M</span>
-                        <span class="stat-label">Artists</span>
+                        <span class="stat-label">Sanatçı</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-num">Free</span>
-                        <span class="stat-label">To Start</span>
+                        <span class="stat-label">Başlamak için</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Floating Now-Playing Cards -->
-            <div class="floating-cards">
-                <div class="mini-card">
-                    <div class="mini-cover mc-violet">🌙</div>
-                    <div class="mini-meta">
-                        <div class="mini-song">Blinding Lights</div>
-                        <div class="mini-artist">The Weeknd</div>
-                    </div>
-                    <div class="mini-wave">
-                        <span></span><span></span><span></span><span></span>
-                    </div>
-                </div>
-                <div class="mini-card">
-                    <div class="mini-cover mc-pink">💫</div>
-                    <div class="mini-meta">
-                        <div class="mini-song">Levitating</div>
-                        <div class="mini-artist">Dua Lipa</div>
-                    </div>
-                    <div class="mini-wave">
-                        <span></span><span></span><span></span><span></span>
-                    </div>
-                </div>
-                <div class="mini-card">
-                    <div class="mini-cover mc-cyan">⚡</div>
-                    <div class="mini-meta">
-                        <div class="mini-song">Believer</div>
-                        <div class="mini-artist">Imagine Dragons</div>
-                    </div>
-                    <div class="mini-wave">
-                        <span></span><span></span><span></span><span></span>
-                    </div>
-                </div>
-            </div>
         </aside>
 
         <!-- ══════════════════════════════
@@ -874,8 +841,8 @@
                 <!-- Card header -->
                 <div class="card-head">
                     <div class="card-icon-wrap">🎵</div>
-                    <h2 class="card-title">Create Account</h2>
-                    <p class="card-subtitle">Start your free journey today.</p>
+                    <h2 class="card-title">Hesap oluşturmak</h2>
+                    <p class="card-subtitle">Ücretsiz yolculuğunuza bugün başlayın.</p>
                 </div>
 
                 <!-- ASP.NET Core Validation Summary -->
@@ -895,7 +862,7 @@
                                    type="text"
                                    name="Name"
                                    id="Name"
-                                   placeholder="First name"
+                                   placeholder="Adınız"
                                    autocomplete="given-name" />
                             <span asp-validation-for="Name" class="field-validation-error field-error"></span>
                         </div>
@@ -906,7 +873,7 @@
                                    type="text"
                                    name="Surname"
                                    id="Surname"
-                                   placeholder="Last name"
+                                   placeholder="Soyadınız"
                                    autocomplete="family-name" />
                             <span asp-validation-for="Surname" class="field-validation-error field-error"></span>
                         </div>
@@ -920,7 +887,7 @@
                                type="text"
                                name="UserName"
                                id="UserName"
-                               placeholder="Username"
+                               placeholder="Kullanıcı Adınız"
                                autocomplete="username" />
                         <span asp-validation-for="UserName" class="field-validation-error field-error"></span>
                     </div>
@@ -933,7 +900,7 @@
                                type="email"
                                name="Email"
                                id="Email"
-                               placeholder="Email address"
+                               placeholder="Email adresiniz"
                                autocomplete="email" />
                         <span asp-validation-for="Email" class="field-validation-error field-error"></span>
                     </div>
@@ -946,7 +913,7 @@
                                type="password"
                                name="Password"
                                id="Password"
-                               placeholder="Create a password"
+                               placeholder="Şifreniz"
                                autocomplete="new-password"
                                oninput="checkStrength(this.value)" />
                         <button type="button" class="pw-toggle" id="pwToggle"
@@ -971,25 +938,25 @@
                     <div class="terms-row">
                         <input type="checkbox" class="sw-checkbox" id="terms" name="terms" />
                         <label for="terms" class="terms-text">
-                            I agree to SoundWave's
-                            <a href="#">Terms of Service</a> and
-                            <a href="#">Privacy Policy</a>
+                            SoundWave'in şartlarını kabul ediyorum.
+                            <a href="#">Hizmet Şartları</a> ve
+                            <a href="#">Gizlilik Politikası</a>
                         </label>
                     </div>
 
                     <!-- Submit -->
                     <button type="submit" class="btn-register" id="submitBtn">
                         <i class="bi bi-music-note-beamed"></i>
-                        Create My Account
+                        Hesap Oluştur
                         <i class="bi bi-arrow-right btn-arrow"></i>
                     </button>
 
-                    <div class="divider">or</div>
+                    <div class="divider">veya</div>
 
                     <!-- Login redirect -->
                     <p class="login-link">
-                        Already have an account?
-                        <a asp-action="Login" asp-controller="Login">Sign in</a>
+                        Zaten bir hesabınız var mı?
+                        <a asp-action="SingIn" asp-controller="Login">Giriş yap</a>
                     </p>
 
                 </form>

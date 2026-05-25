@@ -14,6 +14,7 @@
 		.artist-card.hide {
 			display: none !important;
 		}
+
 		:root {
 			--bg-base: #080810;
 			--bg-surface: #0f0f1a;
@@ -34,18 +35,15 @@
 			--radius-pill: 50px;
 		}
 
-
 		*, *::before, *::after {
 			box-sizing: border-box;
 			margin: 0;
 			padding: 0;
 		}
 
-
 		html {
 			scroll-behavior: smooth;
 		}
-
 
 		body {
 			background: var(--bg-base);
@@ -56,8 +54,6 @@
 			overflow-x: hidden;
 		}
 
-
-			/* ── NOISE TEXTURE OVERLAY ── */
 			body::before {
 				content: '';
 				position: fixed;
@@ -68,8 +64,6 @@
 				opacity: .4;
 			}
 
-
-		/* ── NAVBAR ── */
 		nav {
 			position: sticky;
 			top: 0;
@@ -83,7 +77,6 @@
 			backdrop-filter: blur(20px);
 			border-bottom: 1px solid var(--border);
 		}
-
 
 		.logo {
 			display: flex;
@@ -116,7 +109,6 @@
 			background-clip: text;
 			letter-spacing: -0.5px;
 		}
-
 
 		.nav-links {
 			display: flex;
@@ -152,13 +144,11 @@
 					background: rgba(0,229,255,0.15);
 				}
 
-
 		.nav-right {
 			display: flex;
 			align-items: center;
 			gap: 1rem;
 		}
-
 
 		.search-wrap {
 			position: relative;
@@ -198,7 +188,6 @@
 				width: 280px;
 			}
 
-
 		.avatar {
 			width: 36px;
 			height: 36px;
@@ -220,8 +209,6 @@
 				transform: scale(1.08);
 			}
 
-
-		/* ── HERO ── */
 		.hero {
 			position: relative;
 			padding: clamp(3rem, 8vw, 5.5rem) clamp(1.5rem, 5vw, 3.5rem);
@@ -233,7 +220,6 @@
 			min-height: 440px;
 		}
 
-
 		.hero-bg {
 			position: absolute;
 			inset: 0;
@@ -241,13 +227,11 @@
 			pointer-events: none;
 		}
 
-
 		.hero-content {
 			position: relative;
 			z-index: 1;
 			max-width: 560px;
 		}
-
 
 		.hero-badge {
 			display: inline-flex;
@@ -265,7 +249,6 @@
 			text-transform: uppercase;
 		}
 
-
 		.hero-title {
 			font-family: 'Clash Display', sans-serif;
 			font-size: clamp(2.4rem, 5vw, 3.75rem);
@@ -282,7 +265,6 @@
 				background-clip: text;
 			}
 
-
 		.hero-sub {
 			color: var(--text-secondary);
 			font-size: 1.05rem;
@@ -291,7 +273,6 @@
 			margin-bottom: 2rem;
 			max-width: 440px;
 		}
-
 
 		.hero-cta {
 			display: flex;
@@ -322,7 +303,6 @@
 				box-shadow: 0 8px 30px rgba(0,229,255,0.4);
 			}
 
-
 		.btn-ghost {
 			display: inline-flex;
 			align-items: center;
@@ -344,138 +324,10 @@
 				background: rgba(255,255,255,0.1);
 			}
 
-
-		/* Hero Featured Card */
-		.hero-featured {
-			position: relative;
-			z-index: 1;
-			width: 280px;
-			flex-shrink: 0;
-		}
-
-
-		.featured-card {
-			background: linear-gradient(145deg, rgba(124,58,237,0.3), rgba(8,8,16,0.9));
-			border: 1px solid rgba(124,58,237,0.3);
-			border-radius: 24px;
-			overflow: hidden;
-			backdrop-filter: blur(20px);
-			box-shadow: 0 30px 60px rgba(0,0,0,0.5), var(--glow-violet);
-			transition: transform 0.3s;
-			cursor: pointer;
-		}
-
-			.featured-card:hover {
-				transform: translateY(-6px);
-			}
-
-
-		.featured-img {
-			width: 100%;
-			height: 220px;
-			background: linear-gradient(160deg, #4a1d96, #7c3aed, #c026d3, #ec4899);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 5rem;
-			position: relative;
-			overflow: hidden;
-		}
-
-			.featured-img::after {
-				content: '';
-				position: absolute;
-				inset: 0;
-				background: linear-gradient(to bottom, transparent 50%, rgba(8,8,16,0.8));
-			}
-
-			.featured-img .artist-emoji {
-				position: relative;
-				z-index: 1;
-				filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
-			}
-
-
-		.featured-body {
-			padding: 1.25rem;
-		}
-
-		.featured-tag {
-			font-size: 0.68rem;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 0.1em;
-			color: var(--accent-cyan);
-			margin-bottom: 0.4rem;
-		}
-
-		.featured-name {
-			font-family: 'Clash Display', sans-serif;
-			font-size: 1.4rem;
-			font-weight: 700;
-			letter-spacing: -0.5px;
-			margin-bottom: 0.3rem;
-		}
-
-		.featured-stats {
-			color: var(--text-secondary);
-			font-size: 0.8rem;
-			display: flex;
-			align-items: center;
-			gap: 6px;
-			margin-bottom: 1rem;
-		}
-
-		.featured-actions {
-			display: flex;
-			gap: 0.6rem;
-		}
-
-		.btn-follow-sm {
-			flex: 1;
-			background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-			border: none;
-			border-radius: var(--radius-pill);
-			color: #fff;
-			font-size: 0.8rem;
-			font-weight: 600;
-			padding: 0.5rem;
-			cursor: pointer;
-			font-family: 'DM Sans', sans-serif;
-			transition: all 0.2s;
-		}
-
-			.btn-follow-sm:hover {
-				opacity: 0.85;
-			}
-
-		.btn-play-sm {
-			width: 36px;
-			height: 36px;
-			background: rgba(255,255,255,0.1);
-			border: 1px solid var(--border);
-			border-radius: 50%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			color: var(--text-primary);
-			cursor: pointer;
-			transition: all 0.2s;
-			font-size: 0.85rem;
-		}
-
-			.btn-play-sm:hover {
-				background: rgba(255,255,255,0.18);
-			}
-
-
-		/* ── MAIN CONTENT ── */
 		main {
 			padding: 0 clamp(1.5rem, 5vw, 3.5rem);
 		}
 
-
-		/* ── SECTION HEADER ── */
 		.section-header {
 			display: flex;
 			align-items: center;
@@ -503,8 +355,6 @@
 				opacity: 0.7;
 			}
 
-
-		/* ── FILTERS ── */
 		.filters {
 			display: flex;
 			gap: 0.6rem;
@@ -538,8 +388,6 @@
 				box-shadow: 0 4px 18px rgba(0,229,255,0.2);
 			}
 
-
-		/* ── ARTIST GRID ── */
 		.artist-grid {
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -547,8 +395,6 @@
 			margin-bottom: 3rem;
 		}
 
-
-		/* ── ARTIST CARD ── */
 		.artist-card {
 			background: var(--bg-card);
 			border: 1px solid var(--border);
@@ -564,11 +410,6 @@
 				box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.12);
 				border-color: rgba(0,229,255,0.2);
 			}
-
-			.artist-card[style*="display: none"] {
-				display: none !important;
-			}
-
 
 		.card-img-wrap {
 			position: relative;
@@ -591,7 +432,6 @@
 			transform: scale(1.07);
 		}
 
-
 		.card-play-overlay {
 			position: absolute;
 			inset: 0;
@@ -606,7 +446,6 @@
 		.artist-card:hover .card-play-overlay {
 			opacity: 1;
 		}
-
 
 		.play-circle {
 			width: 52px;
@@ -623,12 +462,12 @@
 			transition: transform 0.2s;
 			border: none;
 			cursor: pointer;
+			text-decoration: none;
 		}
 
 		.artist-card:hover .play-circle {
 			transform: scale(1);
 		}
-
 
 		.card-body {
 			padding: 1rem;
@@ -643,6 +482,7 @@
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+			color: var(--text-primary);
 		}
 
 		.card-genre {
@@ -671,7 +511,6 @@
 				font-size: 0.65rem;
 			}
 
-
 		.btn-follow {
 			font-size: 0.72rem;
 			font-weight: 600;
@@ -697,14 +536,14 @@
 				color: var(--accent-green);
 			}
 
-
-		/* ── NO RESULTS ── */
 		.no-results {
 			text-align: center;
 			padding: 4rem 1rem;
 			color: var(--text-muted);
 			display: none;
 			grid-column: 1 / -1;
+			flex-direction: column;
+			align-items: center;
 		}
 
 			.no-results i {
@@ -713,12 +552,6 @@
 				display: block;
 			}
 
-			.no-results p {
-				font-size: 1rem;
-			}
-
-
-		/* ── PLAYER ── */
 		.player {
 			position: fixed;
 			bottom: 0;
@@ -736,8 +569,6 @@
 			gap: 1rem;
 		}
 
-
-		/* Player left */
 		.player-track {
 			display: flex;
 			align-items: center;
@@ -793,8 +624,6 @@
 				color: var(--accent-pink);
 			}
 
-
-		/* Player center */
 		.player-center {
 			display: flex;
 			flex-direction: column;
@@ -841,9 +670,7 @@
 			.ctrl-play:hover {
 				transform: scale(1.06);
 				opacity: 0.9;
-				background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
 			}
-
 
 		.player-progress {
 			display: flex;
@@ -897,8 +724,6 @@
 			opacity: 1;
 		}
 
-
-		/* Player right */
 		.player-right {
 			display: flex;
 			align-items: center;
@@ -948,58 +773,10 @@
 				color: var(--accent-cyan);
 			}
 
-
-		/* ── GRADIENT ARTIST COLORS ── */
-		.grad-1 {
-			background: linear-gradient(160deg, #6d28d9, #8b5cf6, #a78bfa);
-		}
-
-		.grad-2 {
-			background: linear-gradient(160deg, #be185d, #ec4899, #f9a8d4);
-		}
-
-		.grad-3 {
-			background: linear-gradient(160deg, #b45309, #f59e0b, #fde68a);
-		}
-
-		.grad-4 {
-			background: linear-gradient(160deg, #1e3a5f, #1d4ed8, #60a5fa);
-		}
-
-		.grad-5 {
-			background: linear-gradient(160deg, #14532d, #16a34a, #4ade80);
-		}
-
-		.grad-6 {
-			background: linear-gradient(160deg, #7f1d1d, #dc2626, #fca5a5);
-		}
-
 		.grad-7 {
 			background: linear-gradient(160deg, #0f172a, #1e40af, #93c5fd);
 		}
 
-		.grad-8 {
-			background: linear-gradient(160deg, #701a75, #a21caf, #e879f9);
-		}
-
-		.grad-9 {
-			background: linear-gradient(160deg, #7c2d12, #ea580c, #fdba74);
-		}
-
-		.grad-10 {
-			background: linear-gradient(160deg, #1e1b4b, #6d28d9, #a5b4fc);
-		}
-
-		.grad-11 {
-			background: linear-gradient(160deg, #064e3b, #0d9488, #5eead4);
-		}
-
-		.grad-12 {
-			background: linear-gradient(160deg, #312e81, #4338ca, #818cf8);
-		}
-
-
-		/* ── RESPONSIVE ── */
 		@@media (max-width: 768px) {
 			.nav-links {
 				display: none;
@@ -1009,25 +786,12 @@
 				grid-template-columns: 1fr;
 			}
 
-			.hero-featured {
-				display: none;
-			}
-
-			.artist-grid {
-				grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-				gap: 1rem;
-			}
-
 			.player {
 				grid-template-columns: 1fr auto;
 			}
 
 			.player-right {
 				display: none;
-			}
-
-			.player-center {
-				max-width: 260px;
 			}
 		}
 
@@ -1045,30 +809,6 @@
 				}
 		}
 
-
-		/* ── ANIMATIONS ── */
-		@@keyframes fadeUp {
-			from {
-				opacity: 0;
-				transform: translateY(24px);
-			}
-
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
-		.hero-content {
-			animation: fadeUp 0.65s ease both;
-		}
-
-		.hero-featured {
-			animation: fadeUp 0.65s 0.15s ease both;
-		}
-
-
-		/* Waveform animation on player */
 		.waveform {
 			display: flex;
 			align-items: center;
@@ -1127,15 +867,13 @@
 </head>
 <body>
 
-
-	<!-- ── NAVBAR ── -->
 	<nav>
 		<a href="#" class="logo">
 			<div class="logo-icon"><i class="bi bi-soundwave"></i></div>
 			<span class="logo-text">SoundWave</span>
 		</a>
 		<ul class="nav-links">
-			<li><a href="#artists">Sanatçılar</a></li>
+			<li><a href="#artists" class="active">Sanatçılar</a></li>
 			<li><a href="#">Şarkılar</a></li>
 			<li><a href="#">Türler</a></li>
 			<li class="premium-link"><a href="#"><i class="bi bi-lightning-charge-fill"></i> Premium</a></li>
@@ -1143,48 +881,52 @@
 		<div class="nav-right">
 			<div class="search-wrap">
 				<i class="bi bi-search"></i>
-				<input class="search-input" type="text" id="searchInput" placeholder="Sanatçıları, şarkıları, albümleri ara...">
+				<input class="search-input" type="text" id="searchInput" placeholder="Sanatçıları, şarkıları ara...">
 			</div>
-			<div class="avatar" title="Your Profile">JD</div>
+			<div class="avatar" title="Your Profile">RM</div>
 		</div>
 	</nav>
 
-
-	<!-- ── HERO ── -->
 	<section class="hero">
 		<div class="hero-bg"></div>
 		<div class="hero-content">
 			<div class="hero-badge"><i class="bi bi-stars"></i> Yeni Şarkılar Mevcut</div>
 			<h1 class="hero-title">Yeni <br>Favori <span>Sanatçınızı </span><br>Keşfedin</h1>
-			<p class="hero-sub">Milyonlarca şarkı ve sanatçıyı keşfedin. Favorilerinizi takip edin, yeni sesler keşfedin ve müziğin sizi harekete geçirmesine izin verin.</p>
+			<p class="hero-sub">Milyonlarca şarkı ve sanatçıyı keşfedin. Favorilerinizi takip edin, yeni sesler keşfedin ve müziğin keyfini çıkarın.</p>
 			<div class="hero-cta">
 				<a href="#artists" class="btn-primary"><i class="bi bi-play-fill"></i>Keşfetmeye Başlayın</a>
-				<a href="#" class="btn-ghost"><i class="bi bi-fire"></i> Şuanda Trend Olan </a>
+				<a href="#" class="btn-ghost"><i class="bi bi-fire"></i> Şu Anda Trend Olan</a>
 			</div>
 		</div>
-		@foreach (var item in Model.Take(1))
+
+		@if (Model != null && Model.Any())
 		{
-			<div class="artist-card" data-genre="@item.Bio" data-name="@item.Name">
-				<div class="card-img-wrap">
-					<img src="@item.ImageUrl" class="card-img grad-7">
-					<div class="card-play-overlay">
-						<button class="play-circle" onclick="playArtist('The Weeknd','Blinding Lights','🌙','grad-7')"><i class="bi bi-play-fill"></i></button>
+			@foreach (var item in Model.Take(1))
+			{
+				<div class="artist-card" data-genre="@item.Bio" data-name="@item.Name">
+					<div class="card-img-wrap">
+						<img src="@item.ImageUrl" class="card-img grad-7">
+						<div class="card-play-overlay">
+							<a href="/Artist/ArtistDetail/@item.ArtistId" class="play-circle">
+								<i class="bi bi-eye-fill"></i>
+							</a>
+						</div>
+					</div>
+					<div class="card-body">
+						<a href="/Artist/ArtistDetail/@item.ArtistId" style="text-decoration: none;">
+							<div class="card-name">@item.Name</div>
+						</a>
+						<div class="card-genre">@item.Bio</div>
+						<div class="card-footer">
+							<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
+							<button class="btn-follow" onclick="toggleFollow(this)">Takip Et</button>
+						</div>
 					</div>
 				</div>
-				<div class="card-body">
-					<div class="card-name">@item.Name</div>
-					<div class="card-genre">@item.Bio</div>
-					<div class="card-footer">
-						<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
-						<button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
-					</div>
-				</div>
-			</div>
+			}
 		}
 	</section>
 
-
-	<!-- ── MAIN ── -->
 	<main>
 		<section id="artists">
 			<div class="section-header">
@@ -1207,7 +949,6 @@
 				{
 					@foreach (var item in Model)
 					{
-						// C# tarafında arama terimlerini tamamen küçük harf ve harf-rakam dışı karaktersiz hale getiriyoruz
 						var rawBio = item.Bio ?? "";
 						var cleanGenre = rawBio.ToString().ToLower()
 						.Replace(" ", "")
@@ -1220,18 +961,19 @@
 						.Replace("ö", "o")
 						.Replace("ç", "c");
 
-						// CSS'teki ezme probleminden kaçınmak için inline "display" stilini sildik, sadece .hide sınıfını kullanacağız
-						<div class="artist-card" data-genre="@cleanGenre">
+						<div class="artist-card" data-genre="@cleanGenre" data-name="@item.Name">
 							<div class="card-img-wrap">
 								<img src="@item.ImageUrl" class="card-img grad-7">
 								<div class="card-play-overlay">
-									<button class="play-circle" onclick="playArtist('@item.Name', '', '🌙', 'grad-7')">
-										<i class="bi bi-play-fill"></i>
-									</button>
+									<a href="/Artist/ArtistDetail/@item.ArtistId" class="play-circle">
+										<i class="bi bi-eye-fill"></i>
+									</a>
 								</div>
 							</div>
 							<div class="card-body">
-								<div class="card-name">@item.Name</div>
+								<a href="/Artist/ArtistDetail/@item.ArtistId" style="text-decoration: none;">
+									<div class="card-name">@item.Name</div>
+								</a>
 								<div class="card-genre">@item.Bio</div>
 								<div class="card-footer">
 									<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
@@ -1257,10 +999,7 @@
 		</section>
 	</main>
 
-
-	<!-- ── PLAYER ── -->
 	<div class="player" id="player">
-		<!-- Left: Track Info -->
 		<div class="player-track">
 			<div class="player-cover" id="playerCover">🌙</div>
 			<div class="player-info">
@@ -1273,8 +1012,6 @@
 			</div>
 		</div>
 
-
-		<!-- Center: Controls + Progress -->
 		<div class="player-center">
 			<div class="player-controls">
 				<button class="ctrl-btn" title="Shuffle"><i class="bi bi-shuffle"></i></button>
@@ -1284,16 +1021,14 @@
 				<button class="ctrl-btn" title="Repeat"><i class="bi bi-repeat"></i></button>
 			</div>
 			<div class="player-progress">
-				<span class="time-label" id="currentTime">1:24</span>
+				<span class="time-label" id="currentTime">0:00</span>
 				<div class="progress-bar-wrap" id="progressBar" onclick="seekTo(event)">
-					<div class="progress-fill" id="progressFill"></div>
+					<div class="progress-fill" id="progressFill" style="width: 0%;"></div>
 				</div>
 				<span class="time-label">4:02</span>
 			</div>
 		</div>
 
-
-		<!-- Right: Volume -->
 		<div class="player-right">
 			<button class="queue-btn" title="Queue"><i class="bi bi-collection"></i></button>
 			<button class="vol-btn" title="Volume"><i class="bi bi-volume-up-fill" id="volIcon"></i></button>
@@ -1303,220 +1038,117 @@
 		</div>
 	</div>
 
-
 	<script>
-		// ── STATE ──
 		let isPlaying = false;
 		let isLiked = false;
 		let progressInterval;
-		let progressVal = 35;
+		let progressVal = 0;
 		let volumeVal = 70;
 
-
-		const tracks = [
-		{ song:'Blinding Lights', artist:'The Weeknd', emoji:'🌙', grad:'grad-7' },
-		{ song:'Levitating', artist:'Dua Lipa', emoji:'💫', grad:'grad-2' },
-		{ song:'Anti-Hero', artist:'Taylor Swift', emoji:'🌟', grad:'grad-3' },
-		{ song:'Bad Guy', artist:'Billie Eilish', emoji:'🖤', grad:'grad-5' },
-		{ song:'Shape of You', artist:'Ed Sheeran', emoji:'🎸', grad:'grad-9' },
-		];
-		let trackIdx = 0;
-
-
-		// ── PLAY / PAUSE ──
 		function togglePlay() {
-		isPlaying = !isPlaying;
-		const icon = document.getElementById('playIcon');
-		const waveform = document.getElementById('waveform');
-		if (isPlaying) {
-		icon.className = 'bi bi-pause-fill';
-		waveform.classList.remove('paused');
-		startProgress();
-		} else {
-		icon.className = 'bi bi-play-fill';
-		waveform.classList.add('paused');
-		clearInterval(progressInterval);
+			isPlaying = !isPlaying;
+			const icon = document.getElementById('playIcon');
+			const waveform = document.getElementById('waveform');
+			if (isPlaying) {
+				icon.className = 'bi bi-pause-fill';
+				waveform.classList.remove('paused');
+				startProgress();
+			} else {
+				icon.className = 'bi bi-play-fill';
+				waveform.classList.add('paused');
+				clearInterval(progressInterval);
+			}
 		}
-		}
-
 
 		function startProgress() {
-		clearInterval(progressInterval);
-		progressInterval = setInterval(() => {
-		progressVal += 0.1;
-		if (progressVal >= 100) { progressVal = 0; nextTrack(); }
-		document.getElementById('progressFill').style.width = progressVal + '%';
-		const totalSec = 242;
-		const cur = Math.floor(totalSec * progressVal / 100);
-		document.getElementById('currentTime').textContent =
-		Math.floor(cur/60) + ':' + String(cur%60).padStart(2,'0');
-		}, 300);
+			clearInterval(progressInterval);
+			progressInterval = setInterval(() => {
+				progressVal += 0.2;
+				if (progressVal >= 100) { progressVal = 0; clearInterval(progressInterval); togglePlay(); }
+				document.getElementById('progressFill').style.width = progressVal + '%';
+				const totalSec = 242;
+				const cur = Math.floor(totalSec * progressVal / 100);
+				document.getElementById('currentTime').textContent =
+					Math.floor(cur/60) + ':' + String(cur%60).padStart(2,'0');
+			}, 300);
 		}
 
-
-		// ── SEEK ──
 		function seekTo(e) {
-		const bar = document.getElementById('progressBar');
-		const rect = bar.getBoundingClientRect();
-		progressVal = ((e.clientX - rect.left) / rect.width) * 100;
-		document.getElementById('progressFill').style.width = progressVal + '%';
+			const bar = document.getElementById('progressBar');
+			const rect = bar.getBoundingClientRect();
+			progressVal = ((e.clientX - rect.left) / rect.width) * 100;
+			document.getElementById('progressFill').style.width = progressVal + '%';
 		}
 
-
-		// ── VOLUME ──
 		function setVolume(e) {
-		const bar = document.getElementById('volumeBar');
-		const rect = bar.getBoundingClientRect();
-		volumeVal = ((e.clientX - rect.left) / rect.width) * 100;
-		volumeVal = Math.min(100, Math.max(0, volumeVal));
-		document.getElementById('volumeFill').style.width = volumeVal + '%';
-		const volIcon = document.getElementById('volIcon');
-		if (volumeVal === 0) volIcon.className = 'bi bi-volume-mute-fill';
-		else if (volumeVal < 50) volIcon.className = 'bi bi-volume-down-fill';
-		else volIcon.className = 'bi bi-volume-up-fill';
+			const bar = document.getElementById('volumeBar');
+			const rect = bar.getBoundingClientRect();
+			volumeVal = ((e.clientX - rect.left) / rect.width) * 100;
+			volumeVal = Math.min(100, Math.max(0, volumeVal));
+			document.getElementById('volumeFill').style.width = volumeVal + '%';
 		}
 
-
-		// ── PREV / NEXT ──
-		function nextTrack() {
-		trackIdx = (trackIdx + 1) % tracks.length;
-		loadTrack(trackIdx);
-		}
-		function prevTrack() {
-		trackIdx = (trackIdx - 1 + tracks.length) % tracks.length;
-		loadTrack(trackIdx);
-		}
-		function loadTrack(idx) {
-		const t = tracks[idx];
-		updatePlayer(t.artist, t.song, t.emoji, t.grad);
-		progressVal = 0;
-		}
-
-
-		// ── UPDATE PLAYER ──
-		function updatePlayer(artist, song, emoji, grad) {
-		document.getElementById('playerSong').textContent = song;
-		document.getElementById('playerArtist').textContent = artist;
-		const cover = document.getElementById('playerCover');
-		cover.textContent = emoji;
-		cover.className = 'player-cover ' + grad;
-		progressVal = 0;
-		document.getElementById('progressFill').style.width = '0%';
-		document.getElementById('currentTime').textContent = '0:00';
-		if (!isPlaying) { isPlaying = true; togglePlay(); }
-		else { clearInterval(progressInterval); startProgress(); }
-		}
-
-
-		// ── PLAY FROM ARTIST CARD ──
-		function playArtist(artist, song, emoji, grad) {
-		updatePlayer(artist, song, emoji, grad);
-		// scroll to player hint
-		}
-
-
-		// ── HEART ──
 		function toggleHeart(btn) {
-		isLiked = !isLiked;
-		btn.classList.toggle('liked');
-		btn.innerHTML = isLiked ? '<i class="bi bi-heart-fill"></i>' : '<i class="bi bi-heart"></i>';
+			isLiked = !isLiked;
+			btn.classList.toggle('liked');
+			btn.innerHTML = isLiked ? '<i class="bi bi-heart-fill"></i>' : '<i class="bi bi-heart"></i>';
 		}
 
-
-		// ── FOLLOW ──
 		function toggleFollow(btn) {
-		const following = btn.classList.toggle('following');
-		btn.textContent = following ? '✓ Following' : 'Follow';
+			const following = btn.classList.toggle('following');
+			btn.textContent = following ? '✓ Following' : 'Follow';
 		}
 
+		// ── SEARCH & FILTER COMBINED MANAGEMENT ──
+		document.addEventListener("DOMContentLoaded", function () {
+			const filterButtons = document.querySelectorAll(".chip");
+			const searchInput = document.getElementById("searchInput");
+			const noResults = document.getElementById("noResults");
 
-		// ── FILTERS ──
-		document.getElementById('filters').addEventListener('click', e => {
-		const chip = e.target.closest('.chip');
-		if (!chip) return;
-		document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-		chip.classList.add('active');
-		filterCards(chip.dataset.filter, document.getElementById('searchInput').value);
-		});
+			if (noResults) noResults.style.display = "none";
 
+			function applyFilters() {
+				const activeChip = document.querySelector(".chip.active");
+				const selectedFilter = activeChip ? activeChip.getAttribute("data-filter").toLowerCase().replace("-", "").replace("&", "").replace(" ", "").trim() : "all";
+				const searchQuery = searchInput.value.trim().toLowerCase();
 
-		// ── SEARCH ──
-		document.getElementById('searchInput').addEventListener('input', e => {
-		const activeFilter = document.querySelector('.chip.active').dataset.filter;
-		filterCards(activeFilter, e.target.value);
-		});
-
-
-		function filterCards(genre, query) {
-		const cards = document.querySelectorAll('.artist-card');
-		const q = query.trim().toLowerCase();
-		let visible = 0;
-		cards.forEach(card => {
-		const nameMatch = card.dataset.name.toLowerCase().includes(q);
-		const genreMatch = genre === 'all' || card.dataset.genre === genre;
-		const show = nameMatch && genreMatch;
-		card.style.display = show ? '' : 'none';
-		if (show) visible++;
-		});
-		document.getElementById('noResults').style.display = visible === 0 ? 'flex' : 'none';
-		}
-
-
-		// ── INIT: start waveform paused ──
-		document.getElementById('waveform').classList.add('paused');
-	</script>
-</body>
-</html>
-<script>
-	document.addEventListener("DOMContentLoaded", function () {
-		const filterButtons = document.querySelectorAll(".chip");
-		const artistCards = document.querySelectorAll(".artist-card");
-		const noResults = document.getElementById("noResults");
-
-		// Sayfa ilk yüklendiğinde uyarının görünmesini engellemek için CSS sınıflarını temiz tutuyoruz
-		if (noResults) noResults.style.display = "none";
-
-		filterButtons.forEach(button => {
-			button.addEventListener("click", function () {
-				// 1. Aktif buton tasarımını güncelle
-				filterButtons.forEach(btn => btn.classList.remove("active"));
-				this.classList.add("active");
-
-				// 2. Filtre ismini normalize et (Örn: "hip-hop" -> "hiphop")
-				const selectedFilter = this.getAttribute("data-filter")
-										   .toLowerCase()
-										   .replace("-", "")
-										   .replace("&", "")
-										   .replace(" ", "")
-										   .trim();
-
+				const artistCards = document.querySelectorAll(".artist-grid .artist-card");
 				let visibleCount = 0;
 
-				// 3. Kartları tara ve .hide sınıfını ekle/çıkar
 				artistCards.forEach(card => {
 					const artistGenres = card.getAttribute("data-genre") || "";
+					const artistName = card.getAttribute("data-name") ? card.getAttribute("data-name").toLowerCase() : "";
 
-					if (selectedFilter === "all") {
+					const matchesGenre = (selectedFilter === "all" || artistGenres.includes(selectedFilter));
+					const matchesSearch = artistName.includes(searchQuery);
+
+					if (matchesGenre && matchesSearch) {
 						card.classList.remove("hide");
 						visibleCount++;
 					} else {
-						// Eğer kartın temizlenmiş tür bilgisinde butonun temizlenmiş filtresi geçiyorsa göster
-						if (artistGenres.includes(selectedFilter)) {
-							card.classList.remove("hide");
-							visibleCount++;
-						} else {
-							card.classList.add("hide");
-						}
+						card.classList.add("hide");
 					}
 				});
 
-				// 4. CSS yapınızdaki display: none / display: grid kurallarına göre uyarıyı tetikle
-				if (visibleCount === 0) {
-					if (noResults) noResults.style.display = "block";
-				} else {
-					if (noResults) noResults.style.display = "none";
+				if (noResults) {
+					noResults.style.display = visibleCount === 0 ? "flex" : "none";
 				}
+			}
+
+			filterButtons.forEach(button => {
+				button.addEventListener("click", function () {
+					filterButtons.forEach(btn => btn.classList.remove("active"));
+					this.classList.add("active");
+					applyFilters();
+				});
 			});
+
+			if (searchInput) {
+				searchInput.addEventListener("input", applyFilters);
+			}
+
+			document.getElementById('waveform').classList.add('paused');
 		});
-	});
-</script>
+	</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 ﻿@model JwtMusic.WebUI.Dtos.LoginDto
 @{
     Layout = null;
-    ViewData["Title"] = "Sign In – SoundWave";
+    ViewData["Title"] = "Giriş Yap – SoundWave";
 }
 
 <!DOCTYPE html>
@@ -530,27 +530,16 @@
                     </div>
                 </div>
                 <h2 class="vp-tagline">
-                    Your Music,<br>
-                    <span class="g-cyan">Your Mood,</span><br>
-                    <span class="g-lime">Everywhere.</span>
+                    Müziğiniz,<br>
+                    <span class="g-cyan">Modunuz,</span><br>
+                    <span class="g-lime">Her Yerde.</span>
                 </h2>
                 <p class="vp-desc">
-                    Sign in and pick up right where you left off —
-                    playlists, favorites, and everything you love.
+                    Giriş yap ve tam bıraktığın yerden devam et —
+                    çalma listeleri, favoriler ve sevdiğin her şey.
                 </p>
             </div>
 
-            <!-- Now Playing strip -->
-            <div class="np-strip">
-                <div class="np-cover">🌙</div>
-                <div class="np-meta">
-                    <div class="np-song">Blinding Lights</div>
-                    <div class="np-artist">The Weeknd</div>
-                </div>
-                <div class="np-wave">
-                    <span></span><span></span><span></span><span></span><span></span>
-                </div>
-            </div>
         </aside>
 
         <!-- ══════════════════════════════
@@ -561,8 +550,8 @@
 
                 <div class="card-head">
                     <div class="card-icon-wrap">🔑</div>
-                    <h1 class="card-title">Welcome Back</h1>
-                    <p class="card-subtitle">Sign in to continue listening.</p>
+                    <h1 class="card-title">Tekrar hoşgeldiniz</h1>
+                    <p class="card-subtitle">Dinlemeye devam etmek için giriş yapın.</p>
                 </div>
 
                 <!-- ASP.NET Validation Summary -->
@@ -605,23 +594,23 @@
                     <div class="extras-row">
                         <label class="remember-wrap">
                             <input type="checkbox" class="sw-checkbox" name="RememberMe" id="rememberMe" />
-                            <span class="remember-label">Remember me</span>
+                            <span class="remember-label">Beni Hatırla</span>
                         </label>
-                        <a href="#" class="forgot-link">Forgot password?</a>
+                        <a href="#" class="forgot-link">Şifrenizi Unuttunuz ?</a>
                     </div>
 
                     <!-- Submit -->
                     <button type="submit" class="btn-login">
                         <i class="bi bi-headphones"></i>
-                        Sign In
+                        Giriş Yap
                         <i class="bi bi-arrow-right btn-arrow"></i>
                     </button>
 
-                    <div class="divider">or</div>
+                    <div class="divider">veya</div>
 
                     <p class="register-link">
-                        Don't have an account?
-                        <a asp-action="Register" asp-controller="Login">Create one free</a>
+                        Hesabınız yok mu?
+                        <a asp-action="SignUp" asp-controller="Register">Ücretsiz bir tane oluşturun</a>
                     </p>
 
                 </form>

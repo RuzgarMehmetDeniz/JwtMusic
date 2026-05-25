@@ -7,5 +7,6 @@ namespace JwtMusic.WebApi.Services.ArtistServices
         Task<List<ResultArtistDto>> GetAllArtistsAsync();
 
         Task CreateArtistAsync(CreateArtistDto createArtistDto);
+        Task<GetArtistWithMusicsDto> GetArtistByIdAsync(int id);
     }
 }
