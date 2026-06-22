@@ -1,0 +1,418 @@
+﻿@model JwtMusic.WebUI.Models.ArtistDetailViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.Artist.Name – SoundWave</title>
+    <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --bg-base: #080810;
+            --bg-surface: #0f0f1a;
+            --bg-card: #13131f;
+            --accent-cyan: #00e5ff;
+            --accent-violet: #7c3aed;
+            --accent-pink: #f72585;
+            --accent-green: #06ffa5;
+            --text-primary: #f0f0ff;
+            --text-secondary: #8888aa;
+            --text-muted: #44445a;
+            --border: rgba(255,255,255,0.06);
+            --glow-cyan: 0 0 30px rgba(0,229,255,0.25);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+            /* Arka Plan Gren Efekti */
+            body::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+                pointer-events: none;
+                z-index: 0;
+                opacity: .4;
+            }
+
+        /* Navigasyon Barı */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 clamp(1.5rem, 5vw, 3.5rem);
+            height: 68px;
+            background: rgba(8,8,16,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #fff;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .logo-text {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        /* Sanatçı Dev Profil Banner Alanı */
+        .artist-banner {
+            position: relative;
+            height: 45vh;
+            min-height: 350px;
+            display: flex;
+            align-items: flex-end;
+            padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 3.5rem);
+            background: linear-gradient(to bottom, rgba(8,8,16,0.1) 0%, rgba(8,8,16,0.8) 70%, var(--bg-base) 100%), url('@Model.Artist.ImageUrl') center/cover no-repeat;
+        }
+
+        .banner-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .artist-header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent-cyan);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .artist-name {
+            font-family: 'Clash Display', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        .artist-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .meta-item i {
+                color: var(--accent-cyan);
+            }
+
+        /* İçerik Alanı */
+        .content-container {
+            padding: 2.5rem clamp(1.5rem, 5vw, 3.5rem) 5rem clamp(1.5rem, 5vw, 3.5rem);
+        }
+
+        .action-bar {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn-play-all {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 0.85rem 2.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: var(--glow-cyan);
+        }
+
+            .btn-play-all:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 30px rgba(0,229,255,0.4);
+            }
+
+        .btn-follow-detail {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .btn-follow-detail:hover {
+                background: rgba(255,255,255,0.1);
+                border-color: rgba(255,255,255,0.2);
+            }
+
+            .btn-follow-detail.following {
+                background: rgba(6,255,165,0.1);
+                border-color: var(--accent-green);
+                color: var(--accent-green);
+            }
+
+        /* Popüler Şarkılar Tablosu */
+        .section-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .track-row {
+            display: grid;
+            grid-template-columns: 40px 55px 2fr 1.5fr 80px;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+        }
+
+            .track-row:hover {
+                background: rgba(255,255,255,0.06);
+                border-color: rgba(0,229,255,0.2);
+                transform: translateX(4px);
+            }
+
+        .track-index {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .track-row:hover .track-index {
+            color: var(--accent-cyan);
+        }
+
+        .track-cover-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+
+        .track-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .track-title-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding-right: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .premium-badge {
+            background: rgba(0,229,255,0.08);
+            border: 1px solid rgba(0,229,255,0.25);
+            color: var(--accent-cyan);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .track-album {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-duration {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        .track-row:hover .track-duration {
+            color: var(--text-primary);
+        }
+
+        /* Mobil Duyarlılık */
+        @@media (max-width: 768px) {
+            .track-row {
+                grid-template-columns: 30px 50px 2fr 80px;
+            }
+
+            .track-album {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="/Artist/ArtistList" class="logo">
+            <div class="logo-icon"><i class="bi bi-soundwave"></i></div>
+            <span class="logo-text" style="margin-left: 10px;">SoundWave</span>
+        </a>
+    </nav>
+
+    <header class="artist-banner">
+        <div class="banner-overlay"></div>
+        <div class="artist-header-content">
+            <div class="verified-badge"><i class="bi bi-patch-check-fill"></i> Doğrulanmış Sanatçı</div>
+            <h1 class="artist-name">@Model.Artist.Name</h1>
+            <div class="artist-meta">
+                <div class="meta-item">
+                    <i class="bi bi-person-pulse"></i>
+                    <span><strong>@Model.Artist.MonthlyListeners.ToString("N0") M</strong> Aylık Dinleyici</span>
+                </div>
+                <div class="meta-item">
+                    <i class="bi bi-music-note-list"></i>
+                    <span><strong>@(Model.Songs != null ? Model.Songs.Count : 0)</strong> Parça</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="content-container">
+        <div class="action-bar">
+            <button class="btn-play-all"><i class="bi bi-play-fill"></i> Tümünü Oynat</button>
+            <button class="btn-follow-detail" onclick="toggleFollowDetail(this)">Takip Et</button>
+        </div>
+
+        <h2 class="section-title">Popüler Şarkılar</h2>
+
+        <div class="track-list">
+            @if (Model.Songs != null && Model.Songs.Any())
+            {
+                int index = 1;
+                foreach (var song in Model.Songs)
+                {
+                    <div class="track-row" onclick="playSong('@song.AudioUrl', '@song.Title', '@Model.Artist.Name', '@song.CoverImageUrl')">
+                        <div class="track-index">@index</div>
+                        <div class="track-cover-wrap">
+                            <img src="@song.CoverImageUrl" class="track-cover" alt="@song.Title Cover">
+                        </div>
+                        <div class="track-title-info">
+                            <span>@song.Title</span>
+                            @if (song.IsPremium)
+                            {
+                                <span class="premium-badge">PREMIUM</span>
+                            }
+                        </div>
+                        <div class="track-album">Single</div>
+                        <div class="track-duration">@song.Duration.ToString(@"mm\:ss")</div>
+                    </div>
+                    index++;
+                }
+            }
+            else
+            {
+                <div style="padding: 30px; text-align: center; color: var(--text-secondary); border: 1px dashed var(--border); border-radius: 14px;">
+                    <i class="bi bi-music-note" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                    Bu sanatçıya ait popüler şarkı bulunamadı.
+                </div>
+            }
+        </div>
+    </main>
+
+    <script>
+        function toggleFollowDetail(btn) {
+            const isFollowing = btn.classList.toggle('following');
+            btn.innerHTML = isFollowing ? '<i class="bi bi-check-lg"></i> Takip Ediliyor' : 'Takip Et';
+        }
+
+        // Şarkı satırına tıklandığında global müzik oynatıcısını besleyecek JavaScript fonksiyonu
+        function playSong(audioUrl, title, artist, coverImg) {
+            console.log("Çalınması İstenen Şarkı Bilgileri:");
+            console.log("Başlık:", title);
+            console.log("URL:", audioUrl);
+
+            // Eğer anasayfadaki alt bar (player) yapısını buraya entegre etmek istersen,
+            // parent penceredeki oynatıcıyı tetikleyebilir veya doğrudan buradaki verilerle oynatıcıyı güncelleyebilirsin.
+            // Örnek: document.getElementById('playerSong').innerText = title;
+        }
+    </script>
+</body>
+</html>
+
+```

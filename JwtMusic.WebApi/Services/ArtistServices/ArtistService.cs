@@ -19,7 +19,7 @@ namespace JwtMusic.WebApi.Services.ArtistServices
 
         public async Task CreateArtistAsync(CreateArtistDto createArtistDto)
         {
-           var value = _mapper.Map<Artist>(createArtistDto);
+            var value = _mapper.Map<Artist>(createArtistDto);
             await _context.Artists.AddAsync(value);
             await _context.SaveChangesAsync();
         }
@@ -44,6 +44,30 @@ namespace JwtMusic.WebApi.Services.ArtistServices
                 .ToListAsync();
 
             return values;
+        }
+
+        // DOĞRU VE GÜNCEL METOT
+        public async Task<ResultArtistDto> GetByIdArtistAsync(int id)
+        {
+            var value = await _context.Artists
+                .Where(x => x.ArtistId == id)
+                .Join(_context.Roles,
+                    artist => artist.RequiredRole,
+                    role => role.Id,
+                    (artist, role) => new ResultArtistDto
+                    {
+                        ArtistId = artist.ArtistId,
+                        Name = artist.Name,
+                        ImageUrl = artist.ImageUrl,
+                        Bio = artist.Bio,
+                        MonthlyListeners = artist.MonthlyListeners,
+                        IsVerified = artist.IsVerified,
+                        RequiredRoleId = artist.RequiredRole,
+                        RequiredRoleName = role.Name
+                    })
+                .FirstOrDefaultAsync();
+
+            return value;
         }
     }
 }

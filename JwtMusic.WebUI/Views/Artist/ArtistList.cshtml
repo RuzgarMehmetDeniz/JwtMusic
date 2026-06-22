@@ -918,7 +918,7 @@
 						</a>
 						<div class="card-genre">@item.Bio</div>
 						<div class="card-footer">
-							<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
+							<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners.ToString("N0") M</span>
 							<button class="btn-follow" onclick="toggleFollow(this)">Takip Et</button>
 						</div>
 					</div>
@@ -976,7 +976,7 @@
 								</a>
 								<div class="card-genre">@item.Bio</div>
 								<div class="card-footer">
-									<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners M</span>
+									<span class="card-listeners"><i class="bi bi-person-fill"></i> @item.MonthlyListeners.ToString("N0") M</span>
 									<button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
 								</div>
 							</div>
