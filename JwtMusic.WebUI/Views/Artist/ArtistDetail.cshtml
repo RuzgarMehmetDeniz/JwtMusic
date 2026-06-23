@@ -1,6 +1,21 @@
 ﻿@model JwtMusic.WebUI.Models.ArtistDetailViewModel
 @{
     Layout = null;
+    // Kullanıcı adının baş harflerini dinamik almak için (Örn: "Rüzgar Mehmet" -> "RM")
+    // Gerçek projedeki User.Identity.Name durumunuza göre burayı şekillendirebilirsiniz.
+    string userInitials = "RM";
+    if (User.Identity != null && User.Identity.IsAuthenticated && !string.IsNullOrEmpty(User.Identity.Name))
+    {
+        var names = User.Identity.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (names.Length > 1)
+        {
+            userInitials = (names[0][0].ToString() + names[1][0].ToString()).ToUpper();
+        }
+        else if (names.Length == 1)
+        {
+            userInitials = names[0][0].ToString().ToUpper();
+        }
+    }
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -17,8 +32,6 @@
             --bg-card: #13131f;
             --accent-cyan: #00e5ff;
             --accent-violet: #7c3aed;
-            --accent-pink: #f72585;
-            --accent-green: #06ffa5;
             --text-primary: #f0f0ff;
             --text-secondary: #8888aa;
             --text-muted: #44445a;
@@ -37,32 +50,29 @@
             color: var(--text-primary);
             font-family: 'DM Sans', sans-serif;
             min-height: 100vh;
-            overflow-x: hidden;
+            padding-bottom: 100px;
         }
 
-            /* Arka Plan Gren Efekti */
-            body::before {
-                content: '';
-                position: fixed;
-                inset: 0;
-                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-                pointer-events: none;
-                z-index: 0;
-                opacity: .4;
-            }
-
-        /* Navigasyon Barı */
+        /* 🛠️ ÇAKIŞMALARI ÖNLEYEN GÜVENLİ NAVBAR */
         nav {
             position: sticky;
             top: 0;
             z-index: 100;
             display: flex;
             align-items: center;
-            padding: 0 clamp(1.5rem, 5vw, 3.5rem);
-            height: 68px;
-            background: rgba(8,8,16,0.85);
+            justify-content: space-between;
+            padding: 0 clamp(1rem, 3vw, 2.5rem);
+            height: 70px;
+            background: rgba(8,8,16,0.9);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-shrink: 0;
         }
 
         .logo {
@@ -96,49 +106,128 @@
             letter-spacing: -0.5px;
         }
 
-        /* Sanatçı Dev Profil Banner Alanı */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            padding: 6px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+            .nav-link:hover, .nav-link.active {
+                color: var(--text-primary);
+                background: rgba(255,255,255,0.05);
+            }
+
+        .premium-btn {
+            background: rgba(0,229,255,0.1);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan) !important;
+        }
+
+        /* SAĞ KISIM: ARAMA VE PROFİL ALANI */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+            .search-box input {
+                background: var(--bg-surface);
+                border: 1px solid var(--border);
+                border-radius: 50px;
+                padding: 0.5rem 1rem 0.5rem 2.5rem;
+                color: #fff;
+                font-size: 0.85rem;
+                width: 200px;
+                transition: all 0.3s ease;
+            }
+
+                .search-box input:focus {
+                    outline: none;
+                    border-color: var(--accent-cyan);
+                    width: 240px; /* Odaklanınca şık bir genişleme */
+                    box-shadow: 0 0 15px rgba(0,229,255,0.15);
+                }
+
+            .search-box i {
+                position: absolute;
+                left: 14px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-muted);
+            }
+
+        /* DİNAMİK KULLANICI AVATARI */
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #f72585, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            .avatar:hover {
+                transform: scale(1.05);
+            }
+
+        /* SANATÇI BANNER ALANI */
         .artist-banner {
             position: relative;
-            height: 45vh;
-            min-height: 350px;
+            height: 42vh;
+            min-height: 320px;
             display: flex;
             align-items: flex-end;
-            padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 3.5rem);
-            background: linear-gradient(to bottom, rgba(8,8,16,0.1) 0%, rgba(8,8,16,0.8) 70%, var(--bg-base) 100%), url('@Model.Artist.ImageUrl') center/cover no-repeat;
+            justify-content: space-between;
+            padding: 3rem clamp(1.5rem, 5vw, 3.5rem);
+            background: linear-gradient(to bottom, rgba(8,8,16,0.1) 0%, rgba(8,8,16,0.85) 80%, var(--bg-base) 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
         }
 
-        .banner-overlay {
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.15) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        .artist-header-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .verified-badge {
+        .artist-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            background: rgba(0, 229, 255, 0.15);
             color: var(--accent-cyan);
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
         }
 
         .artist-name {
             font-family: 'Clash Display', sans-serif;
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
             font-weight: 700;
+            margin-bottom: 0.5rem;
             line-height: 1.1;
-            letter-spacing: -1.5px;
-            margin-bottom: 1rem;
-            text-shadow: 0 4px 24px rgba(0,0,0,0.4);
         }
 
         .artist-meta {
@@ -146,82 +235,79 @@
             align-items: center;
             gap: 1.5rem;
             color: var(--text-secondary);
-            font-size: 0.95rem;
         }
 
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .meta-item i {
+            color: var(--accent-cyan);
+            margin-right: 5px;
         }
 
-            .meta-item i {
-                color: var(--accent-cyan);
+        .artist-profile-wrap {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 15px 45px rgba(0,0,0,0.7), var(--glow-cyan);
+            margin-bottom: -10px;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            flex-shrink: 0;
+        }
+
+            .artist-profile-wrap:hover {
+                transform: scale(1.05);
             }
 
-        /* İçerik Alanı */
-        .content-container {
-            padding: 2.5rem clamp(1.5rem, 5vw, 3.5rem) 5rem clamp(1.5rem, 5vw, 3.5rem);
+        .artist-profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* İÇERİK ALANI */
+        .content {
+            padding: 2.5rem clamp(1.5rem, 5vw, 3.5rem);
         }
 
         .action-bar {
             display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            margin-bottom: 3rem;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
         }
 
         .btn-play-all {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
             color: #fff;
             border: none;
+            padding: 0.75rem 2.25rem;
             border-radius: 50px;
-            padding: 0.85rem 2.25rem;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s;
             box-shadow: var(--glow-cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
         }
 
             .btn-play-all:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 30px rgba(0,229,255,0.4);
+                transform: scale(1.02);
             }
 
-        .btn-follow-detail {
+        .btn-follow {
             background: rgba(255,255,255,0.05);
             border: 1px solid var(--border);
-            color: var(--text-primary);
-            font-weight: 600;
-            padding: 0.85rem 2rem;
+            color: #fff;
+            padding: 0.75rem 1.75rem;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.2s;
+            font-weight: 500;
+            transition: background 0.2s;
         }
 
-            .btn-follow-detail:hover {
+            .btn-follow:hover {
                 background: rgba(255,255,255,0.1);
-                border-color: rgba(255,255,255,0.2);
             }
-
-            .btn-follow-detail.following {
-                background: rgba(6,255,165,0.1);
-                border-color: var(--accent-green);
-                color: var(--accent-green);
-            }
-
-        /* Popüler Şarkılar Tablosu */
-        .section-title {
-            font-family: 'Clash Display', sans-serif;
-            font-size: 1.75rem;
-            font-weight: 600;
-            letter-spacing: -0.5px;
-            margin-bottom: 1.5rem;
-        }
 
         .track-list {
             display: flex;
@@ -231,38 +317,40 @@
 
         .track-row {
             display: grid;
-            grid-template-columns: 40px 55px 2fr 1.5fr 80px;
+            grid-template-columns: 40px 50px 2fr 1fr 80px;
             align-items: center;
-            padding: 0.75rem 1.25rem;
-            background: rgba(255,255,255,0.02);
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.01);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 12px;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
             .track-row:hover {
-                background: rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.04);
                 border-color: rgba(0,229,255,0.2);
-                transform: translateX(4px);
             }
+
+            .track-row.playing-now {
+                background: rgba(0, 229, 255, 0.06);
+                border-color: var(--accent-cyan);
+            }
+
+                .track-row.playing-now .track-index {
+                    color: var(--accent-cyan);
+                }
 
         .track-index {
             color: var(--text-muted);
-            font-size: 0.9rem;
             font-weight: 500;
         }
 
-        .track-row:hover .track-index {
-            color: var(--accent-cyan);
-        }
-
         .track-cover-wrap {
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
             overflow: hidden;
-            background: #1a1a2e;
         }
 
         .track-cover {
@@ -271,148 +359,503 @@
             object-fit: cover;
         }
 
-        .track-title-info {
+        .track-title {
+            font-weight: 500;
+        }
+
+        /* SÜPER ALT BANT PLAYER */
+        .global-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 85px;
+            background: rgba(15,15,26,0.96);
+            backdrop-filter: blur(25px);
+            border-top: 1px solid var(--border);
+            display: none;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 1000;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .player-cover {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .player-details h4 {
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+
+        .player-details p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+            .control-btn:hover {
+                color: var(--text-primary);
+            }
+
+        .btn-play-pause {
+            font-size: 2rem;
+            color: var(--accent-cyan);
+        }
+
+        .progress-container {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            padding-right: 15px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            width: 100%;
+            max-width: 500px;
         }
 
-        .premium-badge {
-            background: rgba(0,229,255,0.08);
-            border: 1px solid rgba(0,229,255,0.25);
-            color: var(--accent-cyan);
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 4px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            flex-shrink: 0;
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--text-muted);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
         }
 
-        .track-album {
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+            width: 0%;
+            border-radius: 2px;
+        }
+
+        .time-display {
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            width: 35px;
         }
 
-        .track-duration {
+        .player-volume {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .volume-icon-btn {
+            background: none;
+            border: none;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            text-align: right;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
         }
 
-        .track-row:hover .track-duration {
-            color: var(--text-primary);
-        }
-
-        /* Mobil Duyarlılık */
-        @@media (max-width: 768px) {
-            .track-row {
-                grid-template-columns: 30px 50px 2fr 80px;
+            .volume-icon-btn:hover {
+                color: var(--text-primary);
             }
 
-            .track-album {
-                display: none;
-            }
+        .volume-slider-container {
+            display: flex;
+            align-items: center;
+            width: 0px;
+            overflow: hidden;
+            transition: width 0.2s ease-in-out;
+        }
+
+        .player-volume:hover .volume-slider-container {
+            width: 80px;
+        }
+
+        .volume-bar {
+            width: 70px;
+            height: 4px;
+            background: var(--text-muted);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: var(--text-primary);
+            width: 100%;
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="/Artist/ArtistList" class="logo">
-            <div class="logo-icon"><i class="bi bi-soundwave"></i></div>
-            <span class="logo-text" style="margin-left: 10px;">SoundWave</span>
-        </a>
+        <div class="nav-left">
+            <a href="/Artist/ArtistList" class="logo">
+                <div class="logo-icon"><i class="bi bi-soundwave"></i></div>
+                <span class="logo-text">SoundWave</span>
+            </a>
+            <div class="nav-links">
+                <a href="/Artist/ArtistList" class="nav-link active">Sanatçılar</a>
+                <a href="#" class="nav-link">Şarkılar</a>
+                <a href="#" class="nav-link">Türler</a>
+                <a href="#" class="nav-link premium-btn"><i class="bi bi-lightning-charge-fill"></i> Premium</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="songSearchInput" oninput="filterSongs()" placeholder="Bu sanatçının şarkılarında ara...">
+            </div>
+            <div class="avatar" title="@User.Identity?.Name">@userInitials</div>
+        </div>
     </nav>
 
     <header class="artist-banner">
-        <div class="banner-overlay"></div>
-        <div class="artist-header-content">
-            <div class="verified-badge"><i class="bi bi-patch-check-fill"></i> Doğrulanmış Sanatçı</div>
+        <div>
+            <div class="artist-badge"><i class="bi bi-patch-check-fill"></i> Doğrulanmış Sanatçı</div>
             <h1 class="artist-name">@Model.Artist.Name</h1>
             <div class="artist-meta">
                 <div class="meta-item">
                     <i class="bi bi-person-pulse"></i>
-                    <span><strong>@Model.Artist.MonthlyListeners.ToString("N0") M</strong> Aylık Dinleyici</span>
+                    <span><strong>@Model.Artist.MonthlyListeners.ToString("N0")</strong> Aylık Dinleyici</span>
                 </div>
-                <div class="meta-item">
-                    <i class="bi bi-music-note-list"></i>
-                    <span><strong>@(Model.Songs != null ? Model.Songs.Count : 0)</strong> Parça</span>
-                </div>
+                <div class="meta-item"><i class="bi bi-music-note-list"></i> <span><strong>@(Model.Songs != null ? Model.Songs.Count : 0)</strong> Parça</span></div>
             </div>
+        </div>
+
+        <div class="artist-profile-wrap">
+            <img src="@Model.Artist.ImageUrl" class="artist-profile-img" alt="@Model.Artist.Name">
         </div>
     </header>
 
-    <main class="content-container">
+    <main class="content">
         <div class="action-bar">
-            <button class="btn-play-all"><i class="bi bi-play-fill"></i> Tümünü Oynat</button>
-            <button class="btn-follow-detail" onclick="toggleFollowDetail(this)">Takip Et</button>
+            <button class="btn-play-all" onclick="playAll()"><i class="bi bi-play-fill"></i> Tümünü Oynat</button>
+            <button class="btn-follow">Takip Et</button>
         </div>
 
-        <h2 class="section-title">Popüler Şarkılar</h2>
+        <h2 style="font-family: 'Clash Display'; font-size: 1.5rem; margin-bottom: 1.25rem;">Popüler Şarkılar</h2>
 
-        <div class="track-list">
+        <div class="track-list" id="trackListContainer">
             @if (Model.Songs != null && Model.Songs.Any())
             {
-                int index = 1;
+                int index = 0;
                 foreach (var song in Model.Songs)
                 {
-                    <div class="track-row" onclick="playSong('@song.AudioUrl', '@song.Title', '@Model.Artist.Name', '@song.CoverImageUrl')">
-                        <div class="track-index">@index</div>
+                    <div class="track-row" id="track-@index" data-title="@song.Title.ToLower()" onclick="playTrackAtIndex(@index)">
+                        <div class="track-index">@(index + 1)</div>
                         <div class="track-cover-wrap">
-                            <img src="@song.CoverImageUrl" class="track-cover" alt="@song.Title Cover">
+                            <img src="@song.CoverImageUrl" class="track-cover" alt="">
                         </div>
-                        <div class="track-title-info">
-                            <span>@song.Title</span>
-                            @if (song.IsPremium)
-                            {
-                                <span class="premium-badge">PREMIUM</span>
-                            }
-                        </div>
-                        <div class="track-album">Single</div>
-                        <div class="track-duration">@song.Duration.ToString(@"mm\:ss")</div>
+                        <div class="track-title">@song.Title</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Single</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem; text-align: right;">@song.Duration.ToString(@"mm\:ss")</div>
                     </div>
                     index++;
                 }
             }
             else
             {
-                <div style="padding: 30px; text-align: center; color: var(--text-secondary); border: 1px dashed var(--border); border-radius: 14px;">
-                    <i class="bi bi-music-note" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                <div style="padding: 40px; text-align: center; color: var(--text-secondary); border: 1px dashed var(--border); border-radius: 12px;">
+                    <i class="bi bi-music-note" style="font-size: 1.5rem; display: block; margin-bottom: 8px;"></i>
                     Bu sanatçıya ait popüler şarkı bulunamadı.
                 </div>
             }
         </div>
     </main>
 
+    <div class="global-player" id="globalPlayer">
+        <div class="player-info">
+            <img src="" id="pCover" class="player-cover" alt="">
+            <div class="player-details">
+                <h4 id="pTitle">Şarkı Adı</h4>
+                <p id="pArtist">Sanatçı</p>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <div class="control-buttons">
+                <button class="control-btn"><i class="bi bi-shuffle"></i></button>
+                <button class="control-btn" onclick="playPrevious()"><i class="bi bi-skip-start-fill"></i></button>
+                <button class="control-btn btn-play-pause" onclick="togglePlay()"><i class="bi bi-play-circle-fill" id="playIcon"></i></button>
+                <button class="control-btn" onclick="playNext()"><i class="bi bi-skip-end-fill"></i></button>
+                <button class="control-btn"><i class="bi bi-repeat"></i></button>
+            </div>
+            <div class="progress-container">
+                <span class="time-display" id="currentTime">00:00</span>
+                <div class="progress-bar" onclick="seek(event)">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="time-display" id="totalTime">00:00</span>
+            </div>
+        </div>
+
+        <div class="player-volume">
+            <button class="volume-icon-btn" onclick="toggleMute()">
+                <i class="bi bi-volume-up" id="volumeIcon"></i>
+            </button>
+            <div class="volume-slider-container">
+                <div class="volume-bar" onclick="setVolume(event)">
+                    <div class="volume-fill" id="volumeFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ytPlayer" style="display:none;"></div>
+
     <script>
-        function toggleFollowDetail(btn) {
-            const isFollowing = btn.classList.toggle('following');
-            btn.innerHTML = isFollowing ? '<i class="bi bi-check-lg"></i> Takip Ediliyor' : 'Takip Et';
+        const tracks = [];
+        @if (Model.Songs != null)
+        {
+                foreach (var song in Model.Songs)
+                {
+                        <text>
+                        tracks.push({
+                            audioUrl: '@song.AudioUrl',
+                            title: '@song.Title',
+                            artist: '@Model.Artist.Name',
+                            coverUrl: '@song.CoverImageUrl'
+                        });
+                        </text>
+                }
         }
 
-        // Şarkı satırına tıklandığında global müzik oynatıcısını besleyecek JavaScript fonksiyonu
-        function playSong(audioUrl, title, artist, coverImg) {
-            console.log("Çalınması İstenen Şarkı Bilgileri:");
-            console.log("Başlık:", title);
-            console.log("URL:", audioUrl);
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-            // Eğer anasayfadaki alt bar (player) yapısını buraya entegre etmek istersen,
-            // parent penceredeki oynatıcıyı tetikleyebilir veya doğrudan buradaki verilerle oynatıcıyı güncelleyebilirsin.
-            // Örnek: document.getElementById('playerSong').innerText = title;
+        let ytPlayer;
+        let progressInterval;
+        let currentTrackIndex = -1;
+        let lastVolume = 100;
+
+        const player = document.getElementById('globalPlayer');
+        const playIcon = document.getElementById('playIcon');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeText = document.getElementById('currentTime');
+        const totalTimeText = document.getElementById('totalTime');
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                height: '0',
+                width: '0',
+                playerVars: { 'controls': 0, 'disablekb': 1, 'rel': 0 },
+                events: {
+                    'onStateChange': onPlayerStateChange,
+                    'onReady': onPlayerReady,
+                    'onError': onPlayerError
+                }
+            });
+        }
+
+        function onPlayerReady() {
+            ytPlayer.setVolume(lastVolume);
+        }
+
+        // 🔍 ŞARKILARI ANLIK FİLTRELEME FONKSİYONU
+        function filterSongs() {
+            const searchText = document.getElementById('songSearchInput').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.track-row');
+
+            rows.forEach(row => {
+                const songTitle = row.getAttribute('data-title');
+                if (songTitle.includes(searchText)) {
+                    row.style.display = 'grid'; // Eşleşiyorsa göster
+                } else {
+                    row.style.display = 'none'; // Eşleşmiyorsa gizle
+                }
+            });
+        }
+
+        function getYoutubeId(url) {
+            if (!url) return null;
+            if (url.length === 11 && !url.includes('/') && !url.includes('?')) return url;
+
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function playTrackAtIndex(index) {
+            if (index < 0 || index >= tracks.length) return;
+
+            if (currentTrackIndex !== -1) {
+                const oldRow = document.getElementById(`track-${currentTrackIndex}`);
+                if (oldRow) oldRow.classList.remove('playing-now');
+            }
+
+            currentTrackIndex = index;
+            const track = tracks[index];
+
+            const videoId = getYoutubeId(track.audioUrl);
+            if (!videoId) {
+                alert("Hata: Geçersiz YouTube adresi!");
+                return;
+            }
+
+            const newRow = document.getElementById(`track-${index}`);
+            if (newRow) newRow.classList.add('playing-now');
+
+            document.getElementById('pTitle').innerText = track.title;
+            document.getElementById('pArtist').innerText = track.artist;
+            document.getElementById('pCover').src = track.coverUrl;
+            player.style.display = 'grid';
+
+            if (ytPlayer && ytPlayer.loadVideoById) {
+                ytPlayer.loadVideoById(videoId);
+                playIcon.className = "bi bi-pause-circle-fill";
+                startProgressLoop();
+            }
+        }
+
+        function playAll() {
+            if (tracks.length > 0) {
+                playTrackAtIndex(0);
+            }
+        }
+
+        function playNext() {
+            if (currentTrackIndex + 1 < tracks.length) {
+                playTrackAtIndex(currentTrackIndex + 1);
+            } else {
+                playTrackAtIndex(0);
+            }
+        }
+
+        function playPrevious() {
+            if (currentTrackIndex - 1 >= 0) {
+                playTrackAtIndex(currentTrackIndex - 1);
+            } else {
+                playTrackAtIndex(tracks.length - 1);
+            }
+        }
+
+        function togglePlay() {
+            if (!ytPlayer || !ytPlayer.getPlayerState) return;
+            const currentState = ytPlayer.getPlayerState();
+            if (currentState === YT.PlayerState.PLAYING) {
+                ytPlayer.pauseVideo();
+                playIcon.className = "bi bi-play-circle-fill";
+                clearInterval(progressInterval);
+            } else {
+                ytPlayer.playVideo();
+                playIcon.className = "bi bi-pause-circle-fill";
+                startProgressLoop();
+            }
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                playNext();
+            }
+        }
+
+        function onPlayerError(event) {
+            console.error("YouTube Player Hatası:", event.data);
+        }
+
+        function startProgressLoop() {
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (ytPlayer && ytPlayer.getCurrentTime) {
+                    const current = ytPlayer.getCurrentTime();
+                    const duration = ytPlayer.getDuration();
+                    if (duration > 0) {
+                        const percentage = (current / duration) * 100;
+                        progressFill.style.width = percentage + '%';
+                        currentTimeText.innerText = formatTime(current);
+                        totalTimeText.innerText = formatTime(duration);
+                    }
+                }
+            }, 1000);
+        }
+
+        function seek(event) {
+            if (!ytPlayer || !ytPlayer.getDuration) return;
+            const bar = event.currentTarget;
+            const clickX = event.offsetX;
+            const duration = ytPlayer.getDuration();
+            if (duration > 0) {
+                const seekTo = (clickX / bar.offsetWidth) * duration;
+                ytPlayer.seekTo(seekTo, true);
+                progressFill.style.width = ((seekTo / duration) * 100) + '%';
+                currentTimeText.innerText = formatTime(seekTo);
+            }
+        }
+
+        function setVolume(event) {
+            if (!ytPlayer || !ytPlayer.setVolume) return;
+            const bar = event.currentTarget;
+            const clickX = event.offsetX;
+            let volumeLevel = (clickX / bar.offsetWidth) * 100;
+
+            if (volumeLevel < 0) volumeLevel = 0;
+            if (volumeLevel > 100) volumeLevel = 100;
+
+            lastVolume = volumeLevel;
+            ytPlayer.setVolume(volumeLevel);
+            updateVolumeUI(volumeLevel);
+        }
+
+        function toggleMute() {
+            if (!ytPlayer || !ytPlayer.setVolume) return;
+            if (ytPlayer.isMuted()) {
+                ytPlayer.unMute();
+                ytPlayer.setVolume(lastVolume);
+                updateVolumeUI(lastVolume);
+            } else {
+                lastVolume = ytPlayer.getVolume() || 100;
+                ytPlayer.mute();
+                updateVolumeUI(0);
+            }
+        }
+
+        function updateVolumeUI(volumeLevel) {
+            document.getElementById('volumeFill').style.width = volumeLevel + '%';
+            const volumeIcon = document.getElementById('volumeIcon');
+            if (volumeLevel === 0) {
+                volumeIcon.className = "bi bi-volume-mute";
+            } else if (volumeLevel < 50) {
+                volumeIcon.className = "bi bi-volume-down";
+            } else {
+                volumeIcon.className = "bi bi-volume-up";
+            }
+        }
+
+        function formatTime(secs) {
+            let min = Math.floor(secs / 60);
+            let sec = Math.floor(secs % 60);
+            return (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec);
         }
     </script>
 </body>
 </html>
-
-```
