@@ -1,6 +1,10 @@
+using JwtMusic.WebApi.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddDbContext<JwtContext>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddSession();

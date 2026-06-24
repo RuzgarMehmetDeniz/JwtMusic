@@ -1,0 +1,187 @@
+﻿@model IEnumerable<JwtMusic.WebApi.Entities.Song>
+
+@{
+    Layout = null;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canlı Veri Merkezi | Audio Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #0b071a;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+    </style>
+</head>
+<body class="text-gray-200 min-h-screen font-sans flex flex-col justify-between pb-28">
+
+    <div class="flex flex-1">
+        <aside class="w-64 border-r border-white/5 bg-black/30 p-6 flex flex-col justify-between hidden md:flex">
+            <div class="space-y-8">
+                <div class="flex items-center gap-3 px-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-radio text-white text-sm"></i>
+                    </div>
+                    <span class="font-bold text-lg text-white">JWT Audio</span>
+                </div>
+                <nav class="space-y-1">
+                    <a href="/GecıcıSong/Index" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-600/10 text-purple-400 font-medium">
+                        <i class="fa-solid fa-music"></i> Müzik Kütüphanesi
+                    </a>
+                    <a href="/GecıcıSong/Create" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                        <i class="fa-solid fa-circle-plus"></i> Yeni Şarkı Ekle
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="flex-1 px-6 md:px-12 py-10 max-w-5xl mx-auto w-full">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <span class="text-xs font-semibold text-purple-400 tracking-wider uppercase">Dinamik Veri Yönetim Paneli</span>
+                    <h1 class="text-3xl font-extrabold text-white">Parça Kütüphanesi</h1>
+                </div>
+                <a href="/GecıcıSong/Create" class="bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg transition-all">
+                    <i class="fa-solid fa-plus mr-2"></i> Yeni Parça Ekle
+                </a>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6 shadow-2xl space-y-3">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <div class="glass-card rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-white/[0.03] group">
+
+                            <div class="flex items-center gap-4 cursor-pointer flex-1" onclick="playMusic('@item.Title', 'Sanatçı ID: @item.ArtistId', '@item.AudioUrl', '@item.CoverImageUrl')">
+
+                                @if (!string.IsNullOrEmpty(item.CoverImageUrl))
+                                {
+                                    <img src="@item.CoverImageUrl" class="w-12 h-12 rounded-xl object-cover border border-white/10 group-hover:scale-105 transition-transform" alt="Cover" />
+                                }
+                                else
+                                {
+                                    <div class="w-12 h-12 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all">
+                                        <i class="fa-solid fa-play text-xs"></i>
+                                    </div>
+                                }
+
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="font-medium text-white group-hover:text-purple-400 transition-colors">@item.Title</h3>
+
+                                        @if (item.IsPremium)
+                                        {
+                                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-wider"><i class="fa-solid fa-crown mr-0.5"></i> Premium</span>
+                                        }
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-0.5">Süre: @item.Duration dk • Dinlenme: @item.PlayCount</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <a href="/GecıcıSong/Edit/@item.SongId" class="text-gray-400 hover:text-yellow-400 p-2 text-xs transition-colors" title="Düzenle">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@item.SongId" method="post" onsubmit="return confirm('Bu şarkıyı silmek istediğinize emin misiniz?')" class="inline">
+                                    <button type="submit" class="text-gray-400 hover:text-red-500 p-2 text-xs transition-colors" title="Sil">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="flex items-center justify-between pt-6 border-t border-white/5 text-xs text-gray-400">
+                        <p>Sayfa <span class="text-white">@currentPage</span> / @totalPages</p>
+                        <div class="flex items-center gap-1">
+                            <a href="/GecıcıSong/Index?page=@(currentPage - 1)" class="px-3 py-1.5 rounded-lg border border-white/5 @(currentPage == 1 ? "opacity-30 pointer-events-none" : "hover:bg-white/5")"><i class="fa-solid fa-angle-left"></i></a>
+
+                            @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                            {
+                                <a href="/GecıcıSong/Index?page=@i" class="w-8 h-8 rounded-lg flex items-center justify-center border @(i == currentPage ? "bg-purple-600 text-white border-transparent" : "border-white/5 hover:bg-white/5")">@i</a>
+                            }
+
+                            <a href="/GecıcıSong/Index?page=@(currentPage + 1)" class="px-3 py-1.5 rounded-lg border border-white/5 @(currentPage == totalPages ? "opacity-30 pointer-events-none" : "hover:bg-white/5")"><i class="fa-solid fa-angle-right"></i></a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-12 text-gray-500 text-sm">Kütüphanede şarkı bulunamadı.</div>
+                }
+            </div>
+        </main>
+    </div>
+
+    <div id="playerBar" class="fixed bottom-0 left-0 right-0 bg-black/70 backdrop-blur-2xl border-t border-white/10 p-4 flex items-center justify-between hidden z-50">
+        <div class="flex items-center gap-3 w-1/4">
+            <img id="playerCover" src="" class="w-12 h-12 rounded-xl object-cover border border-white/10 hidden" alt="Current Cover" />
+            <div id="playerDefaultIcon" class="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-lg">
+                <i class="fa-solid fa-compact-disc"></i>
+            </div>
+            <div class="truncate">
+                <h4 id="playerTitle" class="font-semibold text-sm text-white truncate">Şarkı Adı</h4>
+                <p id="playerArtist" class="text-xs text-gray-400 truncate">Sanatçı</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 flex-1 max-w-xl mx-4">
+            <audio id="mainAudio" controls class="w-full h-9 accent-purple-600"></audio>
+        </div>
+
+        <div class="w-1/4 text-right">
+            <button onclick="closePlayer()" class="text-gray-400 hover:text-white text-xs bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 transition-all"><i class="fa-solid fa-xmark mr-1"></i> Kapat</button>
+        </div>
+    </div>
+
+    <script>
+        function playMusic(title, artist, audioUrl, coverUrl) {
+            document.getElementById('playerTitle').innerText = title;
+            document.getElementById('playerArtist').innerText = artist;
+
+            // Kapak Görseli Ayarı
+            const playerCover = document.getElementById('playerCover');
+            const defaultIcon = document.getElementById('playerDefaultIcon');
+            if(coverUrl && coverUrl !== '') {
+                playerCover.src = coverUrl;
+                playerCover.classList.remove('hidden');
+                defaultIcon.classList.add('hidden');
+            } else {
+                playerCover.classList.add('hidden');
+                defaultIcon.classList.remove('hidden');
+            }
+
+            const audio = document.getElementById('mainAudio');
+            // Eğer veritabanındaki AudioUrl boşsa koruma amaçlı örnek bir ses dosyası atıyoruz
+            audio.src = audioUrl && audioUrl !== '' ? audioUrl : "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+
+            document.getElementById('playerBar').classList.remove('hidden');
+            audio.play();
+        }
+
+        function closePlayer() {
+            const audio = document.getElementById('mainAudio');
+            audio.pause();
+            document.getElementById('playerBar').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -14,4 +14,8 @@
     <Folder Include="wwwroot\Bepop\libs\plyrist\dist\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\JwtMusic.WebApi\JwtMusic.WebApi.csproj" />
+  </ItemGroup>
+
 </Project>
