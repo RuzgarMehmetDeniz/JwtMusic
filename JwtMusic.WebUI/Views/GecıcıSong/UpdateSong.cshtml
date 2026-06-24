@@ -2,7 +2,6 @@
 
 @{
     Layout = null;
-    int returnPage = ViewBag.ReturnPage ?? 1;
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -31,9 +30,8 @@
             <p class="text-xs text-gray-400 mt-1">Veritabanındaki tüm kayıtlı meta verileri düzenleyin.</p>
         </div>
 
-        <form asp-action="Edit" method="post" class="space-y-4">
+        <form asp-action="UpdateSong" method="post" class="space-y-4">
             <input type="hidden" asp-for="SongId" />
-            <input type="hidden" name="returnPage" value="@returnPage" />
 
             <div>
                 <label asp-for="Title" class="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1">Şarkı Başlığı</label>
@@ -82,7 +80,7 @@
             </div>
 
             <div class="flex gap-3 pt-4">
-                <a href="/GecıcıSong/Index?page=@returnPage" class="w-1/2 bg-white/5 hover:bg-white/10 text-center py-3 rounded-xl text-xs font-bold transition-all">İptal</a>
+                <a href="/GecıcıSong/Index" class="w-1/2 bg-white/5 hover:bg-white/10 text-center py-3 rounded-xl text-xs font-bold transition-all">İptal</a>
                 <button type="submit" class="w-1/2 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl text-xs font-bold transition-all">
                     <i class="fa-solid fa-floppy-disk mr-1"></i> Değişiklikleri Kaydet
                 </button>

@@ -14,7 +14,7 @@ namespace JwtMusic.WebUI.Controllers
             _context = context;
         }
 
-        // 1. LİSTELEME & AKILLI SAYFALAMA
+        // 1. LİSTELEME & AKILLI SAYFALAMA (Aynen Korundu)
         public async Task<IActionResult> Index(int page = 1)
         {
             int pageSize = 5;
@@ -51,33 +51,39 @@ namespace JwtMusic.WebUI.Controllers
             return View(song);
         }
 
+        // 4. GÜNCELLEME (GET)
         [HttpGet]
-        public async Task<IActionResult> Edit(int id, int page = 1)
+        public async Task<IActionResult> UpdateSong(int id)
         {
-            var song = await _context.Songs.FirstOrDefaultAsync(x => x.SongId == id);
-            if (song == null) return NotFound();
-
-            ViewBag.ReturnPage = page; // Geldikleri sayfayı hafızada tutuyoruz
-            return View(song);
-        }
-
-        // GÜNCELLEME (POST) - Güncelleme bitince gelinen sayfaya geri gönderiyoruz
-        [HttpPost]
-        public async Task<IActionResult> Edit(Song song, int returnPage = 1)
-        {
-            if (ModelState.IsValid)
+            var value = await _context.Songs.FirstOrDefaultAsync(x => x.SongId == id);
+            if (value == null)
             {
-                _context.Songs.Update(song);
-                await _context.SaveChangesAsync();
-
-                // Güncelleme bitince şarkının düzenlendiği sayfaya geri yönlendirir
-                return RedirectToAction(nameof(Index), new { page = returnPage });
+                return NotFound();
             }
-            ViewBag.ReturnPage = returnPage;
-            return View(song);
+            return View(value);
         }
 
-        // 6. SİLME
+        // 5. GÜNCELLEME (POST) - Sayfalama parametreleri kaldırıldı, direkt Index'e döner
+        [HttpPost]
+        public async Task<IActionResult> UpdateSong(Song song)
+        {
+            var value = await _context.Songs.FirstOrDefaultAsync(x => x.SongId == song.SongId);
+
+            value.Title = song.Title;
+            value.CoverImageUrl = song.CoverImageUrl;
+            value.AudioUrl = song.AudioUrl;
+            value.Duration = song.Duration;
+            value.PlayCount = song.PlayCount;
+            value.IsPremium = song.IsPremium;
+            value.ReleaseDate = song.ReleaseDate;
+            value.ArtistId = song.ArtistId;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        // 6. SİLME (POST)
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {

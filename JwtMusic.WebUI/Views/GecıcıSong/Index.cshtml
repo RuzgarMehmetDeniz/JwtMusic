@@ -97,7 +97,7 @@
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <a href="/GecıcıSong/Edit/@item.SongId" class="text-gray-400 hover:text-yellow-400 p-2 text-xs transition-colors" title="Düzenle">
+                                <a href="/GecıcıSong/UpdateSong/@item.SongId" class="text-gray-400 hover:text-yellow-400 p-2 text-xs transition-colors" title="Düzenle">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
                                 <form asp-action="Delete" asp-route-id="@item.SongId" method="post" onsubmit="return confirm('Bu şarkıyı silmek istediğinize emin misiniz?')" class="inline">
