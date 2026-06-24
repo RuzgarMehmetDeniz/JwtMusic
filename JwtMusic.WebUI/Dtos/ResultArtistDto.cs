@@ -15,5 +15,6 @@
         public bool IsVerified { get; set; }
 
         public DateTime CreatedDate { get; set; }
+
     }
 }

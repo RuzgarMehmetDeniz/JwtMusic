@@ -1,23 +1,9 @@
 ﻿@model JwtMusic.WebUI.Models.ArtistDetailViewModel
+
 @{
     Layout = null;
-
-    // Kullanıcı adının baş harflerini dinamik almak için (Örn: "Rüzgar Mehmet" -> "RM")
-    // Gerçek projedeki User.Identity.Name durumunuza göre burayı şekillendirebilirsiniz.
-    string userInitials = "RM";
-    if (User.Identity != null && User.Identity.IsAuthenticated && !string.IsNullOrEmpty(User.Identity.Name))
-    {
-        var names = User.Identity.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (names.Length > 1)
-        {
-            userInitials = (names[0][0].ToString() + names[1][0].ToString()).ToUpper();
-        }
-        else if (names.Length == 1)
-        {
-            userInitials = names[0][0].ToString().ToUpper();
-        }
-    }
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,10 +37,10 @@
             color: var(--text-primary);
             font-family: 'DM Sans', sans-serif;
             min-height: 100vh;
-            padding-bottom: 100px;
+            padding-bottom: 110px;
         }
 
-        /* 🛠️ ÇAKIŞMALARI ÖNLEYEN GÜVENLİ NAVBAR */
+        /* NAVBAR */
         nav {
             position: sticky;
             top: 0;
@@ -135,7 +121,6 @@
             color: var(--accent-cyan) !important;
         }
 
-        /* SAĞ KISIM: ARAMA VE PROFİL ALANI */
         .nav-right {
             display: flex;
             align-items: center;
@@ -161,7 +146,7 @@
                 .search-box input:focus {
                     outline: none;
                     border-color: var(--accent-cyan);
-                    width: 240px; /* Odaklanınca şık bir genişleme */
+                    width: 240px;
                     box-shadow: 0 0 15px rgba(0,229,255,0.15);
                 }
 
@@ -173,29 +158,7 @@
                 color: var(--text-muted);
             }
 
-        /* DİNAMİK KULLANICI AVATARI */
-        .avatar {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #f72585, #7c3aed);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #fff;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-            .avatar:hover {
-                transform: scale(1.05);
-            }
-
-        /* SANATÇI BANNER ALANI */
+        /* SANATÇI BANNER */
         .artist-banner {
             position: relative;
             height: 42vh;
@@ -316,11 +279,12 @@
             gap: 0.5rem;
         }
 
+        /* Düzenleme: Görsel sütunu (50px) kaldırıldı, yeni grid yapısı oluşturuldu */
         .track-row {
             display: grid;
-            grid-template-columns: 40px 50px 2fr 1fr 80px;
+            grid-template-columns: 50px 2fr 1fr 80px;
             align-items: center;
-            padding: 0.75rem 1rem;
+            padding: 0.75rem 1.25rem;
             background: rgba(255,255,255,0.01);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -347,56 +311,39 @@
             font-weight: 500;
         }
 
-        .track-cover-wrap {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .track-cover {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         .track-title {
             font-weight: 500;
         }
 
-        /* SÜPER ALT BANT PLAYER */
+        /* 🎵 GLOBAL ALT PLAYER */
         .global-player {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 85px;
-            background: rgba(15,15,26,0.96);
+            height: 90px;
+            background: rgba(11, 11, 22, 0.95);
             backdrop-filter: blur(25px);
             border-top: 1px solid var(--border);
-            display: none;
+            display: grid;
             grid-template-columns: 1fr 2fr 1fr;
             align-items: center;
             padding: 0 2rem;
             z-index: 1000;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
         }
 
         .player-info {
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        .player-cover {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            object-fit: cover;
+            gap: 14px;
         }
 
         .player-details h4 {
             font-size: 0.95rem;
+            font-weight: 600;
             margin-bottom: 2px;
+            color: var(--text-primary);
         }
 
         .player-details p {
@@ -408,7 +355,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            width: 100%;
         }
 
         .control-buttons {
@@ -421,8 +369,9 @@
             background: none;
             border: none;
             color: var(--text-secondary);
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             cursor: pointer;
+            transition: color 0.2s;
         }
 
             .control-btn:hover {
@@ -430,16 +379,21 @@
             }
 
         .btn-play-pause {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: var(--accent-cyan);
         }
+
+            .btn-play-pause:hover {
+                transform: scale(1.05);
+                color: #fff;
+            }
 
         .progress-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
         }
 
         .progress-bar {
@@ -461,7 +415,7 @@
         .time-display {
             font-size: 0.75rem;
             color: var(--text-secondary);
-            width: 35px;
+            font-variant-numeric: tabular-nums;
         }
 
         .player-volume {
@@ -488,17 +442,11 @@
         .volume-slider-container {
             display: flex;
             align-items: center;
-            width: 0px;
-            overflow: hidden;
-            transition: width 0.2s ease-in-out;
-        }
-
-        .player-volume:hover .volume-slider-container {
             width: 80px;
         }
 
         .volume-bar {
-            width: 70px;
+            width: 100%;
             height: 4px;
             background: var(--text-muted);
             border-radius: 2px;
@@ -534,7 +482,6 @@
                 <i class="bi bi-search"></i>
                 <input type="text" id="songSearchInput" oninput="filterSongs()" placeholder="Bu sanatçının şarkılarında ara...">
             </div>
-            <div class="avatar" title="@User.Identity?.Name">@userInitials</div>
         </div>
     </nav>
 
@@ -572,9 +519,6 @@
                 {
                     <div class="track-row" id="track-@index" data-title="@song.Title.ToLower()" onclick="playTrackAtIndex(@index)">
                         <div class="track-index">@(index + 1)</div>
-                        <div class="track-cover-wrap">
-                            <img src="@song.CoverImageUrl" class="track-cover" alt="">
-                        </div>
                         <div class="track-title">@song.Title</div>
                         <div style="color: var(--text-secondary); font-size: 0.9rem;">Şarkı</div>
                         <div style="color: var(--text-secondary); font-size: 0.9rem; text-align: right;">@song.Duration.ToString(@"mm\:ss")</div>
@@ -594,10 +538,16 @@
 
     <div class="global-player" id="globalPlayer">
         <div class="player-info">
-            <img src="" id="pCover" class="player-cover" alt="">
             <div class="player-details">
-                <h4 id="pTitle">Şarkı Adı</h4>
-                <p id="pArtist">Sanatçı</p>
+                @if (Model.Songs != null && Model.Songs.Any())
+                {
+                    <h4 id="pTitle">@Model.Songs.First().Title</h4>
+                }
+                else
+                {
+                    <h4 id="pTitle">Oynatılmıyor</h4>
+                }
+                <p id="pArtist">@Model.Artist.Name</p>
             </div>
         </div>
 
@@ -642,8 +592,8 @@
                         tracks.push({
                             audioUrl: '@song.AudioUrl',
                             title: '@song.Title',
-                            artist: '@Model.Artist.Name',
-                            coverUrl: '@song.CoverImageUrl'
+                            artist: '@Model.Artist.Name'
+                            // Düzenleme: coverUrl özelliği diziden çıkarıldı
                         });
                         </text>
                 }
@@ -659,11 +609,15 @@
         let currentTrackIndex = -1;
         let lastVolume = 100;
 
-        const player = document.getElementById('globalPlayer');
         const playIcon = document.getElementById('playIcon');
         const progressFill = document.getElementById('progressFill');
         const currentTimeText = document.getElementById('currentTime');
         const totalTimeText = document.getElementById('totalTime');
+
+        if(tracks.length > 0) {
+            document.getElementById('pTitle').innerText = tracks[0].title;
+            // Düzenleme: pCover referansı kaldırıldı
+        }
 
         function onYouTubeIframeAPIReady() {
             ytPlayer = new YT.Player('ytPlayer', {
@@ -682,7 +636,6 @@
             ytPlayer.setVolume(lastVolume);
         }
 
-        // 🔍 ŞARKILARI ANLIK FİLTRELEME FONKSİYONU
         function filterSongs() {
             const searchText = document.getElementById('songSearchInput').value.toLowerCase().trim();
             const rows = document.querySelectorAll('.track-row');
@@ -690,9 +643,9 @@
             rows.forEach(row => {
                 const songTitle = row.getAttribute('data-title');
                 if (songTitle.includes(searchText)) {
-                    row.style.display = 'grid'; // Eşleşiyorsa göster
+                    row.style.display = 'grid';
                 } else {
-                    row.style.display = 'none'; // Eşleşmiyorsa gizle
+                    row.style.display = 'none';
                 }
             });
         }
@@ -728,8 +681,7 @@
 
             document.getElementById('pTitle').innerText = track.title;
             document.getElementById('pArtist').innerText = track.artist;
-            document.getElementById('pCover').src = track.coverUrl;
-            player.style.display = 'grid';
+            // Düzenleme: pCover.src güncellemesi kaldırıldı
 
             if (ytPlayer && ytPlayer.loadVideoById) {
                 ytPlayer.loadVideoById(videoId);
@@ -761,6 +713,10 @@
         }
 
         function togglePlay() {
+            if (currentTrackIndex === -1 && tracks.length > 0) {
+                playTrackAtIndex(0);
+                return;
+            }
             if (!ytPlayer || !ytPlayer.getPlayerState) return;
             const currentState = ytPlayer.getPlayerState();
             if (currentState === YT.PlayerState.PLAYING) {
