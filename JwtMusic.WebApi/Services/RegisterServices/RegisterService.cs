@@ -22,7 +22,7 @@ namespace JwtMusic.WebApi.Services.RegisterServices
                 UserName = dto.UserName,
                 Email = dto.Email
             };
-            var result =await _userManager.CreateAsync(appUser, dto.Password);
+            var result = await _userManager.CreateAsync(appUser, dto.Password);
             return result.Succeeded;
         }
     }

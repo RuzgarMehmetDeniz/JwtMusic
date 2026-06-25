@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JwtMusic.WebApi.Context
 {
-    public class JwtContext:IdentityDbContext<AppUser>
+    public class JwtContext : IdentityDbContext<AppUser>
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

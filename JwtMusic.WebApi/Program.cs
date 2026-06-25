@@ -1,4 +1,4 @@
-using AutoMapper;
+ï»¿using AutoMapper;
 using JwtMusic.WebApi.Context;
 using JwtMusic.WebApi.Entities;
 using JwtMusic.WebApi.Services.ArtistServices;
@@ -33,7 +33,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"])),
 
-        // HATAYI ENGELLEYEN EKLEME: Sunucu ve yerel saat farký toleransýný sýfýrlýyoruz
+        // HATAYI ENGELLEYEN EKLEME: Sunucu ve yerel saat farkÃ½ toleransÃ½nÃ½ sÃ½fÃ½rlÃ½yoruz
         ClockSkew = TimeSpan.Zero
     };
 });
@@ -48,14 +48,14 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// SWAGGER'A JWT DESTEÐÝ EKLEDÝK (KÝLÝT BUTONU ÞÝMDÝ AÇILACAK)
+// SWAGGER'A JWT DESTEÃÃ EKLEDÃK (KÃLÃT BUTONU ÃžÃMDÃ AÃ‡ILACAK)
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "JwtMusic.WebApi", Version = "v1" });
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
-        Description = "Lütfen token deðerini girin. Örnek: Bearer eyJhbGci...",
+        Description = "LÃ¼tfen token deÃ°erini girin. Ã–rnek: Bearer eyJhbGci...",
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         BearerFormat = "JWT",

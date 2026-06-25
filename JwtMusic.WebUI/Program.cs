@@ -1,4 +1,4 @@
-using JwtMusic.WebApi.Context;
+﻿using JwtMusic.WebApi.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
