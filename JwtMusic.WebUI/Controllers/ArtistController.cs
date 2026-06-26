@@ -28,6 +28,8 @@ namespace JwtMusic.WebUI.Controllers
 
             // Port 7185 olarak güncellendi
             var response = await client.GetAsync("https://localhost:7185/api/Artist");
+            Console.WriteLine("STATUS: " + response.StatusCode); // bunu ekle
+            Console.WriteLine("TOKEN GÖNDERILEN: " + token);
 
             if (response.IsSuccessStatusCode)
             {

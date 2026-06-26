@@ -39,7 +39,7 @@ namespace JwtMusic.WebUI.Controllers
                 if (!string.IsNullOrEmpty(token))
                 {
                     HttpContext.Session.SetString("JwtToken", token);
-                    return RedirectToAction("ArtistList", "Artist");
+                    return Redirect("/Artist/ArtistList");
                 }
             }
 
