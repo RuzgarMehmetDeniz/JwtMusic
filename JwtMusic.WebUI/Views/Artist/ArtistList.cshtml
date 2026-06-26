@@ -1,7 +1,6 @@
 ﻿@model List<JwtMusic.WebUI.Dtos.ResultArtistDto>
 @{
     Layout = null;
-    var followedIds = ViewBag.FollowedArtistIds as List<int> ?? new List<int>();
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -15,7 +14,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        /* ─── TOKENS ─────────────────────────────────────── */
         :root {
             --bg-root: #0c0c0e;
             --bg-sidebar: #111113;
@@ -41,7 +39,6 @@
             --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
         }
 
-        /* ─── RESET ──────────────────────────────────────── */
         *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
@@ -61,9 +58,7 @@
             display: grid;
             grid-template-columns: var(--sidebar-w) 1fr;
             grid-template-rows: 1fr var(--player-h);
-            grid-template-areas:
-                "sidebar main"
-                "player  player";
+            grid-template-areas: "sidebar main" "player player";
         }
 
         img {
@@ -80,7 +75,7 @@
             cursor: pointer;
         }
 
-        /* ─── SIDEBAR ────────────────────────────────────── */
+        /* SIDEBAR */
         .sidebar {
             grid-area: sidebar;
             background: var(--bg-sidebar);
@@ -169,7 +164,6 @@
                 background: rgba(255,255,255,0.05);
             }
 
-                /* The signature element: left golden rule on active nav */
                 .nav-item.active::before {
                     content: '';
                     position: absolute;
@@ -187,61 +181,7 @@
             margin: 8px 12px;
         }
 
-        .sidebar-footer {
-            margin-top: auto;
-            padding: 16px 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .user-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: background var(--transition);
-        }
-
-            .user-row:hover {
-                background: rgba(255,255,255,0.04);
-            }
-
-        .user-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: var(--bg-surface);
-            border: 1.5px solid var(--border-hover);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--accent);
-            flex-shrink: 0;
-        }
-
-        .user-info {
-            min-width: 0;
-        }
-
-        .user-name {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-1);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .user-plan {
-            font-size: 0.65rem;
-            color: var(--accent);
-            font-weight: 500;
-        }
-
-        /* ─── MAIN AREA ──────────────────────────────────── */
+        /* MAIN */
         .main {
             grid-area: main;
             overflow-y: auto;
@@ -265,7 +205,7 @@
                 border-radius: 4px;
             }
 
-        /* ─── TOP BAR ────────────────────────────────────── */
+        /* TOPBAR */
         .topbar {
             position: sticky;
             top: 0;
@@ -352,7 +292,7 @@
                 color: var(--text-1);
             }
 
-        /* ─── CONTENT ────────────────────────────────────── */
+        /* CONTENT */
         .content {
             padding: 28px 28px 40px;
             flex: 1;
@@ -377,7 +317,7 @@
                 font-weight: 400;
             }
 
-        /* ─── FILTERS ────────────────────────────────────── */
+        /* FILTERS */
         .filters-row {
             display: flex;
             align-items: center;
@@ -412,7 +352,7 @@
                 font-weight: 600;
             }
 
-        /* ─── ARTIST GRID ────────────────────────────────── */
+        /* ARTIST GRID */
         .artist-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -439,7 +379,6 @@
                 display: none !important;
             }
 
-            /* Signature element: golden ring on hover */
             .artist-card::after {
                 content: '';
                 position: absolute;
@@ -455,7 +394,7 @@
                 opacity: 1;
             }
 
-        /* ─── CARD IMAGE ─────────────────────────────────── */
+        /* CARD IMAGE */
         .card-img-wrap {
             position: relative;
             width: 100%;
@@ -472,7 +411,6 @@
             display: block;
         }
 
-        /* Fallback gradient for broken/missing images */
         .card-img-wrap .img-fallback {
             position: absolute;
             inset: 0;
@@ -528,6 +466,7 @@
                 transform: scale(1.08);
             }
 
+        /* ▶ Play butonu — artık sarı, tıklanınca şarkı çalar */
         .overlay-btn-play {
             width: 40px;
             height: 40px;
@@ -542,7 +481,7 @@
                 transform: scale(1.1);
             }
 
-        /* ─── CARD BODY ──────────────────────────────────── */
+        /* CARD BODY */
         .card-body {
             padding: 12px 13px 13px;
         }
@@ -612,7 +551,7 @@
                 color: #0c0c0e;
             }
 
-        /* ─── EMPTY STATE ────────────────────────────────── */
+        /* EMPTY STATE */
         .no-results {
             display: none;
             flex-direction: column;
@@ -645,7 +584,7 @@
                 font-family: 'Plus Jakarta Sans', sans-serif;
             }
 
-        /* ─── MUSIC PLAYER ───────────────────────────────── */
+        /* PLAYER */
         .player {
             grid-area: player;
             background: #111113;
@@ -658,7 +597,6 @@
             z-index: 100;
         }
 
-        /* LEFT: Track info */
         .player-track {
             display: flex;
             align-items: center;
@@ -725,7 +663,6 @@
                 color: var(--accent);
             }
 
-        /* CENTER: Controls */
         .player-center {
             display: flex;
             flex-direction: column;
@@ -835,7 +772,6 @@
             transform: translateY(-50%) scale(1);
         }
 
-        /* RIGHT: Volume & extras */
         .player-right {
             display: flex;
             align-items: center;
@@ -888,7 +824,7 @@
             background: var(--text-1);
         }
 
-        /* Waveform indicator */
+        /* Waveform */
         .waveform {
             display: flex;
             align-items: center;
@@ -943,15 +879,46 @@
             animation-play-state: paused;
         }
 
-        /* ─── RESPONSIVE ─────────────────────────────────── */
+        /* Loading spinner on card */
+        .card-loading-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-card);
+            background: rgba(12,12,14,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+            .card-loading-overlay.active {
+                display: flex;
+            }
+
+        @@keyframes spin {
+            to
+
+        {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(201,168,76,0.3);
+            border-top-color: var(--accent);
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* Responsive */
         @@media (max-width: 900px) {
             body {
                 grid-template-columns: 1fr;
                 grid-template-rows: 52px 1fr var(--player-h);
-                grid-template-areas:
-                    "sidebar"
-                    "main"
-                    "player";
+                grid-template-areas: "sidebar" "main" "player";
                 overflow: hidden;
             }
 
@@ -977,30 +944,18 @@
                 align-items: center;
             }
 
-            .sidebar-label {
+            .sidebar-label, .sidebar-divider {
                 display: none;
             }
 
-            .sidebar-divider {
-                display: none;
+            .nav-item.active::before {
+                top: auto;
+                left: 20%;
+                right: 20%;
+                bottom: 0;
+                height: 2px;
+                width: auto;
             }
-
-            .sidebar-footer {
-                display: none;
-            }
-
-            .nav-item {
-                white-space: nowrap;
-            }
-
-                .nav-item.active::before {
-                    top: auto;
-                    left: 20%;
-                    right: 20%;
-                    bottom: 0;
-                    height: 2px;
-                    width: auto;
-                }
 
             .player {
                 grid-template-columns: 1fr auto;
@@ -1037,64 +992,40 @@
 </head>
 <body>
 
-    <!-- ═══════════════ SIDEBAR ═══════════════ -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
             <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
             <span class="logo-wordmark">Canlı Müzik</span>
         </div>
-
         <nav class="sidebar-section">
             <span class="sidebar-label">Keşfet</span>
-            <a href="#" class="nav-item">
-                <i class="bi bi-house"></i> Ana Sayfa
-            </a>
-            <a href="#" class="nav-item active">
-                <i class="bi bi-people"></i> Sanatçılar
-            </a>
-            <a href="/Song/SongList/" class="nav-item">
-                <i class="bi bi-music-note-list"></i> Şarkılar
-            </a>
+            <a href="#" class="nav-item"><i class="bi bi-house"></i> Ana Sayfa</a>
+            <a href="#" class="nav-item active"><i class="bi bi-people"></i> Sanatçılar</a>
+            <a href="/Song/SongList/" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
         </nav>
-
         <div class="sidebar-divider"></div>
-
         <nav class="sidebar-section">
             <span class="sidebar-label">Kitaplık</span>
-            <a href="#" class="nav-item">
-                <i class="bi bi-heart"></i> Beğendiklerim
-            </a>
-            <a href="#" class="nav-item">
-                <i class="bi bi-collection-play"></i> Çalma Listeleri
-            </a>
-            <a href="#" class="nav-item">
-                <i class="bi bi-clock-history"></i> Son Dinlenenler
-            </a>
+            <a href="#" class="nav-item"><i class="bi bi-heart"></i> Beğendiklerim</a>
+            <a href="#" class="nav-item"><i class="bi bi-collection-play"></i> Çalma Listeleri</a>
+            <a href="#" class="nav-item"><i class="bi bi-clock-history"></i> Son Dinlenenler</a>
         </nav>
     </aside>
 
-    <!-- ═══════════════ MAIN ═══════════════ -->
+    <!-- MAIN -->
     <main class="main">
-
-        <!-- Top bar -->
         <div class="topbar">
             <span class="topbar-breadcrumb">Sanatçılar</span>
             <div class="topbar-right">
                 <div class="search-field">
                     <i class="bi bi-search"></i>
-                    <input class="search-input"
-                           type="text"
-                           id="searchInput"
-                           placeholder="Sanatçı ara..."
-                           autocomplete="off">
+                    <input class="search-input" type="text" id="searchInput" placeholder="Sanatçı ara..." autocomplete="off">
                 </div>
-                <button class="topbar-icon-btn" title="Bildirimler">
-                    <i class="bi bi-bell"></i>
-                </button>
+                <button class="topbar-icon-btn" title="Bildirimler"><i class="bi bi-bell"></i></button>
             </div>
         </div>
 
-        <!-- Content -->
         <div class="content">
             <div class="page-header">
                 <h1>Popüler Sanatçılar</h1>
@@ -1110,7 +1041,6 @@
                 </p>
             </div>
 
-            <!-- Genre filter chips -->
             <div class="filters-row" id="filters">
                 <button class="chip active" data-filter="all">Tümü</button>
                 <button class="chip" data-filter="pop">Pop</button>
@@ -1121,48 +1051,42 @@
                 <button class="chip" data-filter="alternative">Alternatif</button>
             </div>
 
-            <!-- Artist grid -->
             <div class="artist-grid" id="artistGrid">
-
                 @if (Model != null && Model.Any())
                 {
                     @foreach (var item in Model)
                     {
                         var rawBio = item.Bio ?? "";
                         var cleanGenre = rawBio.ToString().ToLower()
-                        .Replace(" ", "")
-                        .Replace("-", "")
-                        .Replace("&", "")
-                        .Replace("ı", "i")
-                        .Replace("ğ", "g")
-                        .Replace("ü", "u")
-                        .Replace("ş", "s")
-                        .Replace("ö", "o")
-                        .Replace("ç", "c");
+                        .Replace(" ", "").Replace("-", "").Replace("&", "")
+                        .Replace("ı", "i").Replace("ğ", "g").Replace("ü", "u")
+                        .Replace("ş", "s").Replace("ö", "o").Replace("ç", "c");
 
-                        // Giriş yapan kullanıcı bu sanatçıyı takip ediyor mu?
-                        bool isFollowing = followedIds.Contains(item.ArtistId);
-
-                        <div class="artist-card" data-genre="@cleanGenre" data-name="@item.Name">
+                        <div class="artist-card" data-genre="@cleanGenre" data-name="@item.Name" id="card-@item.ArtistId">
                             <div class="card-img-wrap">
-                                <img src="@item.ImageUrl"
-                                     alt="@item.Name"
-                                     class="card-img"
+                                <img src="@item.ImageUrl" alt="@item.Name" class="card-img"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="img-fallback" style="display:none;">🎵</div>
 
+                                <!-- Loading spinner (görünür olur API çağrısı sırasında) -->
+                                <div class="card-loading-overlay" id="loading-@item.ArtistId">
+                                    <div class="spinner"></div>
+                                </div>
+
                                 <div class="card-overlay">
-                                    <button class="overlay-btn overlay-follow-btn"
-                                            title="@(isFollowing ? "Takip Ediliyor" : "Takip Et")"
-                                            onclick="toggleFollow(this, @item.ArtistId); event.preventDefault(); event.stopPropagation();"
-                                            data-following="@(isFollowing ? "true" : "false")">
-                                        <i class="bi @(isFollowing ? "bi-person-check-fill" : "bi-person-plus")"></i>
+                                    <!-- Takip Et butonu (aynı) -->
+                                    <button class="overlay-btn" title="Takip Et"
+                                            onclick="toggleFollow(this); event.preventDefault(); event.stopPropagation();"
+                                            data-following="false">
+                                        <i class="bi bi-person-plus"></i>
                                     </button>
-                                    <a href="/Artist/ArtistDetail/@item.ArtistId"
-                                       class="overlay-btn overlay-btn-play"
-                                       title="Sanatçıyı Gör">
-                                        <i class="bi bi-eye-fill"></i>
-                                    </a>
+
+                                    <!-- ▶ Rastgele şarkı oynat — artık sayfa değişmiyor -->
+                                    <button class="overlay-btn overlay-btn-play"
+                                            title="Rastgele Çal"
+                                            onclick="playRandomSong(@item.ArtistId, '@Html.Raw(item.Name.Replace("'", "\\'"))', '@item.ImageUrl', this); event.stopPropagation();">
+                                        <i class="bi bi-play-fill"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -1176,12 +1100,7 @@
                                         <i class="bi bi-person-fill"></i>
                                         @item.MonthlyListeners.ToString("N0") M
                                     </span>
-
-                                    <button class="btn-follow footer-follow-btn @(isFollowing ? "following" : "")"
-                                            data-id="@item.ArtistId"
-                                            onclick="toggleFollowBtn(this, @item.ArtistId)">
-                                        @(isFollowing ? "✓ Takip Ediliyor" : "Takip Et")
-                                    </button>
+                                    <button class="btn-follow" onclick="toggleFollowBtn(this)">Takip Et</button>
                                 </div>
                             </div>
                         </div>
@@ -1199,27 +1118,21 @@
                 <div id="noResults" class="no-results">
                     <i class="bi bi-music-note-beamed"></i>
                     <strong>Sonuç yok</strong>
-                    <p>Bu arama veya filtre için sanatçı bulunamadı. Farklı bir şey deneyin.</p>
+                    <p>Bu arama veya filtre için sanatçı bulunamadı.</p>
                 </div>
-
             </div>
         </div>
     </main>
 
-    <!-- ═══════════════ PLAYER ═══════════════ -->
+    <!-- PLAYER -->
     <div class="player" id="player">
-
-        <!-- Left: Track info -->
         <div class="player-track">
             <div class="player-cover" id="playerCover">🎵</div>
             <div class="player-info">
-                <div class="player-song" id="playerSong">Blinding Lights</div>
-                <div class="player-artist" id="playerArtist">The Weeknd</div>
+                <div class="player-song" id="playerSong">Bir şarkı seçin</div>
+                <div class="player-artist" id="playerArtist">—</div>
             </div>
-            <button class="player-like-btn"
-                    id="heartBtn"
-                    onclick="toggleHeart(this)"
-                    title="Beğen">
+            <button class="player-like-btn" id="heartBtn" onclick="toggleHeart(this)" title="Beğen">
                 <i class="bi bi-heart"></i>
             </button>
             <div class="waveform paused" id="waveform">
@@ -1227,7 +1140,6 @@
             </div>
         </div>
 
-        <!-- Center: Controls + progress -->
         <div class="player-center">
             <div class="player-controls">
                 <button class="ctrl-btn" title="Karıştır"><i class="bi bi-shuffle"></i></button>
@@ -1243,11 +1155,10 @@
                 <div class="progress-track" id="progressBar" onclick="seekTo(event)">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <span class="time-lbl">4:02</span>
+                <span class="time-lbl" id="totalTime">0:00</span>
             </div>
         </div>
 
-        <!-- Right: Volume & extras -->
         <div class="player-right">
             <button class="ctrl-btn" title="Sıra"><i class="bi bi-collection"></i></button>
             <button class="ctrl-btn" title="Cihazlar"><i class="bi bi-tv"></i></button>
@@ -1262,164 +1173,239 @@
         </div>
     </div>
 
-    <!-- ═══════════════ SCRIPTS ═══════════════ -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Gizli YouTube container -->
+    <div id="ytPlayer" style="display:none; position:absolute; pointer-events:none;"></div>
+
+    <!-- SCRIPTS -->
     <script>
-        /* ── Player state ── */
-        let isPlaying = false;
-        let progressVal = 0;
+        /* ══════════════════════════════════════════
+           YouTube IFrame API
+        ══════════════════════════════════════════ */
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+
+        let ytPlayer;
+        let ytReady = false;
+        let pendingVideoId = null;  // API hazır olmadan önce gelen istek
         let volumeVal = 70;
         let isMuted = false;
         let progressInterval;
-        const TOTAL_SEC = 242;
 
-        function togglePlay() {
-            isPlaying = !isPlaying;
-            const icon = document.getElementById('playIcon');
-            const waveform = document.getElementById('waveform');
-            if (isPlaying) {
-                icon.className = 'bi bi-pause-fill';
-                waveform.classList.remove('paused');
-                startProgress();
-            } else {
-                icon.className = 'bi bi-play-fill';
-                waveform.classList.add('paused');
-                clearInterval(progressInterval);
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                height: '0', width: '0',
+                playerVars: { controls: 0, disablekb: 1, rel: 0 },
+                events: {
+                    onReady: function() {
+                        ytReady = true;
+                        ytPlayer.setVolume(volumeVal);
+                        document.getElementById('volFill').style.width = volumeVal + '%';
+                        // Eğer play butonu API hazır olmadan basıldıysa şimdi çal
+                        if (pendingVideoId) {
+                            ytPlayer.loadVideoById(pendingVideoId);
+                            pendingVideoId = null;
+                        }
+                    },
+                    onStateChange: function(e) {
+                        if (e.data === YT.PlayerState.PLAYING) {
+                            document.getElementById('playIcon').className = 'bi bi-pause-fill';
+                            document.getElementById('waveform').classList.remove('paused');
+                            startProgressLoop();
+                        } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.BUFFERING) {
+                            document.getElementById('playIcon').className = 'bi bi-play-fill';
+                            document.getElementById('waveform').classList.add('paused');
+                        } else if (e.data === YT.PlayerState.ENDED) {
+                            document.getElementById('playIcon').className = 'bi bi-play-fill';
+                            document.getElementById('waveform').classList.add('paused');
+                            clearInterval(progressInterval);
+                        }
+                    },
+                    onError: function(e) { console.error('YouTube hatası:', e.data); }
+                }
+            });
+        }
+
+        /* ══════════════════════════════════════════
+           Controller'dan gelen şarkı listesi
+           (fetch() yapmaya gerek yok, sayfa yüklenirken hazır)
+        ══════════════════════════════════════════ */
+        const ALL_SONGS = @Html.Raw(ViewBag.SongsJson ?? "[]");
+
+        /* ══════════════════════════════════════════
+           ANA FONKSİYON: Rastgele şarkı oynat
+           artistId    → sanatçı ID'si
+           artistName  → player'da gösterilecek isim
+           artistImg   → player cover resmi
+           btn         → tıklanan play butonu (spinner için)
+        ══════════════════════════════════════════ */
+        function playRandomSong(artistId, artistName, artistImg, btn) {
+            // Spinner aç
+            const loadingEl = document.getElementById('loading-' + artistId);
+            if (loadingEl) loadingEl.classList.add('active');
+
+            try {
+                // Bu sanatçıya ait şarkıları filtrele (ArtistId — controller ile aynı alan adı)
+                const artistSongs = ALL_SONGS.filter(s => s.ArtistId == artistId);
+
+                if (!artistSongs || artistSongs.length === 0) {
+                    alert(artistName + ' için şarkı bulunamadı.');
+                    return;
+                }
+
+                // Rastgele birini seç
+                const song = artistSongs[Math.floor(Math.random() * artistSongs.length)];
+
+                // YouTube ID'yi çıkar
+                const videoId = getYoutubeId(song.AudioUrl ?? song.audioUrl ?? '');
+                if (!videoId) {
+                    console.error('Geçersiz YouTube URL:', song.AudioUrl ?? song.audioUrl);
+                    return;
+                }
+
+                // Player bilgilerini güncelle
+                document.getElementById('playerSong').textContent   = song.Title ?? song.title ?? '—';
+                document.getElementById('playerArtist').textContent = artistName;
+
+                // Cover resmi güncelle
+                const cover = document.getElementById('playerCover');
+                if (artistImg) {
+                    cover.innerHTML = `<img src="${artistImg}" alt="${artistName}" onerror="this.parentElement.textContent='🎵'">`;
+                }
+
+                // Oynat
+                if (ytReady && ytPlayer && ytPlayer.loadVideoById) {
+                    ytPlayer.loadVideoById(videoId);
+                } else {
+                    pendingVideoId = videoId;  // YouTube API henüz hazır değil, beklet
+                }
+
+            } catch (err) {
+                console.error('Şarkı yüklenirken hata:', err);
+            } finally {
+                if (loadingEl) loadingEl.classList.remove('active');
             }
         }
 
-        function startProgress() {
+        /* ══════════════════════════════════════════
+           Player kontrolleri
+        ══════════════════════════════════════════ */
+        function togglePlay() {
+            if (!ytPlayer || !ytPlayer.getPlayerState) return;
+            const state = ytPlayer.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) {
+                ytPlayer.pauseVideo();
+            } else {
+                ytPlayer.playVideo();
+            }
+        }
+
+        function prevTrack() {
+            if (ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(0, true);
+        }
+
+        function nextTrack() {
+            // Bir sonraki şarkı mantığı eklenebilir
+        }
+
+        function startProgressLoop() {
             clearInterval(progressInterval);
             progressInterval = setInterval(() => {
-                progressVal += 0.18;
-                if (progressVal >= 100) {
-                    progressVal = 0;
-                    clearInterval(progressInterval);
-                    isPlaying = false;
-                    document.getElementById('playIcon').className = 'bi bi-play-fill';
-                    document.getElementById('waveform').classList.add('paused');
+                if (!ytPlayer || !ytPlayer.getCurrentTime) return;
+                const cur = ytPlayer.getCurrentTime();
+                const dur = ytPlayer.getDuration();
+                if (dur > 0) {
+                    document.getElementById('progressFill').style.width = (cur / dur * 100) + '%';
+                    document.getElementById('currentTime').textContent = formatTime(cur);
+                    document.getElementById('totalTime').textContent   = formatTime(dur);
                 }
-                document.getElementById('progressFill').style.width = progressVal + '%';
-                const cur = Math.floor(TOTAL_SEC * progressVal / 100);
-                document.getElementById('currentTime').textContent =
-                    Math.floor(cur / 60) + ':' + String(cur % 60).padStart(2, '0');
-            }, 300);
+            }, 500);
         }
 
         function seekTo(e) {
-            const bar = document.getElementById('progressBar');
+            if (!ytPlayer || !ytPlayer.getDuration) return;
+            const bar  = document.getElementById('progressBar');
             const rect = bar.getBoundingClientRect();
-            progressVal = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
-            document.getElementById('progressFill').style.width = progressVal + '%';
+            const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+            ytPlayer.seekTo(ratio * ytPlayer.getDuration(), true);
+            document.getElementById('progressFill').style.width = (ratio * 100) + '%';
         }
 
         function setVolume(e) {
+            if (!ytPlayer || !ytPlayer.setVolume) return;
             const track = document.getElementById('volTrack');
-            const rect = track.getBoundingClientRect();
+            const rect  = track.getBoundingClientRect();
             volumeVal = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
-            document.getElementById('volFill').style.width = volumeVal + '%';
             isMuted = false;
+            ytPlayer.unMute();
+            ytPlayer.setVolume(volumeVal);
+            document.getElementById('volFill').style.width = volumeVal + '%';
             updateVolIcon();
         }
 
         function toggleMute() {
-            isMuted = !isMuted;
+            if (!ytPlayer) return;
+            if (ytPlayer.isMuted()) {
+                ytPlayer.unMute(); ytPlayer.setVolume(volumeVal);
+                document.getElementById('volFill').style.width = volumeVal + '%';
+                isMuted = false;
+            } else {
+                ytPlayer.mute();
+                document.getElementById('volFill').style.width = '0%';
+                isMuted = true;
+            }
             updateVolIcon();
         }
 
         function updateVolIcon() {
             const icon = document.getElementById('volIcon');
-            icon.className = isMuted || volumeVal === 0 ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
+            icon.className = (isMuted || volumeVal === 0) ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
         }
-
-        function prevTrack() {
-            progressVal = 0;
-            document.getElementById('progressFill').style.width = '0%';
-            document.getElementById('currentTime').textContent = '0:00';
-        }
-
-        function nextTrack() { prevTrack(); }
 
         function toggleHeart(btn) {
             btn.classList.toggle('liked');
-            const icon = btn.querySelector('i');
-            icon.className = btn.classList.contains('liked') ? 'bi bi-heart-fill' : 'bi bi-heart';
+            btn.querySelector('i').className = btn.classList.contains('liked') ? 'bi bi-heart-fill' : 'bi bi-heart';
         }
 
-        /* ── Yeni Gelişmiş Takip Fonksiyonları (API Bağlantılı) ── */
-
-        // Kartın altındaki ana buton tetiklendiğinde
-        function toggleFollowBtn(btn, artistId) {
-            var $card = $(btn).closest('.artist-card');
-            var overlayBtn = $card.find('.overlay-follow-btn')[0];
-            executeFollowAjax(artistId, $(btn), $(overlayBtn));
+        function toggleFollowBtn(btn) {
+            const following = btn.classList.toggle('following');
+            btn.textContent = following ? '✓ Takip Ediliyor' : 'Takip Et';
         }
 
-        // Kartın üstündeki overlay ikon buton tetiklendiğinde
-        function toggleFollow(btn, artistId) {
-            var $card = $(btn).closest('.artist-card');
-            var footerBtn = $card.find('.footer-follow-btn')[0];
-            executeFollowAjax(artistId, $(footerBtn), $(btn));
+        function toggleFollow(btn) {
+            const isFollowing = btn.getAttribute('data-following') === 'true';
+            btn.setAttribute('data-following', String(!isFollowing));
+            btn.querySelector('i').className = !isFollowing ? 'bi bi-person-check-fill' : 'bi bi-person-plus';
+            btn.title = !isFollowing ? 'Takip Ediliyor' : 'Takip Et';
         }
 
-        // Ortak AJAX İş Mantığı Köprüsü
-        function executeFollowAjax(artistId, $footerBtn, $overlayBtn) {
-            // Session'dan JWT Token'ı güvenli bir şekilde JS tarafına alıyoruz
-            var token = '@Context.Session.GetString("JwtToken")?.Trim().Replace("\"", "")';
-
-            $.ajax({
-                url: 'https://localhost:7185/api/Follows/toggle/' + artistId,
-                type: 'POST',
-                beforeSend: function (xhr) {
-                    if (token) {
-                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-                    }
-                },
-                success: function (response) {
-                    // İki butonu da API'den gelen yanıta göre aynı anda güncelliyoruz
-                    if (response.isFollowing) {
-                        // TAKİP EDİLDİ DURUMU
-                        $footerBtn.addClass('following').text('✓ Takip Ediliyor');
-
-                        $overlayBtn.attr('data-following', 'true').attr('title', 'Takip Ediliyor');
-                        $overlayBtn.find('i').attr('class', 'bi bi-person-check-fill');
-                    } else {
-                        // TAKİPTEN ÇIKILDI DURUMU
-                        $footerBtn.removeClass('following').text('Takip Et');
-
-                        $overlayBtn.attr('data-following', 'false').attr('title', 'Takip Et');
-                        $overlayBtn.find('i').attr('class', 'bi bi-person-plus');
-                    }
-                },
-                error: function (xhr) {
-                    if (xhr.status === 401) {
-                        alert('Bu işlemi gerçekleştirmek için lütfen giriş yapın.');
-                    } else {
-                        alert('Takip işlemi esnasında bir hata meydana geldi.');
-                    }
-                }
-            });
+        function formatTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = Math.floor(secs % 60);
+            return m + ':' + String(s).padStart(2, '0');
         }
 
-        /* ── Search & Genre filter ── */
+        function getYoutubeId(url) {
+            if (!url) return null;
+            if (url.length === 11 && !url.includes('/') && !url.includes('?')) return url;
+            const m = url.match(/^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+            return (m && m[2].length === 11) ? m[2] : null;
+        }
+
+        /* ══════════════════════════════════════════
+           Arama & Genre filtresi
+        ══════════════════════════════════════════ */
         document.addEventListener("DOMContentLoaded", function () {
             const chips       = document.querySelectorAll(".chip");
             const searchInput = document.getElementById("searchInput");
             const noResults   = document.getElementById("noResults");
-
             if (noResults) noResults.style.display = "none";
 
             function applyFilters() {
                 const activeChip = document.querySelector(".chip.active");
                 const selectedFilter = activeChip
-                    ? activeChip.getAttribute("data-filter")
-                        .toLowerCase()
-                        .replace("-", "")
-                        .replace("&", "")
-                        .replace(" ", "")
-                        .trim()
+                    ? activeChip.getAttribute("data-filter").toLowerCase().replace("-","").replace("&","").replace(" ","").trim()
                     : "all";
-
                 const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
                 const cards = document.querySelectorAll(".artist-grid .artist-card");
                 let visible = 0;
@@ -1427,21 +1413,13 @@
                 cards.forEach(card => {
                     const genre = (card.getAttribute("data-genre") || "").toLowerCase();
                     const name  = (card.getAttribute("data-name") || "").toLowerCase();
-
                     const genreMatch = selectedFilter === "all" || genre.includes(selectedFilter);
                     const nameMatch  = name.includes(query);
-
-                    if (genreMatch && nameMatch) {
-                        card.classList.remove("hide");
-                        visible++;
-                    } else {
-                        card.classList.add("hide");
-                    }
+                    if (genreMatch && nameMatch) { card.classList.remove("hide"); visible++; }
+                    else card.classList.add("hide");
                 });
 
-                if (noResults) {
-                    noResults.style.display = visible === 0 ? "flex" : "none";
-                }
+                if (noResults) noResults.style.display = visible === 0 ? "flex" : "none";
             }
 
             chips.forEach(chip => {
@@ -1452,12 +1430,8 @@
                 });
             });
 
-            if (searchInput) {
-                searchInput.addEventListener("input", applyFilters);
-            }
+            if (searchInput) searchInput.addEventListener("input", applyFilters);
         });
     </script>
-
-    ```
 </body>
 </html>

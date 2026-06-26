@@ -19,103 +19,119 @@ namespace JwtMusic.WebUI.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
+        // ─────────────────────────────────────────────────────────────────────────
+        // Yardımcı: Token'ı session'dan okur, boşsa null döner
+        // ─────────────────────────────────────────────────────────────────────────
+        private string? GetToken()
+            => _httpContextAccessor.HttpContext?.Session.GetString("JwtToken")?.Trim().Replace("\"", "");
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // ArtistList
+        // Değişiklik: Şarkıları burada (sunucu tarafında) çekip ViewBag.Songs ile
+        // view'a gönderiyoruz. Böylece frontend, play'e basıldığında ayrıca bir
+        // fetch() yapmak yerine sayfada zaten hazır olan veriyi kullanabilir.
+        // ─────────────────────────────────────────────────────────────────────────
         public async Task<IActionResult> ArtistList()
         {
-            var token = _httpContextAccessor.HttpContext?.Session.GetString("JwtToken")?.Trim().Replace("\"", "");
+            var token = GetToken();
 
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            // 1. Sanatçıları Çekiyoruz
-            var response = await client.GetAsync("https://localhost:7185/api/Artist");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonData = await response.Content.ReadAsStringAsync();
-                var values = JsonConvert.DeserializeObject<List<ResultArtistDto>>(jsonData);
-
-                // 🌟 [EKLEME]: Kullanıcının takip ettiği sanatçı ID'lerini API'den çekiyoruz
-                var followResponse = await client.GetAsync("https://localhost:7185/api/Follows/my-follows");
-                var followedArtistIds = new List<int>();
-
-                if (followResponse.IsSuccessStatusCode)
-                {
-                    var jsonFollows = await followResponse.Content.ReadAsStringAsync();
-                    followedArtistIds = JsonConvert.DeserializeObject<List<int>>(jsonFollows) ?? new List<int>();
-                }
-
-                // View tarafında buton durumunu (Takip Et/Takipten Çık) kontrol etmek için listeyi yolluyoruz
-                ViewBag.FollowedArtistIds = followedArtistIds;
-
-                return View(values);
-            }
-
-            if (response.StatusCode == HttpStatusCode.Forbidden)
-            {
-                return RedirectToAction("AccessDenied", "Login");
-            }
-
-            return RedirectToAction("SingIn", "Login");
-        }
-
-        public async Task<IActionResult> ArtistDetail(int id)
-        {
-            var token = _httpContextAccessor.HttpContext?.Session.GetString("JwtToken")?.Trim().Replace("\"", "");
-
-            var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            // 1. Sanatçı verisini çekiyoruz
-            var responseArtist = await client.GetAsync($"https://localhost:7185/api/Artist/{id}");
-
-            if (responseArtist.IsSuccessStatusCode)
-            {
-                var jsonArtist = await responseArtist.Content.ReadAsStringAsync();
-                var artistData = JsonConvert.DeserializeObject<ResultArtistDto>(jsonArtist);
-
-                // 2. ÇÖZÜM: Tüm şarkıları api/Songs adresinden çekiyoruz
-                var responseSongs = await client.GetAsync("https://localhost:7185/api/Songs");
-                var songList = new List<ResultSongDto>();
-
-                if (responseSongs.IsSuccessStatusCode)
-                {
-                    var jsonSongs = await responseSongs.Content.ReadAsStringAsync();
-                    var allSongs = JsonConvert.DeserializeObject<List<ResultSongDto>>(jsonSongs);
-
-                    // 3. Çekilen tüm şarkılardan sadece bu sanatçıya (ArtistId) ait olanları filtreliyoruz
-                    if (allSongs != null)
-                    {
-                        songList = allSongs.Where(x => x.ArtistId == id).ToList();
-                    }
-                }
-
-                // 🌟 [EKLEME]: Detay sayfasında da buton durumunu korumak için kullanıcının takip listesini alıyoruz
-                var followResponse = await client.GetAsync("https://localhost:7185/api/Follows/my-follows");
-                var followedArtistIds = new List<int>();
-
-                if (followResponse.IsSuccessStatusCode)
-                {
-                    var jsonFollows = await followResponse.Content.ReadAsStringAsync();
-                    followedArtistIds = JsonConvert.DeserializeObject<List<int>>(jsonFollows) ?? new List<int>();
-                }
-
-                ViewBag.FollowedArtistIds = followedArtistIds;
-
-                var viewModel = new ArtistDetailViewModel
-                {
-                    Artist = artistData,
-                    Songs = songList
-                };
-
-                return View(viewModel);
-            }
+            // 1. Sanatçıları çek
+            var responseArtist = await client.GetAsync("https://localhost:7185/api/Artist");
 
             if (responseArtist.StatusCode == HttpStatusCode.Forbidden)
-            {
                 return RedirectToAction("AccessDenied", "Login");
+
+            if (!responseArtist.IsSuccessStatusCode)
+                return RedirectToAction("SingIn", "Login");
+
+            var jsonArtists = await responseArtist.Content.ReadAsStringAsync();
+            var artists = JsonConvert.DeserializeObject<List<ResultArtistDto>>(jsonArtists);
+
+            // 2. Tüm şarkıları çek → view'a göndereceğiz (frontend fetch() yapmayacak)
+            var responseSongs = await client.GetAsync("https://localhost:7185/api/Songs");
+            var allSongs = new List<ResultSongDto>();
+
+            if (responseSongs.IsSuccessStatusCode)
+            {
+                var jsonSongs = await responseSongs.Content.ReadAsStringAsync();
+                allSongs = JsonConvert.DeserializeObject<List<ResultSongDto>>(jsonSongs) ?? new List<ResultSongDto>();
             }
 
-            return RedirectToAction("SingIn", "Login");
+            // 3. Takip edilen sanatçı ID'lerini çek
+            var followResponse = await client.GetAsync("https://localhost:7185/api/Follows/my-follows");
+            var followedArtistIds = new List<int>();
+
+            if (followResponse.IsSuccessStatusCode)
+            {
+                var jsonFollows = await followResponse.Content.ReadAsStringAsync();
+                followedArtistIds = JsonConvert.DeserializeObject<List<int>>(jsonFollows) ?? new List<int>();
+            }
+
+            ViewBag.FollowedArtistIds = followedArtistIds;
+
+            // Şarkıları JSON string olarak view'a gönder → JS tarafında JSON.parse() yapılacak
+            ViewBag.SongsJson = JsonConvert.SerializeObject(allSongs);
+
+            return View(artists);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // ArtistDetail — değişiklik yok, aynı mantık korundu
+        // ─────────────────────────────────────────────────────────────────────────
+        public async Task<IActionResult> ArtistDetail(int id)
+        {
+            var token = GetToken();
+
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // 1. Sanatçı verisini çek
+            var responseArtist = await client.GetAsync($"https://localhost:7185/api/Artist/{id}");
+
+            if (responseArtist.StatusCode == HttpStatusCode.Forbidden)
+                return RedirectToAction("AccessDenied", "Login");
+
+            if (!responseArtist.IsSuccessStatusCode)
+                return RedirectToAction("SingIn", "Login");
+
+            var jsonArtist = await responseArtist.Content.ReadAsStringAsync();
+            var artistData = JsonConvert.DeserializeObject<ResultArtistDto>(jsonArtist);
+
+            // 2. Tüm şarkıları çek, bu sanatçıya ait olanları filtrele
+            var responseSongs = await client.GetAsync("https://localhost:7185/api/Songs");
+            var songList = new List<ResultSongDto>();
+
+            if (responseSongs.IsSuccessStatusCode)
+            {
+                var jsonSongs = await responseSongs.Content.ReadAsStringAsync();
+                var allSongs = JsonConvert.DeserializeObject<List<ResultSongDto>>(jsonSongs);
+
+                if (allSongs != null)
+                    songList = allSongs.Where(x => x.ArtistId == id).ToList();
+            }
+
+            // 3. Takip listesi
+            var followResponse = await client.GetAsync("https://localhost:7185/api/Follows/my-follows");
+            var followedArtistIds = new List<int>();
+
+            if (followResponse.IsSuccessStatusCode)
+            {
+                var jsonFollows = await followResponse.Content.ReadAsStringAsync();
+                followedArtistIds = JsonConvert.DeserializeObject<List<int>>(jsonFollows) ?? new List<int>();
+            }
+
+            ViewBag.FollowedArtistIds = followedArtistIds;
+
+            var viewModel = new ArtistDetailViewModel
+            {
+                Artist = artistData,
+                Songs = songList
+            };
+
+            return View(viewModel);
         }
     }
 }
