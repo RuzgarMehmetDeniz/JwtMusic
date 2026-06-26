@@ -26,15 +26,27 @@ namespace JwtMusic.WebUI.Controllers
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            // Port 7185 olarak güncellendi
+            // 1. Sanatçıları Çekiyoruz
             var response = await client.GetAsync("https://localhost:7185/api/Artist");
-            Console.WriteLine("STATUS: " + response.StatusCode); // bunu ekle
-            Console.WriteLine("TOKEN GÖNDERILEN: " + token);
 
             if (response.IsSuccessStatusCode)
             {
                 var jsonData = await response.Content.ReadAsStringAsync();
                 var values = JsonConvert.DeserializeObject<List<ResultArtistDto>>(jsonData);
+
+                // 🌟 [EKLEME]: Kullanıcının takip ettiği sanatçı ID'lerini API'den çekiyoruz
+                var followResponse = await client.GetAsync("https://localhost:7185/api/Follows/my-follows");
+                var followedArtistIds = new List<int>();
+
+                if (followResponse.IsSuccessStatusCode)
+                {
+                    var jsonFollows = await followResponse.Content.ReadAsStringAsync();
+                    followedArtistIds = JsonConvert.DeserializeObject<List<int>>(jsonFollows) ?? new List<int>();
+                }
+
+                // View tarafında buton durumunu (Takip Et/Takipten Çık) kontrol etmek için listeyi yolluyoruz
+                ViewBag.FollowedArtistIds = followedArtistIds;
+
                 return View(values);
             }
 
@@ -45,6 +57,7 @@ namespace JwtMusic.WebUI.Controllers
 
             return RedirectToAction("SingIn", "Login");
         }
+
         public async Task<IActionResult> ArtistDetail(int id)
         {
             var token = _httpContextAccessor.HttpContext?.Session.GetString("JwtToken")?.Trim().Replace("\"", "");
@@ -75,6 +88,18 @@ namespace JwtMusic.WebUI.Controllers
                         songList = allSongs.Where(x => x.ArtistId == id).ToList();
                     }
                 }
+
+                // 🌟 [EKLEME]: Detay sayfasında da buton durumunu korumak için kullanıcının takip listesini alıyoruz
+                var followResponse = await client.GetAsync("https://localhost:7185/api/Follows/my-follows");
+                var followedArtistIds = new List<int>();
+
+                if (followResponse.IsSuccessStatusCode)
+                {
+                    var jsonFollows = await followResponse.Content.ReadAsStringAsync();
+                    followedArtistIds = JsonConvert.DeserializeObject<List<int>>(jsonFollows) ?? new List<int>();
+                }
+
+                ViewBag.FollowedArtistIds = followedArtistIds;
 
                 var viewModel = new ArtistDetailViewModel
                 {

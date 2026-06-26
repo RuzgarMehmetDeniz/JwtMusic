@@ -19,5 +19,6 @@
 
         // Relational Property
         public List<Song> Songs { get; set; }
+        public ICollection<UserArtistFollow> UserArtistFollows { get; set; } = new List<UserArtistFollow>();
     }
 }

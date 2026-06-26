@@ -7,5 +7,7 @@ namespace JwtMusic.WebApi.Entities
         public string Name { get; set; }
         public string Surname { get; set; }
         public string? ImageUrl { get; set; }
+
+        public ICollection<UserArtistFollow> UserArtistFollows { get; set; } = new List<UserArtistFollow>();
     }
 }

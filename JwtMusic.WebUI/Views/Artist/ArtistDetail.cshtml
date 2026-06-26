@@ -1149,7 +1149,6 @@
 </head>
 <body>
 
-    <!-- ═══════════════ SIDEBAR ═══════════════ -->
     <aside class="sidebar">
         <div class="sidebar-logo">
             <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
@@ -1158,8 +1157,7 @@
 
         <nav class="sidebar-section">
             <span class="sidebar-label">Keşfet</span>
-            <a href="#" class="nav-item"><i class="bi bi-house"></i> Ana Sayfa</a>
-            <a href="/Artist/ArtistList" class="nav-item active"><i class="bi bi-people"></i> Sanatçılar</a>
+            <a href="/Artist/ArtistList" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
             <a href="/Song/SongList/" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
         </nav>
 
@@ -1183,10 +1181,8 @@
         </div>
     </aside>
 
-    <!-- ═══════════════ MAIN ═══════════════ -->
     <main class="main">
 
-        <!-- Topbar -->
         <div class="topbar">
             <div class="topbar-left">
                 <a href="/Artist/ArtistList" class="back-btn" title="Geri">
@@ -1207,10 +1203,8 @@
             </div>
         </div>
 
-        <!-- Artist Hero -->
         <div class="artist-hero">
-            <div class="hero-bg-blur"
-                 style="background-image: url('@Model.Artist.ImageUrl');"></div>
+            <div class="hero-bg-blur" style="background-image: url('@Model.Artist.ImageUrl');"></div>
             <div class="hero-overlay"></div>
             <div class="hero-content">
                 <img src="@Model.Artist.ImageUrl"
@@ -1245,21 +1239,18 @@
             </div>
         </div>
 
-        <!-- Content -->
         <div class="content">
 
-            <!-- Action bar -->
             <div class="action-bar">
                 <button class="btn-play-all" onclick="playAll()">
                     <i class="bi bi-play-fill"></i> Tümünü Oynat
                 </button>
-                <button class="btn-follow" id="followBtn" onclick="toggleFollowBtn(this)">
+                <button class="btn-follow" id="followBtn" onclick="toggleFollowBtn(this, '@Model.Artist.ArtistId')">
                     <i class="bi bi-person-plus"></i> Takip Et
                 </button>
                 <button class="btn-more" title="Daha fazla"><i class="bi bi-three-dots"></i></button>
             </div>
 
-            <!-- Track list -->
             <div class="section-header">
                 <span class="section-title">Popüler Şarkılar</span>
                 <span class="section-count">
@@ -1277,7 +1268,6 @@
                              id="track-@index"
                              data-title="@song.Title.ToLower()"
                              onclick="playTrackAtIndex(@index)">
-                            <!-- Number / icon col -->
                             <div class="track-num">
                                 <span class="track-num-val">@(index + 1)</span>
                                 <i class="bi bi-play-fill track-play-icon"></i>
@@ -1286,16 +1276,13 @@
                                 </div>
                             </div>
 
-                            <!-- Title col -->
                             <div class="track-info">
                                 <div class="track-title">@song.Title</div>
                                 <div class="track-label">Şarkı</div>
                             </div>
 
-                            <!-- Duration col -->
                             <div class="track-duration">@song.Duration.ToString(@"mm\:ss")</div>
 
-                            <!-- Like col -->
                             <button class="track-like-btn"
                                     onclick="toggleLike(event, this)"
                                     title="Beğen">
@@ -1316,10 +1303,8 @@
         </div>
     </main>
 
-    <!-- ═══════════════ PLAYER ═══════════════ -->
     <div class="player" id="player">
 
-        <!-- Left: Track info -->
         <div class="player-track">
             <div class="player-cover" id="playerCover">🎵</div>
             <div class="player-info">
@@ -1339,7 +1324,6 @@
             </div>
         </div>
 
-        <!-- Center: Controls + progress -->
         <div class="player-center">
             <div class="player-controls">
                 <button class="ctrl-btn" title="Karıştır"><i class="bi bi-shuffle"></i></button>
@@ -1359,7 +1343,6 @@
             </div>
         </div>
 
-        <!-- Right: Volume & extras -->
         <div class="player-right">
             <button class="ctrl-btn" title="Sıra"><i class="bi bi-collection"></i></button>
             <div class="vol-wrap">
@@ -1373,10 +1356,9 @@
         </div>
     </div>
 
-    <!-- Hidden YouTube container -->
     <div id="ytPlayer" style="display:none; position:absolute; pointer-events:none;"></div>
 
-    <!-- ═══════════════ SCRIPTS ═══════════════ -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         /* ── Track data from Razor ── */
         const tracks = [];
@@ -1421,6 +1403,7 @@
         function onPlayerReady() {
             ytPlayer.setVolume(lastVolume);
             document.getElementById('volFill').style.width = lastVolume + '%';
+            checkInitialFollowState();
         }
 
         function onPlayerStateChange(event) {
@@ -1451,7 +1434,6 @@
         function playTrackAtIndex(index) {
             if (index < 0 || index >= tracks.length) return;
 
-            // Clear previous active row
             if (currentTrackIndex !== -1) {
                 const old = document.getElementById('track-' + currentTrackIndex);
                 if (old) old.classList.remove('playing-now');
@@ -1463,11 +1445,9 @@
 
             if (!videoId) { console.error("Geçersiz YouTube URL:", track.audioUrl); return; }
 
-            // Highlight new row
             const row = document.getElementById('track-' + index);
             if (row) row.classList.add('playing-now');
 
-            // Update player info
             document.getElementById('pTitle').textContent  = track.title;
             document.getElementById('pArtist').textContent = track.artist;
 
@@ -1481,11 +1461,13 @@
         }
 
         function playNext() {
+            if (tracks.length === 0) return;
             const next = (currentTrackIndex + 1) < tracks.length ? currentTrackIndex + 1 : 0;
             playTrackAtIndex(next);
         }
 
         function playPrevious() {
+            if (tracks.length === 0) return;
             const prev = (currentTrackIndex - 1) >= 0 ? currentTrackIndex - 1 : tracks.length - 1;
             playTrackAtIndex(prev);
         }
@@ -1564,7 +1546,56 @@
                     : 'bi bi-volume-up-fill';
         }
 
-        /* ── UI toggles ── */
+        /* ── API Destekli Takip İşlemleri ── */
+        function toggleFollowBtn(btn, artistId) {
+            var token = '@Context.Session.GetString("JwtToken")?.Trim().Replace("\"", "")';
+
+            $.ajax({
+                url: 'https://localhost:7185/api/Follows/toggle/' + artistId,
+                type: 'POST',
+                beforeSend: function (xhr) {
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    }
+                },
+                success: function (response) {
+                    if (response.isFollowing) {
+                        $(btn).addClass('following').html('<i class="bi bi-person-check-fill"></i> Takip Ediliyor');
+                    } else {
+                        $(btn).removeClass('following').html('<i class="bi bi-person-plus"></i> Takip Et');
+                    }
+                },
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        alert('Bu işlemi gerçekleştirmek için lütfen giriş yapın.');
+                    } else {
+                        alert('Takip işlemi esnasında bir hata meydana geldi.');
+                    }
+                }
+            });
+        }
+
+        function checkInitialFollowState() {
+            var artistId = '@Model.Artist.ArtistId';
+            var token = '@Context.Session.GetString("JwtToken")?.Trim().Replace("\"", "")';
+            if(!artistId || !token) return;
+
+            $.ajax({
+                url: 'https://localhost:7185/api/Follows/is-following/' + artistId,
+                type: 'GET',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                },
+                success: function (response) {
+                    var btn = document.getElementById('followBtn');
+                    if (btn && response.isFollowing) {
+                        $(btn).addClass('following').html('<i class="bi bi-person-check-fill"></i> Takip Ediliyor');
+                    }
+                }
+            });
+        }
+
+        /* ── UI Toggles ── */
         function toggleHeart(btn) {
             btn.classList.toggle('liked');
             btn.querySelector('i').className = btn.classList.contains('liked')
@@ -1573,18 +1604,11 @@
         }
 
         function toggleLike(e, btn) {
-            e.stopPropagation();
+            e.stopPropagation(); // Satırın genel tıklama olayını (şarkıyı oynatmayı) engeller
             btn.classList.toggle('liked');
             btn.querySelector('i').className = btn.classList.contains('liked')
                 ? 'bi bi-heart-fill'
                 : 'bi bi-heart';
-        }
-
-        function toggleFollowBtn(btn) {
-            const following = btn.classList.toggle('following');
-            btn.innerHTML = following
-                ? '<i class="bi bi-person-check-fill"></i> Takip Ediliyor'
-                : '<i class="bi bi-person-plus"></i> Takip Et';
         }
 
         /* ── Song search filter ── */

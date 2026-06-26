@@ -1,6 +1,7 @@
 ﻿@model List<JwtMusic.WebUI.Dtos.ResultArtistDto>
 @{
     Layout = null;
+    var followedIds = ViewBag.FollowedArtistIds as List<int> ?? new List<int>();
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -1139,6 +1140,9 @@
                         .Replace("ö", "o")
                         .Replace("ç", "c");
 
+                        // Giriş yapan kullanıcı bu sanatçıyı takip ediyor mu?
+                        bool isFollowing = followedIds.Contains(item.ArtistId);
+
                         <div class="artist-card" data-genre="@cleanGenre" data-name="@item.Name">
                             <div class="card-img-wrap">
                                 <img src="@item.ImageUrl"
@@ -1148,11 +1152,11 @@
                                 <div class="img-fallback" style="display:none;">🎵</div>
 
                                 <div class="card-overlay">
-                                    <button class="overlay-btn"
-                                            title="Takip Et"
-                                            onclick="toggleFollow(this); event.preventDefault(); event.stopPropagation();"
-                                            data-following="false">
-                                        <i class="bi bi-person-plus"></i>
+                                    <button class="overlay-btn overlay-follow-btn"
+                                            title="@(isFollowing ? "Takip Ediliyor" : "Takip Et")"
+                                            onclick="toggleFollow(this, @item.ArtistId); event.preventDefault(); event.stopPropagation();"
+                                            data-following="@(isFollowing ? "true" : "false")">
+                                        <i class="bi @(isFollowing ? "bi-person-check-fill" : "bi-person-plus")"></i>
                                     </button>
                                     <a href="/Artist/ArtistDetail/@item.ArtistId"
                                        class="overlay-btn overlay-btn-play"
@@ -1172,9 +1176,11 @@
                                         <i class="bi bi-person-fill"></i>
                                         @item.MonthlyListeners.ToString("N0") M
                                     </span>
-                                    <button class="btn-follow"
-                                            onclick="toggleFollowBtn(this)">
-                                        Takip Et
+
+                                    <button class="btn-follow footer-follow-btn @(isFollowing ? "following" : "")"
+                                            data-id="@item.ArtistId"
+                                            onclick="toggleFollowBtn(this, @item.ArtistId)">
+                                        @(isFollowing ? "✓ Takip Ediliyor" : "Takip Et")
                                     </button>
                                 </div>
                             </div>
@@ -1257,6 +1263,7 @@
     </div>
 
     <!-- ═══════════════ SCRIPTS ═══════════════ -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         /* ── Player state ── */
         let isPlaying = false;
@@ -1339,19 +1346,59 @@
             icon.className = btn.classList.contains('liked') ? 'bi bi-heart-fill' : 'bi bi-heart';
         }
 
-        /* Follow button on card footer */
-        function toggleFollowBtn(btn) {
-            const following = btn.classList.toggle('following');
-            btn.textContent = following ? '✓ Takip Ediliyor' : 'Takip Et';
+        /* ── Yeni Gelişmiş Takip Fonksiyonları (API Bağlantılı) ── */
+
+        // Kartın altındaki ana buton tetiklendiğinde
+        function toggleFollowBtn(btn, artistId) {
+            var $card = $(btn).closest('.artist-card');
+            var overlayBtn = $card.find('.overlay-follow-btn')[0];
+            executeFollowAjax(artistId, $(btn), $(overlayBtn));
         }
 
-        /* Follow icon-button in overlay */
-        function toggleFollow(btn) {
-            const isFollowing = btn.getAttribute('data-following') === 'true';
-            btn.setAttribute('data-following', String(!isFollowing));
-            const icon = btn.querySelector('i');
-            icon.className = !isFollowing ? 'bi bi-person-check-fill' : 'bi bi-person-plus';
-            btn.title = !isFollowing ? 'Takip Ediliyor' : 'Takip Et';
+        // Kartın üstündeki overlay ikon buton tetiklendiğinde
+        function toggleFollow(btn, artistId) {
+            var $card = $(btn).closest('.artist-card');
+            var footerBtn = $card.find('.footer-follow-btn')[0];
+            executeFollowAjax(artistId, $(footerBtn), $(btn));
+        }
+
+        // Ortak AJAX İş Mantığı Köprüsü
+        function executeFollowAjax(artistId, $footerBtn, $overlayBtn) {
+            // Session'dan JWT Token'ı güvenli bir şekilde JS tarafına alıyoruz
+            var token = '@Context.Session.GetString("JwtToken")?.Trim().Replace("\"", "")';
+
+            $.ajax({
+                url: 'https://localhost:7185/api/Follows/toggle/' + artistId,
+                type: 'POST',
+                beforeSend: function (xhr) {
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    }
+                },
+                success: function (response) {
+                    // İki butonu da API'den gelen yanıta göre aynı anda güncelliyoruz
+                    if (response.isFollowing) {
+                        // TAKİP EDİLDİ DURUMU
+                        $footerBtn.addClass('following').text('✓ Takip Ediliyor');
+
+                        $overlayBtn.attr('data-following', 'true').attr('title', 'Takip Ediliyor');
+                        $overlayBtn.find('i').attr('class', 'bi bi-person-check-fill');
+                    } else {
+                        // TAKİPTEN ÇIKILDI DURUMU
+                        $footerBtn.removeClass('following').text('Takip Et');
+
+                        $overlayBtn.attr('data-following', 'false').attr('title', 'Takip Et');
+                        $overlayBtn.find('i').attr('class', 'bi bi-person-plus');
+                    }
+                },
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        alert('Bu işlemi gerçekleştirmek için lütfen giriş yapın.');
+                    } else {
+                        alert('Takip işlemi esnasında bir hata meydana geldi.');
+                    }
+                }
+            });
         }
 
         /* ── Search & Genre filter ── */
@@ -1410,5 +1457,7 @@
             }
         });
     </script>
+
+    ```
 </body>
 </html>
