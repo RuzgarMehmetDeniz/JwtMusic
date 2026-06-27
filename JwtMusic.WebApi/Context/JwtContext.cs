@@ -14,10 +14,9 @@ namespace JwtMusic.WebApi.Context
         }
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Song> Songs { get; set; }
-        // 1. Yeni takip ara tablomuzu DbSet olarak ekliyoruz
         public DbSet<UserArtistFollow> UserArtistFollows { get; set; }
+        public DbSet<ListeningHistory> ListeningHistories { get; set; }
 
-        // 2. İlişki kurallarını buraya yazıyoruz
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Identity tablolarının kurallarını ezmemek için bu base çağrısı ŞART
@@ -38,6 +37,25 @@ namespace JwtMusic.WebApi.Context
                 .HasOne(f => f.Artist)
                 .WithMany(a => a.UserArtistFollows)
                 .HasForeignKey(f => f.ArtistId);
+
+            modelBuilder.Entity<ListeningHistory>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(e => e.AppUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.AppUserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Song)
+                      .WithMany()
+                      .HasForeignKey(e => e.SongId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(e => e.ListenedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+            });
         }
+
     }
 }
