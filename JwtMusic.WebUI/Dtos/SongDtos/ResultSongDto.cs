@@ -8,9 +8,12 @@
         public string AudioUrl { get; set; }
         public TimeSpan Duration { get; set; }
         public long PlayCount { get; set; }
-        public bool IsPremium { get; set; }
         public DateTime ReleaseDate { get; set; }
         public int ArtistId { get; set; }
         public string ArtistName { get; set; }
+
+        // IsPremium kaldırıldı → RequiredRole eklendi
+        public string RequiredRoleId { get; set; }    // AspNetRoles Id
+        public string RequiredRoleName { get; set; }
     }
 }

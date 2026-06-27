@@ -26,8 +26,7 @@ namespace JwtMusic.WebApi.Services.SongServices
                     Title = s.Title,
                     FilePath = s.AudioUrl,
 
-                    // IsPremium true ise "Premium", false ise "Basic" rol şartı atıyoruz
-                    RequiredRole = s.IsPremium ? "Premium" : "Basic",
+                    RequiredRole = s.RequiredRole ,
 
                     ArtistId = s.ArtistId,
                     ArtistName = s.Artist.Name

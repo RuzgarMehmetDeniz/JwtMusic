@@ -6,9 +6,9 @@
         public string Title { get; set; }
         public string CoverImageUrl { get; set; }
         public string AudioUrl { get; set; }
-        public string Duration { get; set; } // Güncellerken de kolaylık için string formatı
-        public bool IsPremium { get; set; }
+        public string Duration { get; set; }
         public DateTime ReleaseDate { get; set; }
         public int ArtistId { get; set; }
+        public string RequiredRoleId { get; set; }
     }
 }

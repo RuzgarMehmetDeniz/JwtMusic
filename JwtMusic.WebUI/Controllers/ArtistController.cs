@@ -71,8 +71,7 @@ namespace JwtMusic.WebUI.Controllers
             }
 
             ViewBag.FollowedArtistIds = followedArtistIds;
-
-            // Şarkıları JSON string olarak view'a gönder → JS tarafında JSON.parse() yapılacak
+            ViewBag.Token = token; // JS fetch() için token
             ViewBag.SongsJson = JsonConvert.SerializeObject(allSongs);
 
             return View(artists);

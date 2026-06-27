@@ -86,11 +86,7 @@
                                 <div>
                                     <div class="flex items-center gap-2">
                                         <h3 class="font-medium text-white group-hover:text-purple-400 transition-colors">@item.Title</h3>
-
-                                        @if (item.IsPremium)
-                                        {
-                                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-wider"><i class="fa-solid fa-crown mr-0.5"></i> Premium</span>
-                                        }
+                                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-wider"><i class="fa-solid fa-crown mr-0.5"></i> @item.RequiredRole</span>
                                     </div>
                                     <p class="text-xs text-gray-400 mt-0.5">Süre: @item.Duration dk • Dinlenme: @item.PlayCount</p>
                                 </div>

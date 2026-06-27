@@ -74,7 +74,7 @@ namespace JwtMusic.WebUI.Controllers
             value.AudioUrl = song.AudioUrl;
             value.Duration = song.Duration;
             value.PlayCount = song.PlayCount;
-            value.IsPremium = song.IsPremium;
+            value.RequiredRole = song.RequiredRole;
             value.ReleaseDate = song.ReleaseDate;
             value.ArtistId = song.ArtistId;
 
