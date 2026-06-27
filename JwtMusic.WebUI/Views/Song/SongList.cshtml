@@ -1,7 +1,8 @@
 ﻿@model List<JwtMusic.WebUI.Dtos.SongDtos.ResultSongDto>
 @{
     Layout = null;
-    var token = ViewBag.Token as string ?? "";
+    var token    = ViewBag.Token    as string ?? "";
+    var userRole = ViewBag.UserRole as string ?? "Basic";
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -15,40 +16,39 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
+        /* ─── TOKENS ─────────────────────────────────────── */
         :root {
-            --bg-root: #0c0c0e;
-            --bg-sidebar: #111113;
-            --bg-main: #0c0c0e;
-            --bg-card: #181819;
-            --bg-card-hover: #202022;
-            --bg-surface: #1c1c1f;
-            --bg-input: #1a1a1c;
-            --accent: #c9a84c;
-            --accent-dim: rgba(201,168,76,0.12);
-            --accent-border: rgba(201,168,76,0.28);
-            --accent-glow: 0 0 24px rgba(201,168,76,0.18);
-            --text-1: #e8e8ea;
-            --text-2: #8a8a94;
-            --text-3: #46464e;
-            --border: rgba(255,255,255,0.055);
-            --border-hover: rgba(255,255,255,0.11);
-            --sidebar-w: 224px;
-            --player-h: 76px;
-            --radius-card: 14px;
-            --radius-sm: 8px;
-            --radius-pill: 100px;
-            --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+            --bg-root:        #0c0c0e;
+            --bg-sidebar:     #111113;
+            --bg-main:        #0c0c0e;
+            --bg-card:        #181819;
+            --bg-card-hover:  #202022;
+            --bg-surface:     #1c1c1f;
+            --bg-input:       #1a1a1c;
+
+            --accent:         #c9a84c;
+            --accent-dim:     rgba(201,168,76,0.12);
+            --accent-border:  rgba(201,168,76,0.28);
+            --accent-glow:    0 0 24px rgba(201,168,76,0.18);
+
+            --text-1:         #e8e8ea;
+            --text-2:         #8a8a94;
+            --text-3:         #46464e;
+
+            --border:         rgba(255,255,255,0.055);
+            --border-hover:   rgba(255,255,255,0.11);
+
+            --sidebar-w:      224px;
+            --player-h:       76px;
+            --radius-card:    14px;
+            --radius-sm:      8px;
+            --radius-pill:    100px;
+
+            --transition:     0.22s cubic-bezier(0.4,0,0.2,1);
         }
 
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            height: 100%;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { height: 100%; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -59,24 +59,16 @@
             display: grid;
             grid-template-columns: var(--sidebar-w) 1fr;
             grid-template-rows: 1fr var(--player-h);
-            grid-template-areas: "sidebar main" "player player";
+            grid-template-areas:
+                "sidebar main"
+                "player  player";
         }
 
-        img {
-            display: block;
-        }
+        img { display: block; }
+        a   { text-decoration: none; color: inherit; }
+        button { font-family: inherit; cursor: pointer; }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        button {
-            font-family: inherit;
-            cursor: pointer;
-        }
-
-        /* SIDEBAR */
+        /* ─── SIDEBAR ─────────────────────────────────────── */
         .sidebar {
             grid-area: sidebar;
             background: var(--bg-sidebar);
@@ -105,11 +97,7 @@
             justify-content: center;
             flex-shrink: 0;
         }
-
-            .logo-mark i {
-                color: #0c0c0e;
-                font-size: 0.95rem;
-            }
+        .logo-mark i { color: #0c0c0e; font-size: 0.95rem; }
 
         .logo-wordmark {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -119,9 +107,7 @@
             color: var(--text-1);
         }
 
-        .sidebar-section {
-            padding: 20px 12px 8px;
-        }
+        .sidebar-section { padding: 20px 12px 8px; }
 
         .sidebar-label {
             font-size: 0.65rem;
@@ -148,41 +134,80 @@
             text-decoration: none;
         }
 
-            .nav-item i {
-                font-size: 1rem;
-                width: 18px;
-                flex-shrink: 0;
-                text-align: center;
-            }
+        .nav-item i { font-size: 1rem; width: 18px; flex-shrink: 0; text-align: center; }
 
-            .nav-item:hover {
-                background: rgba(255,255,255,0.04);
-                color: var(--text-1);
-            }
+        .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text-1); }
 
-            .nav-item.active {
-                color: var(--text-1);
-                background: rgba(255,255,255,0.05);
-            }
+        .nav-item.active { color: var(--text-1); background: rgba(255,255,255,0.05); }
 
-                .nav-item.active::before {
-                    content: '';
-                    position: absolute;
-                    left: 0;
-                    top: 20%;
-                    bottom: 20%;
-                    width: 2.5px;
-                    border-radius: 2px;
-                    background: var(--accent);
-                }
-
-        .sidebar-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 8px 12px;
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 20%; bottom: 20%;
+            width: 2.5px;
+            border-radius: 2px;
+            background: var(--accent);
         }
 
-        /* MAIN */
+        .sidebar-divider { height: 1px; background: var(--border); margin: 8px 12px; }
+
+        /* Sidebar user role badge */
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1.5px solid var(--border-hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .user-info { min-width: 0; }
+
+        .user-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-1);
+        }
+
+        /* Role pill — renk hiyerarşiye göre değişir */
+        .role-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            margin-top: 2px;
+        }
+
+        .role-pill.basic   { background: rgba(255,255,255,0.08); color: var(--text-2); }
+        .role-pill.gold    { background: rgba(201,168,76,0.18);  color: var(--accent); }
+        .role-pill.premium { background: var(--accent);          color: #0c0c0e; }
+
+        /* ─── MAIN ────────────────────────────────────────── */
         .main {
             grid-area: main;
             overflow-y: auto;
@@ -193,20 +218,11 @@
             scrollbar-color: var(--bg-surface) transparent;
         }
 
-            .main::-webkit-scrollbar {
-                width: 5px;
-            }
+        .main::-webkit-scrollbar { width: 5px; }
+        .main::-webkit-scrollbar-track { background: transparent; }
+        .main::-webkit-scrollbar-thumb { background: var(--bg-surface); border-radius: 4px; }
 
-            .main::-webkit-scrollbar-track {
-                background: transparent;
-            }
-
-            .main::-webkit-scrollbar-thumb {
-                background: var(--bg-surface);
-                border-radius: 4px;
-            }
-
-        /* TOPBAR */
+        /* ─── TOPBAR ──────────────────────────────────────── */
         .topbar {
             position: sticky;
             top: 0;
@@ -217,7 +233,6 @@
             padding: 14px 28px;
             background: rgba(12,12,14,0.88);
             backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
             border-bottom: 1px solid var(--border);
             gap: 16px;
         }
@@ -230,25 +245,17 @@
             letter-spacing: -0.3px;
         }
 
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
 
-        .search-field {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
+        .search-field { position: relative; display: flex; align-items: center; }
 
-            .search-field i {
-                position: absolute;
-                left: 12px;
-                color: var(--text-3);
-                font-size: 0.8rem;
-                pointer-events: none;
-            }
+        .search-field i {
+            position: absolute;
+            left: 12px;
+            color: var(--text-3);
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
 
         .search-input {
             background: var(--bg-input);
@@ -263,41 +270,31 @@
             transition: border-color var(--transition), box-shadow var(--transition), width var(--transition);
         }
 
-            .search-input::placeholder {
-                color: var(--text-3);
-            }
+        .search-input::placeholder { color: var(--text-3); }
 
-            .search-input:focus {
-                border-color: var(--accent-border);
-                box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
-                width: 260px;
-            }
-
-        /* CONTENT */
-        .content {
-            padding: 28px 28px 40px;
-            flex: 1;
+        .search-input:focus {
+            border-color: var(--accent-border);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+            width: 260px;
         }
 
-        .page-header {
-            margin-bottom: 24px;
+        /* ─── CONTENT ─────────────────────────────────────── */
+        .content { padding: 28px 28px 40px; flex: 1; }
+
+        .page-header { margin-bottom: 24px; }
+
+        .page-header h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            color: var(--text-1);
+            margin-bottom: 4px;
         }
 
-            .page-header h1 {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 1.75rem;
-                font-weight: 800;
-                letter-spacing: -0.6px;
-                color: var(--text-1);
-                margin-bottom: 4px;
-            }
+        .page-header p { font-size: 0.83rem; color: var(--text-2); }
 
-            .page-header p {
-                font-size: 0.83rem;
-                color: var(--text-2);
-            }
-
-        /* FILTERS */
+        /* ─── FILTERS ─────────────────────────────────────── */
         .filters-row {
             display: flex;
             align-items: center;
@@ -318,20 +315,10 @@
             transition: all var(--transition);
         }
 
-            .chip:hover {
-                border-color: var(--border-hover);
-                color: var(--text-1);
-                background: rgba(255,255,255,0.03);
-            }
+        .chip:hover { border-color: var(--border-hover); color: var(--text-1); background: rgba(255,255,255,0.03); }
+        .chip.active { background: var(--accent); border-color: var(--accent); color: #0c0c0e; font-weight: 600; }
 
-            .chip.active {
-                background: var(--accent);
-                border-color: var(--accent);
-                color: #0c0c0e;
-                font-weight: 600;
-            }
-
-        /* SONG GRID */
+        /* ─── SONG GRID ───────────────────────────────────── */
         .song-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -348,32 +335,43 @@
             position: relative;
         }
 
-            .song-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 16px 40px rgba(0,0,0,0.55);
-                border-color: rgba(201,168,76,0.22);
-            }
+        .song-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+            border-color: rgba(201,168,76,0.22);
+        }
 
-            .song-card.hide {
-                display: none !important;
-            }
+        /* Kilitli kart — daha soluk görünür */
+        .song-card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-            .song-card::after {
-                content: '';
-                position: absolute;
-                inset: 0;
-                border-radius: var(--radius-card);
-                border: 1.5px solid var(--accent);
-                opacity: 0;
-                transition: opacity var(--transition);
-                pointer-events: none;
-            }
+        .song-card.locked:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: var(--border);
+        }
 
-            .song-card:hover::after {
-                opacity: 1;
-            }
+        .song-card.locked::after { display: none; }
 
-        /* CARD IMAGE */
+        .song-card.hide { display: none !important; }
+
+        /* Altın ring — sadece erişilebilir kartlarda */
+        .song-card:not(.locked)::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-card);
+            border: 1.5px solid var(--accent);
+            opacity: 0;
+            transition: opacity var(--transition);
+            pointer-events: none;
+        }
+
+        .song-card:not(.locked):hover::after { opacity: 1; }
+
+        /* ─── CARD IMAGE ──────────────────────────────────── */
         .card-img-wrap {
             position: relative;
             width: 100%;
@@ -390,7 +388,9 @@
             display: block;
         }
 
-        .card-img-wrap .img-fallback {
+        .song-card:not(.locked):hover .card-img { transform: scale(1.06); }
+
+        .img-fallback {
             position: absolute;
             inset: 0;
             display: flex;
@@ -400,11 +400,7 @@
             background: linear-gradient(145deg, #1e1e22, #2a2a30);
         }
 
-        .song-card:hover .card-img {
-            transform: scale(1.06);
-        }
-
-        /* Premium rozeti */
+        /* Rol rozeti — sol üst köşe */
         .card-badge {
             position: absolute;
             top: 8px;
@@ -419,15 +415,27 @@
             z-index: 2;
         }
 
-            .card-badge.premium {
-                background: rgba(201,168,76,0.85);
-                color: #0c0c0e;
-            }
+        .card-badge.basic   { background: rgba(255,255,255,0.12); color: var(--text-2); }
+        .card-badge.gold    { background: rgba(201,168,76,0.85);  color: #0c0c0e; }
+        .card-badge.premium { background: rgba(160,80,240,0.85);  color: #fff; }
 
-            .card-badge.basic {
-                background: rgba(255,255,255,0.12);
-                color: var(--text-2);
-            }
+        /* Kilit ikonu — erişilemeyen kartların üzerinde */
+        .card-lock {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--text-2);
+            z-index: 2;
+        }
 
         .card-overlay {
             position: absolute;
@@ -439,54 +447,29 @@
             align-items: flex-end;
             justify-content: flex-end;
             padding: 12px;
-            gap: 8px;
         }
 
-        .song-card:hover .card-overlay {
-            opacity: 1;
-        }
-
-        .overlay-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.18);
-            background: rgba(12,12,14,0.7);
-            color: var(--text-1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: background var(--transition), border-color var(--transition), transform 0.15s;
-            backdrop-filter: blur(6px);
-        }
-
-            .overlay-btn:hover {
-                background: var(--accent);
-                border-color: var(--accent);
-                color: #0c0c0e;
-                transform: scale(1.08);
-            }
+        .song-card:not(.locked):hover .card-overlay { opacity: 1; }
 
         .overlay-btn-play {
             width: 40px;
             height: 40px;
+            border-radius: 50%;
             background: var(--accent);
-            border-color: var(--accent);
+            border: none;
             color: #0c0c0e;
             font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background var(--transition), transform 0.15s;
         }
 
-            .overlay-btn-play:hover {
-                background: #d4b360;
-                transform: scale(1.1);
-            }
+        .overlay-btn-play:hover { background: #d4b360; transform: scale(1.1); }
 
-        /* CARD BODY */
-        .card-body {
-            padding: 12px 13px 13px;
-        }
+        /* ─── CARD BODY ───────────────────────────────────── */
+        .card-body { padding: 12px 13px 13px; }
 
         .card-name {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -524,12 +507,10 @@
             gap: 4px;
         }
 
-            .card-duration i {
-                color: var(--accent);
-                font-size: 0.65rem;
-            }
+        .card-duration i { color: var(--accent); font-size: 0.65rem; }
 
-        .card-play-count {
+        /* Kilitli kart alt metni */
+        .card-locked-label {
             font-size: 0.7rem;
             color: var(--text-3);
             display: flex;
@@ -537,40 +518,49 @@
             gap: 4px;
         }
 
-            .card-play-count i {
-                color: var(--accent);
-                font-size: 0.65rem;
-            }
+        /* ─── EMPTY / NO RESULTS ──────────────────────────── */
+        .no-results {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5rem 1rem;
+            color: var(--text-3);
+            grid-column: 1 / -1;
+        }
 
-        /* Paket yetersiz uyarı modalı */
+        .no-results i { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .no-results strong { display: block; font-size: 0.95rem; color: var(--text-2); margin-bottom: 4px; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .no-results p { font-size: 0.85rem; max-width: 260px; line-height: 1.6; }
+
+        /* ─── MODAL ───────────────────────────────────────── */
         .pkg-modal {
             display: none;
             position: fixed;
             inset: 0;
             z-index: 999;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.72);
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(5px);
         }
 
-            .pkg-modal.show {
-                display: flex;
-            }
+        .pkg-modal.show { display: flex; }
 
         .pkg-modal-box {
             background: var(--bg-card);
             border: 1px solid var(--accent-border);
             border-radius: var(--radius-card);
-            padding: 32px 28px;
-            max-width: 340px;
+            padding: 36px 32px;
+            max-width: 360px;
             width: 90%;
             text-align: center;
-            box-shadow: var(--accent-glow);
+            box-shadow: var(--accent-glow), 0 24px 60px rgba(0,0,0,0.6);
         }
 
         .pkg-modal-icon {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             color: var(--accent);
             margin-bottom: 14px;
             display: block;
@@ -587,9 +577,34 @@
         .pkg-modal-text {
             font-size: 0.83rem;
             color: var(--text-2);
-            line-height: 1.6;
-            margin-bottom: 20px;
+            line-height: 1.65;
+            margin-bottom: 8px;
         }
+
+        /* Mevcut rol vs gerekli rol karşılaştırması */
+        .pkg-modal-roles {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 14px 0 20px;
+        }
+
+        .role-tag {
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .role-tag.current { background: rgba(255,255,255,0.07); color: var(--text-2); }
+        .role-tag.required { background: rgba(160,80,240,0.2); color: #c084fc; border: 1px solid rgba(160,80,240,0.35); }
+        .role-tag.required.gold { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
+
+        .pkg-modal-arrow { color: var(--text-3); font-size: 0.8rem; }
+
+        .pkg-modal-actions { display: flex; gap: 8px; justify-content: center; }
 
         .pkg-modal-btn {
             padding: 9px 22px;
@@ -603,43 +618,22 @@
             transition: background var(--transition);
         }
 
-            .pkg-modal-btn:hover {
-                background: #d4b360;
-            }
+        .pkg-modal-btn:hover { background: #d4b360; }
 
-        /* EMPTY STATE */
-        .no-results {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 5rem 1rem;
-            color: var(--text-3);
-            grid-column: 1 / -1;
+        .pkg-modal-btn-ghost {
+            padding: 9px 18px;
+            border-radius: var(--radius-pill);
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition);
         }
 
-            .no-results i {
-                font-size: 2.5rem;
-                margin-bottom: 12px;
-                display: block;
-            }
+        .pkg-modal-btn-ghost:hover { background: var(--bg-surface); color: var(--text-1); }
 
-            .no-results p {
-                font-size: 0.85rem;
-                max-width: 260px;
-                line-height: 1.6;
-            }
-
-            .no-results strong {
-                display: block;
-                font-size: 0.95rem;
-                color: var(--text-2);
-                margin-bottom: 4px;
-                font-family: 'Plus Jakarta Sans', sans-serif;
-            }
-
-        /* PLAYER */
+        /* ─── PLAYER ──────────────────────────────────────── */
         .player {
             grid-area: player;
             background: #111113;
@@ -652,12 +646,7 @@
             z-index: 100;
         }
 
-        .player-track {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            min-width: 0;
-        }
+        .player-track { display: flex; align-items: center; gap: 11px; min-width: 0; }
 
         .player-cover {
             width: 44px;
@@ -673,16 +662,9 @@
             overflow: hidden;
         }
 
-            .player-cover img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
+        .player-cover img { width: 100%; height: 100%; object-fit: cover; }
 
-        .player-info {
-            min-width: 0;
-            flex: 1;
-        }
+        .player-info { min-width: 0; flex: 1; }
 
         .player-song {
             font-size: 0.82rem;
@@ -714,22 +696,34 @@
             flex-shrink: 0;
         }
 
-            .player-like-btn:hover, .player-like-btn.liked {
-                color: var(--accent);
-            }
+        .player-like-btn:hover, .player-like-btn.liked { color: var(--accent); }
 
-        .player-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 7px;
+        .waveform { display: flex; align-items: center; gap: 2px; height: 14px; }
+
+        .waveform span {
+            display: block;
+            width: 2.5px;
+            border-radius: 2px;
+            background: var(--accent);
+            animation: wv 1.1s ease-in-out infinite;
         }
 
-        .player-controls {
-            display: flex;
-            align-items: center;
-            gap: 4px;
+        .waveform span:nth-child(1) { height: 5px;  animation-delay: 0s; }
+        .waveform span:nth-child(2) { height: 12px; animation-delay: 0.1s; }
+        .waveform span:nth-child(3) { height: 8px;  animation-delay: 0.2s; }
+        .waveform span:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+        .waveform span:nth-child(5) { height: 6px;  animation-delay: 0.4s; }
+
+        @@keyframes wv {
+            0%, 100% { transform: scaleY(1); }
+            50%       { transform: scaleY(0.3); }
         }
+
+        .waveform.paused span { animation-play-state: paused; }
+
+        .player-center { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+
+        .player-controls { display: flex; align-items: center; gap: 4px; }
 
         .ctrl-btn {
             background: none;
@@ -747,10 +741,7 @@
             transition: color var(--transition), background var(--transition);
         }
 
-            .ctrl-btn:hover {
-                color: var(--text-1);
-                background: rgba(255,255,255,0.05);
-            }
+        .ctrl-btn:hover { color: var(--text-1); background: rgba(255,255,255,0.05); }
 
         .ctrl-btn-play {
             width: 38px;
@@ -762,10 +753,7 @@
             transition: transform 0.15s, background var(--transition);
         }
 
-            .ctrl-btn-play:hover {
-                background: #fff;
-                transform: scale(1.05);
-            }
+        .ctrl-btn-play:hover { background: #fff; transform: scale(1.05); }
 
         .player-progress {
             display: flex;
@@ -789,12 +777,9 @@
             background: rgba(255,255,255,0.08);
             border-radius: 3px;
             cursor: pointer;
-            position: relative;
         }
 
-            .progress-track:hover {
-                height: 4px;
-            }
+        .progress-track:hover { height: 4px; }
 
         .progress-fill {
             height: 100%;
@@ -805,9 +790,7 @@
             transition: width 0.1s linear;
         }
 
-        .progress-track:hover .progress-fill {
-            background: var(--accent);
-        }
+        .progress-track:hover .progress-fill { background: var(--accent); }
 
         .progress-fill::after {
             content: '';
@@ -822,26 +805,12 @@
             transition: transform 0.15s;
         }
 
-        .progress-track:hover .progress-fill::after {
-            transform: translateY(-50%) scale(1);
-        }
+        .progress-track:hover .progress-fill::after { transform: translateY(-50%) scale(1); }
 
-        .player-right {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-        }
+        .player-right { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+        .player-right .ctrl-btn { font-size: 0.85rem; }
 
-            .player-right .ctrl-btn {
-                font-size: 0.85rem;
-            }
-
-        .vol-wrap {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .vol-wrap { display: flex; align-items: center; gap: 6px; }
 
         .vol-btn {
             background: none;
@@ -853,9 +822,7 @@
             transition: color var(--transition);
         }
 
-            .vol-btn:hover {
-                color: var(--text-1);
-            }
+        .vol-btn:hover { color: var(--text-1); }
 
         .vol-track {
             width: 78px;
@@ -873,183 +840,95 @@
             transition: background var(--transition);
         }
 
-        .vol-track:hover .vol-fill {
-            background: var(--text-1);
-        }
+        .vol-track:hover .vol-fill { background: var(--text-1); }
 
-        /* Waveform */
-        .waveform {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            height: 14px;
-        }
-
-            .waveform span {
-                display: block;
-                width: 2.5px;
-                border-radius: 2px;
-                background: var(--accent);
-                animation: wv 1.1s ease-in-out infinite;
+        /* ─── RESPONSIVE ──────────────────────────────────── */
+        @@media (max-width: 900px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: 52px 1fr var(--player-h);
+                grid-template-areas: "sidebar" "main" "player";
             }
 
-                .waveform span:nth-child(1) {
-                    height: 5px;
-                    animation-delay: 0s;
-                }
+            .sidebar {
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                overflow-x: auto;
+            }
 
-                .waveform span:nth-child(2) {
-                    height: 12px;
-                    animation-delay: 0.1s;
-                }
-
-                .waveform span:nth-child(3) {
-                    height: 8px;
-                    animation-delay: 0.2s;
-                }
-
-                .waveform span:nth-child(4) {
-                    height: 14px;
-                    animation-delay: 0.3s;
-                }
-
-                .waveform span:nth-child(5) {
-                    height: 6px;
-                    animation-delay: 0.4s;
-                }
-
-        @@keyframes wv {
-            0%, 100%
-
-        {
-            transform: scaleY(1);
-        }
-
-        50% {
-            transform: scaleY(0.3);
-        }
-
-        }
-
-        .waveform.paused span {
-            animation-play-state: paused;
-        }
-
-        @@media (max-width: 900px) {
-            body
-
-        {
-            grid-template-columns: 1fr;
-            grid-template-rows: 52px 1fr var(--player-h);
-            grid-template-areas: "sidebar" "main" "player";
-        }
-
-        .sidebar {
-            flex-direction: row;
-            border-right: none;
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-        }
-
-        .sidebar-logo {
-            padding: 12px 16px;
-            border-bottom: none;
-            border-right: 1px solid var(--border);
-        }
-
-        .sidebar-section {
-            display: flex;
-            flex-direction: row;
-            padding: 8px;
-            gap: 2px;
-            align-items: center;
-        }
-
-        .sidebar-label, .sidebar-divider {
-            display: none;
-        }
-
-        .nav-item.active::before {
-            top: auto;
-            left: 20%;
-            right: 20%;
-            bottom: 0;
-            height: 2px;
-            width: auto;
-        }
-
-        .player {
-            grid-template-columns: 1fr auto;
-        }
-
-        .player-right {
-            display: none;
-        }
-
+            .sidebar-logo { padding: 12px 16px; border-bottom: none; border-right: 1px solid var(--border); }
+            .sidebar-section { display: flex; flex-direction: row; padding: 8px; gap: 2px; align-items: center; }
+            .sidebar-label, .sidebar-divider, .sidebar-footer { display: none; }
+            .nav-item.active::before { top: auto; left: 20%; right: 20%; bottom: 0; height: 2px; width: auto; }
+            .player { grid-template-columns: 1fr auto; }
+            .player-right { display: none; }
         }
 
         @@media (max-width: 600px) {
-            .song-grid
-
-        {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .content {
-            padding: 16px 14px 28px;
-        }
-
-        .topbar {
-            padding: 10px 14px;
-        }
-
-        .search-input {
-            width: 140px;
-        }
-
-            .search-input:focus {
-                width: 160px;
-            }
-
+            .song-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .content { padding: 16px 14px 28px; }
+            .topbar { padding: 10px 14px; }
+            .search-input { width: 140px; }
+            .search-input:focus { width: 160px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- ═══════════════ SIDEBAR ═══════════════ -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-mark">
-                <i class="bi bi-music-note-beamed"></i>
-            </div>
-            <span class="logo-wordmark">CANLI MÜZİK</span>
+            <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
+            <span class="logo-wordmark">Canlı Müzik</span>
         </div>
 
-        <div class="sidebar-section">
-            <p class="sidebar-label">Menü</p>
-            <a href="#" class="nav-item active">
-                <i class="bi bi-music-note-list"></i>
-                <span>Şarkılar</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="bi bi-mic"></i>
-                <span>Sanatçılar</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="bi bi-disc"></i>
-                <span>Albümler</span>
-            </a>
-        </div>
+        <nav class="sidebar-section">
+            <span class="sidebar-label">Keşfet</span>
+            <a href="#" class="nav-item"><i class="bi bi-house"></i> Ana Sayfa</a>
+            <a href="/Artist/ArtistList" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
+            <a href="/Song/SongList" class="nav-item active"><i class="bi bi-music-note-list"></i> Şarkılar</a>
+        </nav>
+
         <div class="sidebar-divider"></div>
+
+        <nav class="sidebar-section">
+            <span class="sidebar-label">Kitaplık</span>
+            <a href="#" class="nav-item"><i class="bi bi-heart"></i> Beğendiklerim</a>
+            <a href="#" class="nav-item"><i class="bi bi-collection-play"></i> Çalma Listeleri</a>
+            <a href="#" class="nav-item"><i class="bi bi-clock-history"></i> Son Dinlenenler</a>
+        </nav>
+
+        <!-- Kullanıcı rol bilgisi — dinamik -->
+        <div class="sidebar-footer">
+            <div class="user-row">
+                <div class="user-avatar">
+                    @userRole.Substring(0, 1).ToUpper()
+                </div>
+                <div class="user-info">
+                    <div class="user-name">Hesabım</div>
+                    @{
+                        var roleLower = userRole.ToLower();
+                        var roleCss   = roleLower == "premium" ? "premium" : roleLower == "gold" ? "gold" : "basic";
+                        var roleIcon  = roleLower == "premium" ? "bi-gem" : roleLower == "gold" ? "bi-star-fill" : "bi-person";
+                    }
+                    <div class="role-pill @roleCss">
+                        <i class="bi @roleIcon"></i> @userRole
+                    </div>
+                </div>
+            </div>
+        </div>
     </aside>
 
+    <!-- ═══════════════ MAIN ═══════════════ -->
     <main class="main">
+
         <header class="topbar">
-            <div class="topbar-breadcrumb">Şarkılarım / Keşfet</div>
+            <div class="topbar-breadcrumb">Şarkılar</div>
             <div class="topbar-right">
                 <div class="search-field">
                     <i class="bi bi-search"></i>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Şarkı adı ara...">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Şarkı adı ara..." autocomplete="off">
                 </div>
             </div>
         </header>
@@ -1057,108 +936,168 @@
         <div class="content">
             <div class="page-header">
                 <h1>Müzik Kütüphanesi</h1>
-                <p>Premium kalitede listelenen canlı ve stüdyo parçaları dinleyin.</p>
+                <p>
+                    @if (Model != null)
+                    {
+                        @($"{Model.Count} şarkı — ")
+                    }
+                    <span style="color: var(--accent);">@userRole</span> paketinizle erişebileceğiniz içerikler listeleniyor.
+                </p>
             </div>
 
-            <div class="filters-row">
-                <button class="chip active" data-filter="all">Tüm Şarkılar</button>
-                <button class="chip" data-filter="premium">Premium</button>
-                <button class="chip" data-filter="basic">Standart</button>
+            <!-- Filtreler -->
+            <div class="filters-row" id="filtersRow">
+                <button class="chip active" data-filter="all">Tümü</button>
+                <button class="chip" data-filter="Basic">Basic</button>
+                <button class="chip" data-filter="Gold">Gold</button>
+                <button class="chip" data-filter="Premium">Premium</button>
             </div>
 
-            <div class="song-grid">
+            <!-- Şarkı grid -->
+            <div class="song-grid" id="songGrid">
+
                 @if (Model != null && Model.Any())
                 {
                     foreach (var song in Model)
                     {
-                        // Eğer şarkının özel bir rol gereksinimi varsa bunu data attribute veya fonksiyona geçebiliriz
-                        var requiredRole = !string.IsNullOrEmpty(song.RequiredRoleName) ? song.RequiredRoleName : "Free";
+                        // Şarkının gerektirdiği rol — boşsa Basic kabul et
+                        var reqRole = !string.IsNullOrEmpty(song.RequiredRoleName)
+                            ? song.RequiredRoleName
+                            : "Basic";
 
-                        // Tasarımda premium rozeti yerine dinamik olarak rol ismini (VIP, Premium vb.) yazdırabiliriz
-                        var hasRoleBadge = !string.IsNullOrEmpty(song.RequiredRoleName);
+                        // Hiyerarşi: Basic=1, Gold=2, Premium=3
+                        // Kullanıcı kendi seviyesindeki ve altındaki şarkıları dinleyebilir
+                        int RoleLevel(string r) => r.ToLower() switch
+                        {
+                            "premium" => 3,
+                            "gold"    => 2,
+                            _         => 1   // basic veya bilinmeyen
+                        };
 
-                        <div class="song-card"
-                             data-filter="@(hasRoleBadge ? "premium" : "basic")"
+                        var userLevel = RoleLevel(userRole);
+                        var reqLevel  = RoleLevel(reqRole);
+                        var canAccess = userLevel >= reqLevel;
+
+                        // Rozet CSS sınıfı
+                        var badgeCss = reqLevel == 3 ? "premium" : reqLevel == 2 ? "gold" : "basic";
+
+                        <div class="song-card @(canAccess ? "" : "locked")"
+                             data-filter="@reqRole"
                              data-name="@song.Title.ToLower()"
-                             onclick="playSong('@song.SongId', '@song.Title', '@song.ArtistName', '@song.CoverImageUrl', '@song.AudioUrl', '@requiredRole')">
+                             data-can-access="@canAccess.ToString().ToLower()"
+                             data-song-id="@song.SongId"
+                             data-title="@Html.Raw(song.Title.Replace("\"","&quot;"))"
+                             data-artist="@Html.Raw((song.ArtistName ?? "").Replace("\"","&quot;"))"
+                             data-cover="@(song.CoverImageUrl ?? "")"
+                             data-audio="@(song.AudioUrl ?? "")"
+                             data-required-role="@reqRole"
+                             onclick="handleCardClick(this)">
 
                             <div class="card-img-wrap">
-                                @if (hasRoleBadge)
+                                <!-- Rol rozeti -->
+                                <span class="card-badge @badgeCss">@reqRole</span>
+
+                                <!-- Kilitli ise kilit ikonu -->
+                                @if (!canAccess)
                                 {
-                                    <span class="card-badge premium">@song.RequiredRoleName</span>
-                                }
-                                else
-                                {
-                                    <span class="card-badge basic">Herkes</span>
+                                    <div class="card-lock"><i class="bi bi-lock-fill"></i></div>
                                 }
 
                                 @if (!string.IsNullOrEmpty(song.CoverImageUrl))
                                 {
-                                    <img src="@song.CoverImageUrl" class="card-img" alt="@song.Title" loading="lazy">
+                                    <img src="@song.CoverImageUrl"
+                                         class="card-img"
+                                         alt="@song.Title"
+                                         loading="lazy"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="img-fallback" style="display:none;">🎵</div>
                                 }
                                 else
                                 {
                                     <div class="img-fallback">🎵</div>
                                 }
 
-                                <div class="card-overlay">
-                                    <button type="button" class="overlay-btn overlay-btn-play" aria-label="Oynat">
-                                        <i class="bi bi-play-fill"></i>
-                                    </button>
-                                </div>
+                                <!-- Sadece erişilebilir kartlarda play overlay -->
+                                @if (canAccess)
+                                {
+                                    <div class="card-overlay">
+                                        <button type="button" class="overlay-btn-play" aria-label="Oynat">
+                                            <i class="bi bi-play-fill"></i>
+                                        </button>
+                                    </div>
+                                }
                             </div>
 
                             <div class="card-body">
                                 <h3 class="card-name">@song.Title</h3>
                                 <p class="card-artist">@song.ArtistName</p>
                                 <div class="card-meta">
-                                    <span class="card-duration">
-                                        <i class="bi bi-clock"></i> 3:45
-                                    </span>
-                                    <span class="card-play-count">
-                                        <i class="bi bi-headphones"></i> 1.2K
-                                    </span>
+                                    @if (canAccess)
+                                    {
+                                        <span class="card-duration">
+                                            <i class="bi bi-clock"></i>
+                                            @song.Duration.ToString(@"mm\:ss")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="card-locked-label">
+                                            <i class="bi bi-lock" style="color:var(--text-3)"></i>
+                                            @reqRole gerekli
+                                        </span>
+                                    }
                                 </div>
                             </div>
                         </div>
                     }
                 }
+                else
+                {
+                    <div class="no-results" style="display:flex;">
+                        <i class="bi bi-music-note-slash"></i>
+                        <strong>Şarkı bulunamadı</strong>
+                        <p>Veritabanından şarkı yüklenemedi.</p>
+                    </div>
+                }
+
                 <div id="noResults" class="no-results">
                     <i class="bi bi-music-note-slash"></i>
-                    <strong>Aradığınız şarkı bulunamadı</strong>
-                    <p>Farklı bir anahtar kelime yazmayı veya filtreyi değiştirmeyi deneyebilirsiniz.</p>
+                    <strong>Sonuç yok</strong>
+                    <p>Arama veya filtre kriterlerinize uyan şarkı bulunamadı.</p>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- ═══════════════ PLAYER ═══════════════ -->
     <footer class="player">
         <div class="player-track">
             <div class="player-cover" id="playerCover">🎵</div>
             <div class="player-info">
-                <div class="player-song" id="playerSong">Oynatılmıyor</div>
-                <div class="player-artist" id="playerArtist">Lütfen bir şarkı seçin</div>
+                <div class="player-song"   id="playerSong">Oynatılmıyor</div>
+                <div class="player-artist" id="playerArtist">Bir şarkı seçin</div>
             </div>
             <button class="player-like-btn" onclick="toggleHeart(this)" title="Beğen">
                 <i class="bi bi-heart"></i>
             </button>
+            <div class="waveform paused" id="waveform">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
         </div>
 
         <div class="player-center">
             <div class="player-controls">
-                <button class="ctrl-btn" onclick="playPrev()" title="Önceki Şarkı">
-                    <i class="bi bi-skip-start-fill"></i>
-                </button>
+                <button class="ctrl-btn" title="Karıştır"><i class="bi bi-shuffle"></i></button>
+                <button class="ctrl-btn" onclick="playPrev()" title="Önceki"><i class="bi bi-skip-start-fill"></i></button>
                 <button class="ctrl-btn ctrl-btn-play" onclick="togglePlay()" title="Oynat / Durdur">
                     <i id="playIcon" class="bi bi-play-fill"></i>
                 </button>
-                <button class="ctrl-btn" onclick="playNext()" title="Sonraki Şarkı">
-                    <i class="bi bi-skip-end-fill"></i>
-                </button>
+                <button class="ctrl-btn" onclick="playNext()" title="Sonraki"><i class="bi bi-skip-end-fill"></i></button>
+                <button class="ctrl-btn" title="Tekrarla"><i class="bi bi-repeat"></i></button>
             </div>
             <div class="player-progress">
                 <span class="time-lbl" id="currentTime">0:00</span>
-                <div class="progress-track" id="progressBar" onclick="seekTo(e)">
+                <div class="progress-track" id="progressBar" onclick="seekTo(event)">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
                 <span class="time-lbl" id="totalTime">0:00</span>
@@ -1166,129 +1105,144 @@
         </div>
 
         <div class="player-right">
-            <div id="waveform" class="waveform paused" style="margin-right: 12px;">
-                <span></span><span></span><span></span><span></span><span></span>
-            </div>
             <div class="vol-wrap">
-                <button class="vol-btn" onclick="toggleMute()" title="Sesi Kapat/Aç">
+                <button class="vol-btn" onclick="toggleMute()" title="Ses">
                     <i id="volIcon" class="bi bi-volume-up-fill"></i>
                 </button>
                 <div class="vol-track" id="volTrack" onclick="setVolume(event)">
-                    <div class="vol-fill" id="volFill" style="width: 70%;"></div>
+                    <div class="vol-fill" id="volFill" style="width:70%;"></div>
                 </div>
             </div>
         </div>
     </footer>
 
-    <div id="pkgModal" class="pkg-modal">
+    <!-- ═══════════════ PAKET MODAL ═══════════════ -->
+    <div id="pkgModal" class="pkg-modal" onclick="closeModalOnBackdrop(event)">
         <div class="pkg-modal-box">
             <i class="bi bi-shield-lock-fill pkg-modal-icon"></i>
-            <h2 class="pkg-modal-title">Premium İçerik</h2>
-            <p class="pkg-modal-text">Bu şarkıyı dinleyebilmek için mevcut paketinizin Premium olması gerekmektedir. Detaylar için abonelik alanını ziyaret edin.</p>
-            <button class="pkg-modal-btn" onclick="document.getElementById('pkgModal').classList.remove('show')">Kapat</button>
+            <h2 class="pkg-modal-title">Bu İçerik Kilitli</h2>
+            <p class="pkg-modal-text">Bu şarkıyı dinlemek için daha yüksek bir üyelik paketi gerekiyor.</p>
+
+            <div class="pkg-modal-roles">
+                <span class="role-tag current" id="modalCurrentRole">Basic</span>
+                <span class="pkg-modal-arrow"><i class="bi bi-arrow-right"></i></span>
+                <span class="role-tag required" id="modalRequiredRole">Premium</span>
+            </div>
+
+            <div class="pkg-modal-actions">
+                <button class="pkg-modal-btn-ghost" onclick="closePkgModal()">Kapat</button>
+                <button class="pkg-modal-btn">Paketi Yükselt</button>
+            </div>
         </div>
     </div>
 
+    <!-- YouTube hidden container -->
     <div id="ytPlayer" style="position:absolute; width:0; height:0; pointer-events:none; opacity:0;"></div>
 
     <script>
-        /* ── YouTube IFrame API ── */
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(tag);
+        /* ══════════════════════════════════════════════════
+           ROL HİYERARŞİSİ — Razor'dan dinamik olarak gelir
+        ══════════════════════════════════════════════════ */
+        const USER_ROLE = "@userRole";   // Razor → JS
+        const API_BASE  = "https://localhost:7185";
+        const TOKEN     = "@token";
 
-        let ytPlayer, ytReady = false, pendingVideoId = null;
-        let volumeVal = 70, isMuted = false, progressInterval;
+        // Hiyerarşi map'i
+        const ROLE_LEVEL = { basic: 1, gold: 2, premium: 3 };
 
-        // Şarkı listesi
-        const ALL_SONGS = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model ?? new List<JwtMusic.WebUI.Dtos.SongDtos.ResultSongDto>()));
-        let currentIndex = -1;
-
-        function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('ytPlayer', {
-                height: '0', width: '0',
-                playerVars: { controls: 0, disablekb: 1, rel: 0 },
-                events: {
-                    onReady: function() {
-                        ytReady = true;
-                        ytPlayer.setVolume(volumeVal);
-                        document.getElementById('volFill').style.width = volumeVal + '%';
-                        if (pendingVideoId) { ytPlayer.loadVideoById(pendingVideoId); pendingVideoId = null; }
-                    },
-                    onStateChange: function(e) {
-                        if (e.data === YT.PlayerState.PLAYING) {
-                            document.getElementById('playIcon').className = 'bi bi-pause-fill';
-                            document.getElementById('waveform').classList.remove('paused');
-                            startProgressLoop();
-                        } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.BUFFERING) {
-                            document.getElementById('playIcon').className = 'bi bi-play-fill';
-                            document.getElementById('waveform').classList.add('paused');
-                        } else if (e.data === YT.PlayerState.ENDED) {
-                            playNext();
-                        }
-                    },
-                    onError: function(e) { console.error('YT hata:', e.data); }
-                }
-            });
+        function getRoleLevel(role) {
+            return ROLE_LEVEL[(role || '').toLowerCase()] ?? 1;
         }
 
-        function playSong(songId, title, artist, coverUrl, audioUrl, requiredRole) {
+        function canUserAccess(requiredRole) {
+            return getRoleLevel(USER_ROLE) >= getRoleLevel(requiredRole);
+        }
 
-            // Kullanıcının mevcut rolü (Senin rolün Gold)
-            const userRole = "Gold";
+        /* ══════════════════════════════════════════════════
+           TÜM ŞARKILAR — JSON olarak Razor'dan gelen liste
+           (prev/next navigasyonu için)
+        ══════════════════════════════════════════════════ */
+        const ALL_SONGS = @Html.Raw(
+            Newtonsoft.Json.JsonConvert.SerializeObject(
+                (Model ?? new List<JwtMusic.WebUI.Dtos.SongDtos.ResultSongDto>())
+                .Select(s => new {
+                    songId       = s.SongId,
+                    title        = s.Title,
+                    artistName   = s.ArtistName,
+                    coverImageUrl= s.CoverImageUrl,
+                    audioUrl     = s.AudioUrl,
+                    requiredRole = !string.IsNullOrEmpty(s.RequiredRoleName) ? s.RequiredRoleName : "Basic"
+                })
+            )
+        );
 
-            // Küçük harfe çevirerek rollerin hiyerarşisini kontrol ediyoruz
-            const reqRoleLower = requiredRole ? requiredRole.toLowerCase() : "free";
+        // Sadece erişilebilir şarkıların play sırası (prev/next için)
+        const PLAYABLE = ALL_SONGS.filter(s => canUserAccess(s.requiredRole));
+        let currentPlayableIndex = -1;
 
-            // EĞER Şarkı senin rolünün ÜSTÜNDEYSE (Örn: şarkı Premium/VIP istiyor ama sen Gold isen) direkt önyüzde keselim
-            // Not: Buradaki rollerin isimlerini kendi veritabanındaki hiyerarşiye göre (vip, premium vb.) çoğaltabilirsin.
-            if (userRole.toLowerCase() === "gold" && (reqRoleLower === "vip" || reqRoleLower === "premium")) {
-                document.querySelector('.pkg-modal-text').textContent =
-                    `Bu şarkıyı dinleyebilmek için '${requiredRole}' üyelik paketine sahip olmanız gerekmektedir. Mevcut paketiniz: ${userRole}`;
-                document.getElementById('pkgModal').classList.add('show');
-                return; // Fonksiyondan çık, API'ye istek atıp sunucuyu yorma
+        /* ══════════════════════════════════════════════════
+           KART TIKLAMA
+        ══════════════════════════════════════════════════ */
+        function handleCardClick(card) {
+            const canAccess     = card.getAttribute('data-can-access') === 'true';
+            const requiredRole  = card.getAttribute('data-required-role');
+
+            if (!canAccess) {
+                showPkgModal(requiredRole);
+                return;
             }
 
-            // Eğer rolün yetiyorsa (Gold, Basic, Free vb.) API'ye güvenle istek atıyoruz
-            fetch(`https://localhost:7185/api/Songs/${songId}`, {
-                method: 'GET',
+            const songId    = card.getAttribute('data-song-id');
+            const title     = card.getAttribute('data-title');
+            const artist    = card.getAttribute('data-artist');
+            const cover     = card.getAttribute('data-cover');
+            const audioUrl  = card.getAttribute('data-audio');
+
+            playSong(songId, title, artist, cover, audioUrl, requiredRole);
+        }
+
+        /* ══════════════════════════════════════════════════
+           OYNATMA
+        ══════════════════════════════════════════════════ */
+        function playSong(songId, title, artist, coverUrl, audioUrl, requiredRole) {
+            // 1) Önce client-side hiyerarşi kontrolü
+            if (!canUserAccess(requiredRole)) {
+                showPkgModal(requiredRole);
+                return;
+            }
+
+            // 2) Playable index güncelle (prev/next için)
+            const idx = PLAYABLE.findIndex(s => String(s.songId) === String(songId));
+            if (idx !== -1) currentPlayableIndex = idx;
+
+            // 3) Player alt barını güncelle
+            document.getElementById('playerSong').textContent   = title;
+            document.getElementById('playerArtist').textContent = artist;
+            const cover = document.getElementById('playerCover');
+            cover.innerHTML = coverUrl
+                ? `<img src="${coverUrl}" alt="${title}" onerror="this.parentElement.textContent='🎵'">`
+                : '🎵';
+
+            // 4) API çağrısı — backend 403 dönerse modal göster
+            fetch(`${API_BASE}/api/Songs/${songId}`, {
                 headers: {
-                    'Authorization': 'Bearer ' + '@token',
+                    'Authorization': `Bearer ${TOKEN}`,
                     'Content-Type': 'application/json'
                 }
             })
             .then(res => {
-                // Backend'den de her ihtimale karşı 403 (Yetki yok) dönerse modalı göster
                 if (res.status === 403) {
-                    document.querySelector('.pkg-modal-text').textContent =
-                        `Bu şarkı için yetkiniz yetersizdir. Gerekli Rol: ${requiredRole}`;
-                    document.getElementById('pkgModal').classList.add('show');
+                    showPkgModal(requiredRole);
                     return null;
                 }
+                if (!res.ok) throw new Error('API hatası: ' + res.status);
                 return res.json();
             })
             .then(data => {
                 if (!data) return;
-
-                // Şarkıyı çalma listesinde bul ve index güncelle
-                currentIndex = ALL_SONGS.findIndex(s => (s.SongId == songId || s.songId == songId));
-
                 const videoId = getYoutubeId(audioUrl);
-                if (!videoId) {
-                    console.error('Geçersiz YouTube URL:', audioUrl);
-                    return;
-                }
+                if (!videoId) { console.error('Geçersiz YouTube URL:', audioUrl); return; }
 
-                // Player alt barını güncelle
-                document.getElementById('playerSong').textContent   = title;
-                document.getElementById('playerArtist').textContent = artist;
-
-                const cover = document.getElementById('playerCover');
-                cover.innerHTML = coverUrl
-                    ? `<img src="${coverUrl}" alt="${title}" onerror="this.parentElement.textContent='🎵'">`
-                    : '🎵';
-
-                // YouTube videosunu oynat
                 if (ytReady && ytPlayer?.loadVideoById) {
                     ytPlayer.loadVideoById(videoId);
                 } else {
@@ -1299,25 +1253,88 @@
         }
 
         function playNext() {
-            if (currentIndex > -1 && currentIndex < ALL_SONGS.length - 1) {
-                const next = ALL_SONGS[currentIndex + 1];
-                playSong(next.SongId || next.songId, next.Title || next.title, next.ArtistName || next.artistName, next.CoverImageUrl || next.coverImageUrl, next.AudioUrl || next.audioUrl, next.IsPremium || next.isPremium);
-            }
+            if (PLAYABLE.length === 0) return;
+            currentPlayableIndex = (currentPlayableIndex + 1) % PLAYABLE.length;
+            const s = PLAYABLE[currentPlayableIndex];
+            playSong(s.songId, s.title, s.artistName, s.coverImageUrl, s.audioUrl, s.requiredRole);
         }
 
         function playPrev() {
-            if (currentIndex > 0) {
-                const prev = ALL_SONGS[currentIndex - 1];
-                playSong(prev.SongId || prev.songId, prev.Title || prev.title, prev.ArtistName || prev.artistName, prev.CoverImageUrl || prev.coverImageUrl, prev.AudioUrl || prev.audioUrl, prev.IsPremium || prev.isPremium);
-            } else if (ytPlayer?.seekTo) {
-                ytPlayer.seekTo(0, true);
-            }
+            if (PLAYABLE.length === 0) return;
+            currentPlayableIndex = (currentPlayableIndex - 1 + PLAYABLE.length) % PLAYABLE.length;
+            const s = PLAYABLE[currentPlayableIndex];
+            playSong(s.songId, s.title, s.artistName, s.coverImageUrl, s.audioUrl, s.requiredRole);
+        }
+
+        /* ══════════════════════════════════════════════════
+           MODAL
+        ══════════════════════════════════════════════════ */
+        function showPkgModal(requiredRole) {
+            document.getElementById('modalCurrentRole').textContent  = USER_ROLE;
+            document.getElementById('modalRequiredRole').textContent = requiredRole;
+
+            // Gerekli role göre renk
+            const reqTag = document.getElementById('modalRequiredRole');
+            reqTag.className = 'role-tag required ' +
+                (requiredRole.toLowerCase() === 'gold' ? 'gold' : '');
+
+            document.getElementById('pkgModal').classList.add('show');
+        }
+
+        function closePkgModal() {
+            document.getElementById('pkgModal').classList.remove('show');
+        }
+
+        function closeModalOnBackdrop(e) {
+            if (e.target === document.getElementById('pkgModal')) closePkgModal();
+        }
+
+        /* ══════════════════════════════════════════════════
+           YOUTUBE API
+        ══════════════════════════════════════════════════ */
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+
+        let ytPlayer, ytReady = false, pendingVideoId = null;
+        let volumeVal = 70, isMuted = false, progressInterval;
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                height: '0', width: '0',
+                playerVars: { controls: 0, disablekb: 1, rel: 0 },
+                events: {
+                    onReady: function () {
+                        ytReady = true;
+                        ytPlayer.setVolume(volumeVal);
+                        document.getElementById('volFill').style.width = volumeVal + '%';
+                        if (pendingVideoId) {
+                            ytPlayer.loadVideoById(pendingVideoId);
+                            pendingVideoId = null;
+                        }
+                    },
+                    onStateChange: function (e) {
+                        if (e.data === YT.PlayerState.PLAYING) {
+                            document.getElementById('playIcon').className = 'bi bi-pause-fill';
+                            document.getElementById('waveform').classList.remove('paused');
+                            startProgressLoop();
+                        } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.BUFFERING) {
+                            document.getElementById('playIcon').className = 'bi bi-play-fill';
+                            document.getElementById('waveform').classList.add('paused');
+                            clearInterval(progressInterval);
+                        } else if (e.data === YT.PlayerState.ENDED) {
+                            playNext();
+                        }
+                    },
+                    onError: function (e) { console.error('YT hata:', e.data); }
+                }
+            });
         }
 
         function togglePlay() {
             if (!ytPlayer?.getPlayerState) return;
-            const state = ytPlayer.getPlayerState();
-            if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+            const s = ytPlayer.getPlayerState();
+            if (s === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
             else ytPlayer.playVideo();
         }
 
@@ -1329,16 +1346,15 @@
                 const dur = ytPlayer.getDuration();
                 if (dur > 0) {
                     document.getElementById('progressFill').style.width = (cur / dur * 100) + '%';
-                    document.getElementById('currentTime').textContent = formatTime(cur);
-                    document.getElementById('totalTime').textContent   = formatTime(dur);
+                    document.getElementById('currentTime').textContent  = formatTime(cur);
+                    document.getElementById('totalTime').textContent    = formatTime(dur);
                 }
             }, 500);
         }
 
         function seekTo(e) {
             if (!ytPlayer?.getDuration) return;
-            const bar  = document.getElementById('progressBar');
-            const rect = bar.getBoundingClientRect();
+            const rect  = document.getElementById('progressBar').getBoundingClientRect();
             const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
             ytPlayer.seekTo(ratio * ytPlayer.getDuration(), true);
             document.getElementById('progressFill').style.width = (ratio * 100) + '%';
@@ -1347,8 +1363,10 @@
         function setVolume(e) {
             if (!ytPlayer?.setVolume) return;
             const rect = document.getElementById('volTrack').getBoundingClientRect();
-            volumeVal = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
-            isMuted = false; ytPlayer.unMute(); ytPlayer.setVolume(volumeVal);
+            volumeVal  = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
+            isMuted = false;
+            ytPlayer.unMute();
+            ytPlayer.setVolume(volumeVal);
             document.getElementById('volFill').style.width = volumeVal + '%';
             updateVolIcon();
         }
@@ -1356,7 +1374,8 @@
         function toggleMute() {
             if (!ytPlayer) return;
             if (ytPlayer.isMuted()) {
-                ytPlayer.unMute(); ytPlayer.setVolume(volumeVal);
+                ytPlayer.unMute();
+                ytPlayer.setVolume(volumeVal);
                 document.getElementById('volFill').style.width = volumeVal + '%';
                 isMuted = false;
             } else {
@@ -1369,7 +1388,7 @@
 
         function updateVolIcon() {
             document.getElementById('volIcon').className =
-                (isMuted || volumeVal === 0) ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
+                isMuted || volumeVal === 0 ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
         }
 
         function toggleHeart(btn) {
@@ -1390,7 +1409,9 @@
             return (m && m[2].length === 11) ? m[2] : null;
         }
 
-        /* ── Arama & Filtreleme Mantığı ── */
+        /* ══════════════════════════════════════════════════
+           ARAMA & FİLTRELEME
+        ══════════════════════════════════════════════════ */
         document.addEventListener('DOMContentLoaded', function () {
             const chips       = document.querySelectorAll('.chip');
             const searchInput = document.getElementById('searchInput');
@@ -1406,11 +1427,11 @@
 
                 cards.forEach(card => {
                     const cardFilter = card.getAttribute('data-filter') || '';
-                    const cardName   = card.getAttribute('data-name') || '';
-                    const filterMatch = filter === 'all' || cardFilter === filter;
-                    const nameMatch   = cardName.includes(query);
+                    const cardName   = card.getAttribute('data-name')   || '';
+                    const filterOk   = filter === 'all' || cardFilter === filter;
+                    const nameOk     = cardName.includes(query);
 
-                    if (filterMatch && nameMatch) {
+                    if (filterOk && nameOk) {
                         card.classList.remove('hide');
                         visible++;
                     } else {
