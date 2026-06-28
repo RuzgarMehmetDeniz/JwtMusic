@@ -16,6 +16,8 @@ namespace JwtMusic.WebApi.Context
         public DbSet<Song> Songs { get; set; }
         public DbSet<UserArtistFollow> UserArtistFollows { get; set; }
         public DbSet<ListeningHistory> ListeningHistories { get; set; }
+        public DbSet<Playlist> Playlists { get; set; }
+        public DbSet<PlaylistSong> PlaylistSongs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,6 +56,31 @@ namespace JwtMusic.WebApi.Context
 
                 entity.Property(e => e.ListenedAt)
                       .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            modelBuilder.Entity<Playlist>(entity =>
+            {
+                entity.HasKey(e => e.PlaylistId);
+
+                entity.HasOne(e => e.AppUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.AppUserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PlaylistSong>(entity =>
+            {
+                entity.HasKey(e => e.PlaylistSongId);
+
+                entity.HasOne(e => e.Playlist)
+                      .WithMany(p => p.PlaylistSongs)
+                      .HasForeignKey(e => e.PlaylistId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Song)
+                      .WithMany()
+                      .HasForeignKey(e => e.SongId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
 
