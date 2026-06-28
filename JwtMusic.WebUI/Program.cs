@@ -2,9 +2,7 @@
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
-
 builder.Services.AddDbContext<JwtContext>();
 
 builder.Services.AddHttpClient();
@@ -17,10 +15,33 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // 500 Sunucu Hatası aldığında senin yazdığın ServerError action'ına gider
+    app.UseExceptionHandler("/Error/ServerError");
     app.UseHsts();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
+
+// 401, 403 ve 404 durum kodlarını senin yazdığın spesifik action url'lerine eşliyoruz
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    if (response.StatusCode == 404)
+    {
+        context.HttpContext.Response.Redirect("/Error/NotFound");
+    }
+    else if (response.StatusCode == 401)
+    {
+        context.HttpContext.Response.Redirect("/Error/Unauthorized");
+    }
+    else if (response.StatusCode == 403)
+    {
+        context.HttpContext.Response.Redirect("/Error/AccessDenied");
+    }
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
