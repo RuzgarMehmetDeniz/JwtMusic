@@ -49,7 +49,7 @@ namespace JwtMusic.WebUI.Controllers
 
         public IActionResult AccessDenied()
         {
-            return Content("Bu sayfayı görmek için Premium üye olmalısınız.");
+            return View();
         }
     }
 }

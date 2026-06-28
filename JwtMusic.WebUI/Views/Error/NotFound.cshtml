@@ -1,0 +1,236 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Bulunamadı — Canlı Müzik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --bg: #0c0c0e;
+            --panel: #111113;
+            --accent: #c9a84c;
+            --dim: rgba(201,168,76,0.12);
+            --borda: rgba(201,168,76,0.28);
+            --text-1: #e8e8ea;
+            --text-2: #8a8a94;
+            --border: rgba(255,255,255,0.055);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter',sans-serif;
+            background: var(--bg);
+            color: var(--text-1)
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        .page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 60%);
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 40px;
+            max-width: 460px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 10%;
+                right: 10%;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            }
+
+        .error-code {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: -4px;
+            color: var(--accent);
+            opacity: 0.18;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .icon-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            background: var(--dim);
+            border: 1px solid var(--borda);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 20px;
+        }
+
+        .title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-1);
+            margin-bottom: 10px;
+        }
+
+        .desc {
+            font-size: 0.875rem;
+            color: var(--text-2);
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 22px;
+            border-radius: 100px;
+            background: var(--accent);
+            color: #0c0c0e;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 700;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+            .btn-primary:hover {
+                background: #d4b360;
+                transform: translateY(-1px);
+            }
+
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 20px;
+            border-radius: 100px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+            .btn-ghost:hover {
+                background: rgba(255,255,255,0.04);
+                color: var(--text-1);
+            }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .logo-mark i {
+                color: #0c0c0e;
+                font-size: 0.85rem;
+            }
+
+        .logo-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--text-1);
+        }
+
+        /* Animasyonlu nota */
+        .floating-note {
+            font-size: 2rem;
+            animation: floatNote 3s ease-in-out infinite;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        @@keyframes floatNote {
+            0%, 100% {
+                transform: translateY(0) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a href="/Song/SongList" class="logo">
+            <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
+            <span class="logo-text">Canlı Müzik</span>
+        </a>
+
+        <div class="card">
+            <div class="error-code">404</div>
+            <div class="icon-wrap">
+                <i class="bi bi-music-note-beamed" style="color:var(--accent)"></i>
+            </div>
+            <h1 class="title">Sayfa Bulunamadı</h1>
+            <p class="desc">
+                Aradığınız sayfa mevcut değil veya taşınmış olabilir.<br>
+                Ana sayfaya dönüp tekrar deneyebilirsiniz.
+            </p>
+            <div class="actions">
+                <a href="/Song/SongList" class="btn-primary">
+                    <i class="bi bi-house"></i> Ana Sayfaya Dön
+                </a>
+                <a href="/Artist/ArtistList" class="btn-ghost">
+                    <i class="bi bi-people"></i> Sanatçıları Keşfet
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -32,7 +32,7 @@ namespace JwtMusic.WebUI.Controllers
             if (response.IsSuccessStatusCode)
             {
                 // Kayıt sonrası senin giriş sayfana yönlendirir
-                return RedirectToAction("SignIn", "Login");
+                return RedirectToAction("SingIn", "Login");
             }
 
             // Kayıt başarısızsa ekranda bir hata göstermek istersen kullanılabilir

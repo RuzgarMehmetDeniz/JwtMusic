@@ -4,15 +4,23 @@ namespace JwtMusic.WebUI.Controllers
 {
     public class ErrorController : Controller
     {
-        public IActionResult Forbidden403()
+        // 404 — Sayfa bulunamadı
+        [Route("Error/NotFound")]
+        public IActionResult NotFound()
         {
             return View();
         }
-        public IActionResult Unauthorized401()
+
+        // 500 — Sunucu hatası
+        [Route("Error/ServerError")]
+        public IActionResult ServerError()
         {
             return View();
         }
-        public IActionResult NotFound404()
+
+        // 401 — Oturum süresi doldu / yetkisiz
+        [Route("Error/Unauthorized")]
+        public IActionResult Unauthorized()
         {
             return View();
         }
