@@ -1,4 +1,4 @@
-﻿using JwtMusic.WebApi.Dtos.ListeningHistoryDtos;
+﻿using JwtMusic.WebUI.Dtos.ListeningHistoryDtos; // ❌ DEĞİŞTİ: WebApi yerine WebUI geldi
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -64,10 +64,13 @@ namespace JwtMusic.WebUI.Controllers
 
             var response = await client.GetAsync("https://localhost:7185/api/ListeningHistory");
 
+            // Yukarıdaki using değiştiği için buradaki ResultListeningHistoryDto otomatik olarak WebUI DTO'su olacaktır.
             if (!response.IsSuccessStatusCode)
                 return View(new List<ResultListeningHistoryDto>());
 
             var json = await response.Content.ReadAsStringAsync();
+
+            // Burası artık WebUI projesindeki listeye dönüştürülüyor ve View'ın beklediği modelle eşleşiyor.
             var history = JsonConvert.DeserializeObject<List<ResultListeningHistoryDto>>(json)
                           ?? new List<ResultListeningHistoryDto>();
 
