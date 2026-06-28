@@ -4,6 +4,7 @@ using JwtMusic.WebApi.Entities;
 using JwtMusic.WebApi.Services.ArtistFollowService;
 using JwtMusic.WebApi.Services.ArtistServices;
 using JwtMusic.WebApi.Services.LoginServices;
+using JwtMusic.WebApi.Services.MLServices;
 using JwtMusic.WebApi.Services.RegisterServices;
 using JwtMusic.WebApi.Services.SongServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -50,6 +51,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddScoped<RecommendationService>();
 builder.Services.AddDbContext<JwtContext>();
 builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
@@ -57,7 +59,7 @@ builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<ISongService, SongService>();
 builder.Services.AddScoped<IArtistFollowService, ArtistFollowService>();
 builder.Services.AddAutoMapper(typeof(Program));
-
+builder.Services.AddScoped<RecommendationService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
