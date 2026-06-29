@@ -511,29 +511,31 @@
             <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
             <span class="logo-wordmark">Canlı Müzik</span>
         </div>
-
-       <nav class="sidebar-section">
+        <nav class="sidebar-section">
             <span class="sidebar-label">Keşfet</span>
+            <a href="#" class="nav-item"><i class="bi bi-house"></i> Ana Sayfa</a>
             <a href="/Artist/ArtistList" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
-            <a href="/Song/SongList" class="nav-item "><i class="bi bi-music-note-list"></i> Şarkılar</a>
-            <a href="/Recommendation/Index" class="nav-item "><i class="bi bi-stars"></i> Önerilenler</a>
+            <a href="/Song/SongList" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
+            <a href="/Recommendation/Index" class="nav-item"><i class="bi bi-stars"></i> Önerilenler</a>
         </nav>
         <div class="sidebar-divider"></div>
         <nav class="sidebar-section">
             <span class="sidebar-label">Kitaplık</span>
+            <a href="#" class="nav-item"><i class="bi bi-heart"></i> Beğendiklerim</a>
+            <a href="/Playlist/Index" class="nav-item "><i class="bi bi-collection-play"></i> Çalma Listeleri</a>
             <a href="/History/Index" class="nav-item active"><i class="bi bi-clock-history"></i> Dinleme Geçmişi</a>
         </nav>
         <div class="sidebar-footer">
             <div class="user-row">
-                <div class="user-avatar">@userRole.Substring(0,1).ToUpper()</div>
+                <div class="user-avatar">@userRole.Substring(0, 1).ToUpper()</div>
                 <div class="user-info">
                     <div class="user-name">Hesabım</div>
                     @{
-                        var roleLower = userRole.ToLower();
-                        var roleCss   = roleLower == "elit" ? "elit" : roleLower == "premium" ? "premium" : roleLower == "gold" ? "gold" : "basic";
-                        var roleIcon  = roleLower == "elit" ? "bi-gem" : roleLower == "premium" ? "bi-star-fill" : roleLower == "gold" ? "bi-star-half" : "bi-person";
+                        var rl = userRole.ToLower();
+                        var rc = rl == "elit" ? "elit" : rl == "premium" ? "premium" : rl == "gold" ? "gold" : "basic";
+                        var ri = rl == "elit" ? "bi-gem" : rl == "premium" ? "bi-star-fill" : rl == "gold" ? "bi-star-half" : "bi-person";
                     }
-                    <div class="role-pill @roleCss"><i class="bi @roleIcon"></i> @userRole</div>
+                    <div class="role-pill @rc"><i class="bi @ri"></i> @userRole</div>
                 </div>
             </div>
         </div>

@@ -2,6 +2,8 @@
 
 @{
     Layout = null;
+    var token = ViewBag.Token as string ?? "";
+    var userRole = ViewBag.UserRole as string ?? "Basic";
 }
 
 <!DOCTYPE html>
@@ -1154,28 +1156,21 @@
             <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
             <span class="logo-wordmark">Canlı Müzik</span>
         </div>
-
         <nav class="sidebar-section">
             <span class="sidebar-label">Keşfet</span>
+            <a href="#" class="nav-item"><i class="bi bi-house"></i> Ana Sayfa</a>
             <a href="/Artist/ArtistList" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
-            <a href="/Song/SongList" class="nav-item "><i class="bi bi-music-note-list"></i> Şarkılar</a>
-            <a href="/Recommendation/Index" class="nav-item "><i class="bi bi-stars"></i> Önerilenler</a>
+            <a href="/Song/SongList" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
+            <a href="/Recommendation/Index" class="nav-item"><i class="bi bi-stars"></i> Önerilenler</a>
         </nav>
         <div class="sidebar-divider"></div>
         <nav class="sidebar-section">
             <span class="sidebar-label">Kitaplık</span>
+            <a href="#" class="nav-item"><i class="bi bi-heart"></i> Beğendiklerim</a>
+            <a href="/Playlist/Index" class="nav-item "><i class="bi bi-collection-play"></i> Çalma Listeleri</a>
             <a href="/History/Index" class="nav-item"><i class="bi bi-clock-history"></i> Dinleme Geçmişi</a>
         </nav>
-
-        <div class="sidebar-footer">
-            <div class="user-row">
-                <div class="user-avatar">K</div>
-                <div class="user-info">
-                    <div class="user-name">Kullanıcı</div>
-                    <div class="user-plan">Ücretsiz Plan</div>
-                </div>
-            </div>
-        </div>
+      
     </aside>
 
     <main class="main">
