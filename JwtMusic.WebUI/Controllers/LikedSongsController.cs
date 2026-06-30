@@ -6,7 +6,6 @@ using System.Net.Http.Headers;
 
 namespace JwtMusic.WebUI.Controllers
 {
-
     public class LikedSongsController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
