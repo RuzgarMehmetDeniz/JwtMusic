@@ -1,0 +1,663 @@
+﻿@using JwtMusic.WebUI.Dtos.AccountDtos
+@model ResultAccountDto
+@{
+    Layout = null;
+    var token = ViewBag.Token as string ?? "";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayarlar - Canlı Müzik</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bg-main: #0d0d12;
+            --bg-sidebar: #121218;
+            --bg-card: #1a1a22;
+            --bg-card-hover: #22222c;
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --text-main: #f4f4f6;
+            --text-muted: #9a9aa5;
+            --border-color: #2a2a35;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ---- Sidebar ---- */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 14px;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 8px 24px 8px;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-wordmark {
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin: 18px 8px 8px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.15s;
+        }
+
+            .nav-item:hover {
+                background: var(--bg-card-hover);
+                color: var(--text-main);
+            }
+
+            .nav-item.active {
+                background: var(--bg-card-hover);
+                color: var(--text-main);
+            }
+
+                .nav-item.active i {
+                    color: var(--accent-light);
+                }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .account-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--bg-card);
+        }
+
+        .account-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+            .account-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .account-info {
+            overflow: hidden;
+        }
+
+        .account-name {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .account-role {
+            font-size: 11px;
+            color: var(--accent-light);
+            background: rgba(124, 58, 237, 0.15);
+            padding: 1px 8px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        /* ---- Main ---- */
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 32px 40px 80px 40px;
+            max-width: 760px;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+            .page-header h1 {
+                font-size: 26px;
+                font-weight: 700;
+            }
+
+            .page-header p {
+                color: var(--text-muted);
+                font-size: 14px;
+                margin-top: 4px;
+            }
+
+        /* ---- Tabs ---- */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 28px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .tab-btn:hover {
+                color: var(--text-main);
+            }
+
+            .tab-btn.active {
+                color: var(--text-main);
+                border-bottom-color: var(--accent);
+            }
+
+        .tab-panel {
+            display: none;
+        }
+
+            .tab-panel.active {
+                display: block;
+                animation: fadeIn 0.2s ease;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ---- Card / Form ---- */
+        .settings-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+            .settings-card h3 {
+                font-size: 15px;
+                font-weight: 600;
+                margin-bottom: 18px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+                .settings-card h3 i {
+                    color: var(--accent-light);
+                }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+            .form-group label {
+                display: block;
+                font-size: 12.5px;
+                color: var(--text-muted);
+                margin-bottom: 6px;
+            }
+
+            .form-group input {
+                width: 100%;
+                background: var(--bg-main);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 10px 14px;
+                color: var(--text-main);
+                font-size: 14px;
+                outline: none;
+            }
+
+                .form-group input:focus {
+                    border-color: var(--accent);
+                }
+
+                .form-group input:disabled {
+                    color: var(--text-muted);
+                    cursor: not-allowed;
+                }
+
+        .form-row {
+            display: flex;
+            gap: 14px;
+        }
+
+            .form-row .form-group {
+                flex: 1;
+            }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+            .btn-primary:hover {
+                background: #6d28d9;
+            }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+            .btn-outline:hover {
+                background: var(--bg-card-hover);
+            }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-danger:hover {
+                background: rgba(239, 68, 68, 0.2);
+            }
+
+        /* ---- Membership ---- */
+        .plan-badge-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(236,72,153,0.1));
+            border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+        }
+
+            .plan-badge-row .plan-name {
+                font-size: 18px;
+                font-weight: 700;
+            }
+
+            .plan-badge-row .plan-sub {
+                font-size: 12.5px;
+                color: var(--text-muted);
+                margin-top: 2px;
+            }
+
+        .roles-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .role-chip {
+            font-size: 12px;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: var(--text-muted);
+        }
+
+        /* ---- Notifications ---- */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .toggle-row:last-child {
+                border-bottom: none;
+            }
+
+            .toggle-row .toggle-label {
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            .toggle-row .toggle-desc {
+                font-size: 12.5px;
+                color: var(--text-muted);
+                margin-top: 2px;
+            }
+
+        .switch {
+            position: relative;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--border-color);
+            border-radius: 24px;
+            transition: 0.2s;
+        }
+
+            .slider::before {
+                content: "";
+                position: absolute;
+                height: 18px;
+                width: 18px;
+                left: 3px;
+                top: 3px;
+                background: #fff;
+                border-radius: 50%;
+                transition: 0.2s;
+            }
+
+        input:checked + .slider {
+            background: var(--accent);
+        }
+
+            input:checked + .slider::before {
+                transform: translateX(18px);
+            }
+
+        /* ---- Logout ---- */
+        .logout-card {
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .logout-card h3 {
+                color: var(--danger);
+                margin-bottom: 4px;
+            }
+
+            .logout-card p {
+                font-size: 13px;
+                color: var(--text-muted);
+            }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
+            <span class="logo-wordmark">Canlı Müzik</span>
+        </div>
+        <nav class="sidebar-section">
+            <span class="sidebar-label">Keşfet</span>
+            <a href="/Song/SongList" class="nav-item"><i class="bi bi-house"></i> Ana Sayfa</a>
+            <a href="/Artist/ArtistList" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
+            <a href="/Song/SongList" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
+            <a href="/Recommendation/Index" class="nav-item"><i class="bi bi-stars"></i> Önerilenler</a>
+        </nav>
+        <div class="sidebar-divider"></div>
+        <nav class="sidebar-section">
+            <span class="sidebar-label">Kitaplık</span>
+            <a href="/LikedSongs/Index" class="nav-item"><i class="bi bi-heart"></i> Beğendiklerim</a>
+            <a href="/Playlist/Index" class="nav-item"><i class="bi bi-collection-play"></i> Çalma Listeleri</a>
+            <a href="/History/Index" class="nav-item"><i class="bi bi-clock-history"></i> Dinleme Geçmişi</a>
+        </nav>
+        <div class="sidebar-divider"></div>
+        <nav class="sidebar-section">
+            <a href="/Settings/Index" class="nav-item"><i class="bi bi-gear"></i> Ayarlar</a>
+            <a href="/Login/Logout" class="nav-item" onclick="return confirm('Çıkış yapmak istediğinize emin misiniz?');">
+                <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/Settings/Index" class="nav-item active"><i class="bi bi-gear"></i> Ayarlar</a>
+            <div class="account-box" style="margin-top: 10px;">
+                <div class="account-avatar">
+                    @if (!string.IsNullOrEmpty(Model?.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="avatar" />
+                    }
+                    else
+                    {
+                        @((Model?.FirstName?.Length > 0 ? Model.FirstName[0] : 'K').ToString().ToUpper())
+                    }
+                </div>
+                <div class="account-info">
+                    <div class="account-name">@Model?.FirstName @Model?.LastName</div>
+                    <span class="account-role">@(Model?.Roles?.FirstOrDefault() ?? "Basic")</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Ayarlar</h1>
+            <p>Hesabını, üyeliğini ve bildirim tercihlerini buradan yönet.</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="account"><i class="bi bi-person"></i> Hesap Bilgileri</button>
+            <button class="tab-btn" data-tab="membership"><i class="bi bi-star"></i> Üyelik</button>
+            <button class="tab-btn" data-tab="notifications"><i class="bi bi-bell"></i> Bildirimler</button>
+            <button class="tab-btn" data-tab="logout"><i class="bi bi-box-arrow-right"></i> Çıkış Yap</button>
+        </div>
+
+        <!-- Hesap Bilgileri -->
+        <div class="tab-panel active" id="tab-account">
+            <div class="settings-card">
+                <h3><i class="bi bi-person-badge"></i> Kişisel Bilgiler</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ad</label>
+                        <input type="text" value="@Model?.FirstName" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label>Soyad</label>
+                        <input type="text" value="@Model?.LastName" disabled />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Kullanıcı Adı</label>
+                    <input type="text" value="@Model?.UserName" disabled />
+                </div>
+                <div class="form-group">
+                    <label>E-posta</label>
+                    <input type="email" value="@Model?.Email" disabled />
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 4px;">
+                    <i class="bi bi-info-circle"></i> Bilgilerini güncellemek için şu an destek ekibiyle iletişime geçmen gerekiyor.
+                </p>
+            </div>
+        </div>
+
+        <!-- Üyelik -->
+        <div class="tab-panel" id="tab-membership">
+            <div class="settings-card">
+                <h3><i class="bi bi-stars"></i> Üyelik Durumu</h3>
+                <div class="plan-badge-row">
+                    <div>
+                        <div class="plan-name">@(Model?.Roles?.FirstOrDefault() ?? "Basic") Paket</div>
+                        <div class="plan-sub">Şu anki üyelik seviyen</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="alert('Paket yükseltme akışı yakında!')">Paketi Yükselt</button>
+                </div>
+                <div class="form-group">
+                    <label>Rollerin</label>
+                    <div class="roles-list">
+                        @if (Model?.Roles != null && Model.Roles.Any())
+                        {
+                            foreach (var role in Model.Roles)
+                            {
+                                <span class="role-chip">@role</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="role-chip">Basic</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bildirimler -->
+        <div class="tab-panel" id="tab-notifications">
+            <div class="settings-card">
+                <h3><i class="bi bi-bell"></i> Bildirim Tercihleri</h3>
+                <div class="toggle-row">
+                    <div>
+                        <div class="toggle-label">Yeni Şarkı Bildirimleri</div>
+                        <div class="toggle-desc">Takip ettiğin sanatçılar yeni şarkı çıkardığında haber ver.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <div>
+                        <div class="toggle-label">E-posta Bildirimleri</div>
+                        <div class="toggle-desc">Önemli güncellemeleri e-posta ile al.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <div>
+                        <div class="toggle-label">Çalma Listesi Güncellemeleri</div>
+                        <div class="toggle-desc">Takip ettiğin çalma listeleri güncellendiğinde bildirim al.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 14px;">
+                    <i class="bi bi-info-circle"></i> Bu tercihler şu an görsel taslak — backend bağlantısı yakında eklenecek.
+                </p>
+            </div>
+        </div>
+
+        <!-- Çıkış Yap -->
+        <div class="tab-panel" id="tab-logout">
+            <div class="logout-card">
+                <div>
+                    <h3>Çıkış Yap</h3>
+                    <p>Hesabından güvenli bir şekilde çıkış yapmak üzeresin.</p>
+                </div>
+                <a href="/Login/Logout" class="btn btn-danger" onclick="return confirm('Çıkış yapmak istediğine emin misin?');">
+                    <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanels.forEach(p => p.classList.remove('active'));
+
+                btn.classList.add('active');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
