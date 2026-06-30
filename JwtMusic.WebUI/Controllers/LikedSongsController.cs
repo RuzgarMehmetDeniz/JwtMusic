@@ -57,6 +57,7 @@ namespace JwtMusic.WebUI.Controllers
                     Title = item.Title,
                     CoverImageUrl = item.ImageUrl,
                     ArtistName = item.ArtistName,
+                    AudioUrl = item.AudioUrl,
                     RequiredRoleName = "Basic"
                 });
             }

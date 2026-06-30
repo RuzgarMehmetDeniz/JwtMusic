@@ -1,7 +1,978 @@
-﻿@model List<JwtMusic.Models.Dtos.SongDto> 
+﻿@using JwtMusic.WebUI.Dtos.LikedSong
+@model List<ResultLikedSongDto>
+@{
+    Layout = null;
+    var token = ViewBag.Token as string ?? "";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canlı Müzik — Beğendiklerim</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <style>
+        :root {
+            --bg-root: #0c0c0e;
+            --bg-sidebar: #111113;
+            --bg-main: #0c0c0e;
+            --bg-card: #181819;
+            --bg-card-hover: #202022;
+            --bg-surface: #1c1c1f;
+            --bg-input: #1a1a1c;
+            --accent: #c9a84c;
+            --accent-dim: rgba(201,168,76,0.12);
+            --accent-border: rgba(201,168,76,0.28);
+            --accent-glow: 0 0 24px rgba(201,168,76,0.18);
+            --text-1: #e8e8ea;
+            --text-2: #8a8a94;
+            --text-3: #46464e;
+            --border: rgba(255,255,255,0.055);
+            --border-hover: rgba(255,255,255,0.11);
+            --sidebar-w: 224px;
+            --player-h: 76px;
+            --radius-card: 14px;
+            --radius-sm: 8px;
+            --radius-pill: 100px;
+            --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-root);
+            color: var(--text-1);
+            height: 100%;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            grid-template-rows: 1fr var(--player-h);
+            grid-template-areas: "sidebar main" "player player";
+        }
+
+        img {
+            display: block;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 22px 20px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-mark {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+            .logo-mark i {
+                color: #0c0c0e;
+                font-size: 0.95rem;
+            }
+
+        .logo-wordmark {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: -0.3px;
+            color: var(--text-1);
+        }
+
+        .sidebar-section {
+            padding: 20px 12px 8px;
+        }
+
+        .sidebar-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            padding: 0 8px;
+            margin-bottom: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: var(--radius-sm);
+            color: var(--text-2);
+            font-size: 0.855rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background var(--transition), color var(--transition);
+            position: relative;
+            text-decoration: none;
+        }
+
+            .nav-item i {
+                font-size: 1rem;
+                width: 18px;
+                flex-shrink: 0;
+                text-align: center;
+            }
+
+            .nav-item:hover {
+                background: rgba(255,255,255,0.04);
+                color: var(--text-1);
+            }
+
+            .nav-item.active {
+                color: var(--text-1);
+                background: rgba(255,255,255,0.05);
+            }
+
+                .nav-item.active::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 20%;
+                    bottom: 20%;
+                    width: 2.5px;
+                    border-radius: 2px;
+                    background: var(--accent);
+                }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 12px;
+        }
+
+        /* MAIN */
+        .main {
+            grid-area: main;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-main);
+            scrollbar-width: thin;
+            scrollbar-color: var(--bg-surface) transparent;
+        }
+
+            .main::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .main::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .main::-webkit-scrollbar-thumb {
+                background: var(--bg-surface);
+                border-radius: 4px;
+            }
+
+        /* TOPBAR */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 28px;
+            background: rgba(12,12,14,0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+        }
+
+        .topbar-breadcrumb {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-1);
+            letter-spacing: -0.3px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+            .search-field i {
+                position: absolute;
+                left: 12px;
+                color: var(--text-3);
+                font-size: 0.8rem;
+                pointer-events: none;
+            }
+
+        .search-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-1);
+            border-radius: var(--radius-pill);
+            padding: 7px 14px 7px 32px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            width: 210px;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition), width var(--transition);
+        }
+
+            .search-input::placeholder {
+                color: var(--text-3);
+            }
+
+            .search-input:focus {
+                border-color: var(--accent-border);
+                box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+                width: 260px;
+            }
+
+        .topbar-icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background var(--transition), color var(--transition);
+        }
+
+            .topbar-icon-btn:hover {
+                background: var(--bg-card-hover);
+                color: var(--text-1);
+            }
+
+        /* CONTENT */
+        .content {
+            padding: 28px 28px 40px;
+            flex: 1;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+            .page-header h1 {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 1.75rem;
+                font-weight: 800;
+                letter-spacing: -0.6px;
+                color: var(--text-1);
+                margin-bottom: 4px;
+            }
+
+            .page-header p {
+                font-size: 0.83rem;
+                color: var(--text-2);
+                font-weight: 400;
+            }
+
+        /* FILTERS */
+        .filters-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .chip {
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-2);
+            transition: all var(--transition);
+            letter-spacing: 0.01em;
+        }
+
+            .chip:hover {
+                border-color: var(--border-hover);
+                color: var(--text-1);
+                background: rgba(255,255,255,0.03);
+            }
+
+            .chip.active {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #0c0c0e;
+                font-weight: 600;
+            }
+
+        /* ARTIST GRID (şarkı kartları için de kullanılıyor) */
+        .artist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .artist-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+            position: relative;
+        }
+
+            .artist-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+                border-color: rgba(201,168,76,0.22);
+            }
+
+            .artist-card.hide {
+                display: none !important;
+            }
+
+            .artist-card::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: var(--radius-card);
+                border: 1.5px solid var(--accent);
+                opacity: 0;
+                transition: opacity var(--transition);
+                pointer-events: none;
+            }
+
+            .artist-card:hover::after {
+                opacity: 1;
+            }
+
+        /* CARD IMAGE */
+        .card-img-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            overflow: hidden;
+            background: var(--bg-surface);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.38s cubic-bezier(0.25,0.8,0.25,1);
+            display: block;
+        }
+
+        .card-img-wrap .img-fallback {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            background: linear-gradient(145deg, #1e1e22, #2a2a30);
+        }
+
+        .artist-card:hover .card-img {
+            transform: scale(1.06);
+        }
+
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%);
+            opacity: 0;
+            transition: opacity var(--transition);
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 12px;
+            gap: 8px;
+        }
+
+        .artist-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .overlay-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(12,12,14,0.7);
+            color: var(--text-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background var(--transition), border-color var(--transition), transform 0.15s;
+            backdrop-filter: blur(6px);
+            text-decoration: none;
+        }
+
+            .overlay-btn:hover {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #0c0c0e;
+                transform: scale(1.08);
+            }
+
+            .overlay-btn.liked {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #0c0c0e;
+            }
+
+        .overlay-btn-play {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #0c0c0e;
+            font-size: 0.95rem;
+        }
+
+            .overlay-btn-play:hover {
+                background: #d4b360;
+                transform: scale(1.1);
+            }
+
+        /* CARD BODY */
+        .card-body {
+            padding: 12px 13px 13px;
+        }
+
+        .card-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: var(--text-1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .card-genre {
+            font-size: 0.72rem;
+            color: var(--text-2);
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .card-listeners {
+            font-size: 0.7rem;
+            color: var(--text-3);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .card-listeners i {
+                color: var(--accent);
+                font-size: 0.65rem;
+            }
+
+        /* EMPTY STATE */
+        .no-results {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5rem 1rem;
+            color: var(--text-3);
+            grid-column: 1 / -1;
+        }
+
+            .no-results i {
+                font-size: 2.5rem;
+                margin-bottom: 12px;
+                display: block;
+                color: var(--text-3);
+            }
+
+            .no-results p {
+                font-size: 0.85rem;
+                max-width: 260px;
+                line-height: 1.6;
+            }
+
+            .no-results strong {
+                display: block;
+                font-size: 0.95rem;
+                color: var(--text-2);
+                margin-bottom: 4px;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+            }
+
+        /* PLAYER */
+        .player {
+            grid-area: player;
+            background: #111113;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            align-items: center;
+            padding: 0 20px;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .player-track {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .player-cover {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+            .player-cover img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .player-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .player-song {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .player-artist {
+            font-size: 0.72rem;
+            color: var(--text-2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 1px;
+        }
+
+        .player-like-btn {
+            background: none;
+            border: none;
+            color: var(--text-3);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: color var(--transition);
+            flex-shrink: 0;
+        }
+
+            .player-like-btn:hover, .player-like-btn.liked {
+                color: var(--accent);
+            }
+
+        .player-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ctrl-btn {
+            background: none;
+            border: none;
+            color: var(--text-2);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color var(--transition), background var(--transition);
+        }
+
+            .ctrl-btn:hover {
+                color: var(--text-1);
+                background: rgba(255,255,255,0.05);
+            }
+
+        .ctrl-btn-play {
+            width: 38px;
+            height: 38px;
+            background: var(--text-1);
+            color: var(--bg-root);
+            font-size: 1rem;
+            border-radius: 50%;
+            transition: transform 0.15s, background var(--transition);
+        }
+
+            .ctrl-btn-play:hover {
+                background: #fff;
+                color: var(--bg-root);
+                transform: scale(1.05);
+            }
+
+        .player-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .time-lbl {
+            font-size: 0.65rem;
+            color: var(--text-3);
+            min-width: 30px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .progress-track {
+            flex: 1;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+            .progress-track:hover {
+                height: 4px;
+            }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--text-1);
+            width: 0%;
+            position: relative;
+            transition: width 0.1s linear;
+        }
+
+        .progress-track:hover .progress-fill {
+            background: var(--accent);
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%) scale(0);
+            width: 9px;
+            height: 9px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.15s;
+        }
+
+        .progress-track:hover .progress-fill::after {
+            transform: translateY(-50%) scale(1);
+        }
+
+        .player-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+            .player-right .ctrl-btn {
+                font-size: 0.85rem;
+            }
+
+        .vol-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .vol-btn {
+            background: none;
+            border: none;
+            color: var(--text-2);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 4px;
+            transition: color var(--transition);
+        }
+
+            .vol-btn:hover {
+                color: var(--text-1);
+            }
+
+        .vol-track {
+            width: 78px;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .vol-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.3);
+            width: 70%;
+            transition: background var(--transition);
+        }
+
+        .vol-track:hover .vol-fill {
+            background: var(--text-1);
+        }
+
+        /* Waveform */
+        .waveform {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 14px;
+        }
+
+            .waveform span {
+                display: block;
+                width: 2.5px;
+                border-radius: 2px;
+                background: var(--accent);
+                animation: wv 1.1s ease-in-out infinite;
+            }
+
+                .waveform span:nth-child(1) {
+                    height: 5px;
+                    animation-delay: 0s;
+                }
+
+                .waveform span:nth-child(2) {
+                    height: 12px;
+                    animation-delay: 0.1s;
+                }
+
+                .waveform span:nth-child(3) {
+                    height: 8px;
+                    animation-delay: 0.2s;
+                }
+
+                .waveform span:nth-child(4) {
+                    height: 14px;
+                    animation-delay: 0.3s;
+                }
+
+                .waveform span:nth-child(5) {
+                    height: 6px;
+                    animation-delay: 0.4s;
+                }
+
+        @@keyframes wv {
+            0%, 100% {
+                transform: scaleY(1);
+            }
+
+            50% {
+                transform: scaleY(0.3);
+            }
+        }
+
+        .waveform.paused span {
+            animation-play-state: paused;
+        }
+
+        /* Loading spinner on card */
+        .card-loading-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-card);
+            background: rgba(12,12,14,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+            .card-loading-overlay.active {
+                display: flex;
+            }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(201,168,76,0.3);
+            border-top-color: var(--accent);
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* Responsive */
+        @@media (max-width: 900px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: 52px 1fr var(--player-h);
+                grid-template-areas: "sidebar" "main" "player";
+                overflow: hidden;
+            }
+
+            .sidebar {
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .sidebar-logo {
+                padding: 12px 16px;
+                border-bottom: none;
+                border-right: 1px solid var(--border);
+            }
+
+            .sidebar-section {
+                display: flex;
+                flex-direction: row;
+                padding: 8px;
+                gap: 2px;
+                align-items: center;
+            }
+
+            .sidebar-label, .sidebar-divider {
+                display: none;
+            }
+
+            .nav-item.active::before {
+                top: auto;
+                left: 20%;
+                right: 20%;
+                bottom: 0;
+                height: 2px;
+                width: auto;
+            }
+
+            .player {
+                grid-template-columns: 1fr auto;
+            }
+
+            .player-right {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 600px) {
+            .artist-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .content {
+                padding: 16px 14px 28px;
+            }
+
+            .topbar {
+                padding: 10px 14px;
+            }
+
+            .search-input {
+                width: 140px;
+            }
+
+                .search-input:focus {
+                    width: 160px;
+                }
+        }
+    </style>
+</head>
 <body>
 
+    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
             <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
@@ -23,6 +994,7 @@
         </nav>
     </aside>
 
+    <!-- MAIN -->
     <main class="main">
         <div class="topbar">
             <span class="topbar-breadcrumb">Kitaplık / Beğendiklerim</span>
@@ -50,32 +1022,14 @@
                 </p>
             </div>
 
-            <div class="filters-row" id="filters">
-                <button class="chip active" data-filter="all">Tümü</button>
-                <button class="chip" data-filter="pop">Pop</button>
-                <button class="chip" data-filter="r&b">R&amp;B</button>
-                <button class="chip" data-filter="rock">Rock</button>
-                <button class="chip" data-filter="hip-hop">Hip-Hop</button>
-                <button class="chip" data-filter="electronic">Elektronik</button>
-                <button class="chip" data-filter="alternative">Alternatif</button>
-            </div>
-
             <div class="artist-grid" id="artistGrid">
                 @if (Model != null && Model.Any())
                 {
                     @foreach (var item in Model)
                     {
-                        // Bio alanı üzerinden cleanGenre türetme (Orijinal koddaki algoritma)
-                        var rawBio = item.Bio ?? ""; 
-                        var cleanGenre = rawBio.ToString().ToLower()
-                            .Replace(" ", "").Replace("-", "").Replace("&", "")
-                            .Replace("ı", "i").Replace("ğ", "g").Replace("ü", "u")
-                            .Replace("ş", "s").Replace("ö", "o").Replace("ç", "c");
+                        var artistName = item.ArtistName ?? "Bilinmeyen Sanatçı";
 
-                        // Sanatçı adı ilişkisini güvenli şekilde alma
-                        var artistName = item.ArtistName ?? (item.Artist != null ? item.Artist.Name : "Bilinmeyen Sanatçı");
-
-                        <div class="artist-card" data-genre="@cleanGenre" data-name="@item.Title" data-artist="@artistName" id="card-@item.SongId">
+                        <div class="artist-card" data-name="@item.Title" data-artist="@artistName" id="card-@item.SongId">
                             <div class="card-img-wrap">
                                 <img src="@item.ImageUrl" alt="@item.Title" class="card-img"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -86,7 +1040,7 @@
                                 </div>
 
                                 <div class="card-overlay">
-                                    <button class="overlay-btn liked" title="Beğenmekten Vazgeç"
+                                    <button class="overlay-btn liked" title="Beğenmekten Vazgeç" id="like-btn-@item.SongId"
                                             onclick="toggleLike(@item.SongId, this); event.preventDefault(); event.stopPropagation();">
                                         <i class="bi bi-heart-fill"></i>
                                     </button>
@@ -129,9 +1083,11 @@
         </div>
     </main>
 
+    <!-- PLAYER -->
     <div class="player" id="player">
         <div class="player-track">
-            <div class="player-info" style="margin-left: 12px;">
+            <div class="player-cover" id="playerCover">🎵</div>
+            <div class="player-info">
                 <div class="player-song" id="playerSong">Bir şarkı seçin</div>
                 <div class="player-artist" id="playerArtist">—</div>
             </div>
@@ -180,7 +1136,7 @@
 
     <script>
         /* ══════════════════════════════════════════
-           YouTube IFrame API Orijinal Kurulumu
+           YouTube IFrame API
         ══════════════════════════════════════════ */
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -188,7 +1144,7 @@
 
         let ytPlayer;
         let ytReady = false;
-        let pendingVideoId = null;  
+        let pendingVideoId = null;
         let volumeVal = 70;
         let isMuted = false;
         let progressInterval;
@@ -230,16 +1186,14 @@
            Controller / DTO Yapısından Gelen Şarkı Listesi JSON'ı
         ══════════════════════════════════════════ */
         const ALL_SONGS = @Html.Raw(ViewBag.SongsJson ?? "[]");
+        const API_BASE = "https://localhost:7185";
+        const TOKEN = "@token";
 
-        /* ══════════════════════════════════════════
-           SEÇİLEN ŞARKIYI OYNATMA MANTIĞI
-        ══════════════════════════════════════════ */
-        function playSelectedSong(songId, songTitle, artistName, btn) {
+        async function playSelectedSong(songId, songTitle, artistName, btn) {
             const loadingEl = document.getElementById('loading-' + songId);
             if (loadingEl) loadingEl.classList.add('active');
 
             try {
-                // ALL_SONGS JSON dizisinden eşleşen şarkıyı bul (Senin DTO alan isimlerine esnek uyum sağlar)
                 const targetSong = ALL_SONGS.find(s => (s.SongId == songId || s.songId == songId));
 
                 if (!targetSong) {
@@ -247,20 +1201,40 @@
                     return;
                 }
 
-                // DTO alan adlarına göre audio url seçimi
-                const audioUrl = targetSong.AudioUrl ?? targetSong.audioUrl ?? '';
+                // LikedSongs API'sinde AudioUrl alanı eksik olabileceğinden,
+                // gerçek audio url'i her zaman /api/Songs/{id} üzerinden tazeden çekiyoruz.
+                let audioUrl = targetSong.AudioUrl ?? targetSong.audioUrl ?? '';
+
+                if (!audioUrl) {
+                    try {
+                        const res = await fetch(`${API_BASE}/api/Songs/${songId}`, {
+                            headers: { 'Authorization': `Bearer ${TOKEN}` }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            audioUrl = data.audioUrl ?? data.AudioUrl ?? '';
+                        }
+                    } catch (fetchErr) {
+                        console.error('Şarkı detayı alınamadı:', fetchErr);
+                    }
+                }
+
                 const videoId = getYoutubeId(audioUrl);
-                
+
                 if (!videoId) {
                     console.error('Geçersiz YouTube URL:', audioUrl);
                     return;
                 }
 
-                // Player text alanlarını güncelle (Kapak resmi kaldırıldığı için resim güncelleme mantığı yok)
                 document.getElementById('playerSong').textContent = songTitle;
                 document.getElementById('playerArtist').textContent = artistName;
 
-                // Oynatmayı Başlat
+                const cover = document.getElementById('playerCover');
+                const imgUrl = targetSong.CoverImageUrl ?? targetSong.coverImageUrl ?? '';
+                if (imgUrl) {
+                    cover.innerHTML = `<img src="${imgUrl}" alt="${songTitle}" onerror="this.parentElement.textContent='🎵'">`;
+                }
+
                 if (ytReady && ytPlayer && ytPlayer.loadVideoById) {
                     ytPlayer.loadVideoById(videoId);
                 } else {
@@ -274,26 +1248,15 @@
             }
         }
 
-        /* ══════════════════════════════════════════
-           Orijinal Player Kontrolleri & Navigasyon
-        ══════════════════════════════════════════ */
         function togglePlay() {
             if (!ytPlayer || !ytPlayer.getPlayerState) return;
             const state = ytPlayer.getPlayerState();
-            if (state === YT.PlayerState.PLAYING) {
-                ytPlayer.pauseVideo();
-            } else {
-                ytPlayer.playVideo();
-            }
+            if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+            else ytPlayer.playVideo();
         }
 
-        function prevTrack() {
-            if (ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(0, true);
-        }
-
-        function nextTrack() {
-            // İleride sonraki şarkıya geçiş mantığı genişletilebilir
-        }
+        function prevTrack() { if (ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(0, true); }
+        function nextTrack() { }
 
         function startProgressLoop() {
             clearInterval(progressInterval);
@@ -354,11 +1317,54 @@
             btn.querySelector('i').className = btn.classList.contains('liked') ? 'bi bi-heart-fill' : 'bi bi-heart';
         }
 
-        // Beğeniyi Kaldırma API Metodu (Gerekirse backend fetch fonksiyonunu buraya entegre edebilirsin)
+        /* ══════════════════════════════════════════
+           Beğeniyi Aç/Kapat — Controller'daki ToggleLike action'ına bağlı
+        ══════════════════════════════════════════ */
         function toggleLike(songId, btn) {
-            btn.classList.toggle('liked');
-            const isLiked = btn.classList.contains('liked');
-            btn.querySelector('i').className = isLiked ? 'bi bi-heart-fill' : 'bi bi-heart';
+            fetch(`/LikedSongs/ToggleLike?id=${songId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('İstek başarısız');
+                return res.json();
+            })
+            .then(data => {
+                // Beğeni kaldırıldıysa kartı listeden de çıkar
+                const isLiked = data.isLiked ?? data.IsLiked ?? false;
+                if (!isLiked) {
+                    const card = document.getElementById('card-' + songId);
+                    if (card) {
+                        card.style.transition = 'opacity .2s ease';
+                        card.style.opacity = '0';
+                        setTimeout(() => {
+                            card.remove();
+                            updateSongCount();
+                        }, 200);
+                    }
+                } else {
+                    btn.classList.add('liked');
+                    btn.querySelector('i').className = 'bi bi-heart-fill';
+                }
+            })
+            .catch(err => {
+                console.error('Beğeni hatası:', err);
+            });
+        }
+
+        function updateSongCount() {
+            const remaining = document.querySelectorAll('.artist-grid .artist-card').length;
+            const countEl = document.querySelector('.page-header p');
+            if (countEl) countEl.textContent = remaining + ' şarkı listeleniyor';
+            if (remaining === 0) {
+                const noResults = document.getElementById('noResults');
+                if (noResults) {
+                    noResults.querySelector('strong').textContent = 'Henüz şarkı beğenilmemiş';
+                    noResults.querySelector('p').textContent = 'Beğendiğiniz şarkılar burada listelenir.';
+                    noResults.querySelector('i').className = 'bi bi-heart-break';
+                    noResults.style.display = 'flex';
+                }
+            }
         }
 
         function formatTime(secs) {
@@ -375,34 +1381,27 @@
         }
 
         /* ══════════════════════════════════════════
-           Orijinal Arama Filtresi & Genre Seçimi
+           Arama & Filtre
         ══════════════════════════════════════════ */
         document.addEventListener("DOMContentLoaded", function () {
-            const chips       = document.querySelectorAll(".chip");
             const searchInput = document.getElementById("searchInput");
             const noResults   = document.getElementById("noResults");
             if (noResults) noResults.style.display = "none";
 
             function applyFilters() {
-                const activeChip = document.querySelector(".chip.active");
-                const selectedFilter = activeChip
-                    ? activeChip.getAttribute("data-filter").toLowerCase().replace("-","").replace("&","").replace(" ","").trim()
-                    : "all";
                 const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
                 const cards = document.querySelectorAll(".artist-grid .artist-card");
                 let visible = 0;
 
                 cards.forEach(card => {
-                    const genre = (card.getAttribute("data-genre") || "").toLowerCase();
                     const title = (card.getAttribute("data-name") || "").toLowerCase();
                     const artist = (card.getAttribute("data-artist") || "").toLowerCase();
-                    
-                    const genreMatch = selectedFilter === "all" || genre.includes(selectedFilter);
+
                     const searchMatch = title.includes(query) || artist.includes(query);
 
-                    if (genreMatch && searchMatch) { 
-                        card.classList.remove("hide"); 
-                        visible++; 
+                    if (searchMatch) {
+                        card.classList.remove("hide");
+                        visible++;
                     } else {
                         card.classList.add("hide");
                     }
@@ -411,15 +1410,8 @@
                 if (noResults) noResults.style.display = visible === 0 ? "flex" : "none";
             }
 
-            chips.forEach(chip => {
-                chip.addEventListener("click", function () {
-                    chips.forEach(c => c.classList.remove("active"));
-                    this.classList.add("active");
-                    applyFilters();
-                });
-            });
-
             if (searchInput) searchInput.addEventListener("input", applyFilters);
         });
     </script>
 </body>
+</html>
