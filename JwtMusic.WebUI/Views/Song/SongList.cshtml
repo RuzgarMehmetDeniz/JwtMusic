@@ -213,7 +213,7 @@
     <div class="sidebar-divider"></div>
     <nav class="sidebar-section">
         <span class="sidebar-label">Kitaplık</span>
-        <a href="#"                  class="nav-item"><i class="bi bi-heart"></i> Beğendiklerim</a>
+        <a href="/LikedSongs/Index" class="nav-item"><i class="bi bi-heart"></i> Beğendiklerim</a>
         <a href="/Playlist/Index"    class="nav-item"><i class="bi bi-collection-play"></i> Çalma Listeleri</a>
         <a href="/History/Index"     class="nav-item"><i class="bi bi-clock-history"></i> Dinleme Geçmişi</a>
     </nav>
@@ -308,15 +308,21 @@
                             {
                                 <div class="card-overlay">
                                     <!-- Listeye Ekle -->
-                                    <button type="button" class="overlay-btn"
-                                            onclick="openAddToPlaylist(event, @song.SongId)"
-                                            title="Listeye Ekle">
-                                        <i class="bi bi-collection-play"></i>
-                                    </button>
-                                    <!-- Oynat -->
-                                    <button type="button" class="overlay-btn-play" aria-label="Oynat">
-                                        <i class="bi bi-play-fill"></i>
-                                    </button>
+                                                              <button type="button" class="overlay-btn"
+                                    onclick="openAddToPlaylist(event, @song.SongId)"
+                                    title="Listeye Ekle">
+                                <i class="bi bi-collection-play"></i>
+                            </button>
+
+                            <button type="button" class="overlay-btn card-like-btn" 
+                                    onclick="toggleCardHeart(event, @song.SongId, this)" 
+                                    title="Beğen">
+                                <i class="bi bi-heart"></i>
+                            </button>
+
+                            <button type="button" class="overlay-btn-play" aria-label="Oynat">
+                                <i class="bi bi-play-fill"></i>
+                            </button>
                                 </div>
                             }
                         </div>
@@ -442,6 +448,7 @@
 
 <div id="ytPlayer" style="position:absolute;width:0;height:0;pointer-events:none;opacity:0"></div>
 
+
 <script>
     const USER_ROLE = "@userRole";
     const API_BASE  = "https://localhost:7185";
@@ -467,14 +474,77 @@
 
     const PLAYABLE = ALL_SONGS.filter(s => canUserAccess(s.requiredRole));
     let currentPlayableIndex = -1;
+    let pendingSongId = null;
+    let currentPlayingSongId = null; 
 
     /* ══════════════════════════════════════
-       LİSTEYE EKLE
-    ══════════════════════════════════════ */
-    let pendingSongId = null;
+        GLOBAL FONKSİYONLAR (HTML onclick'lerin erişebilmesi için dışarıda)
+       ══════════════════════════════════════ */
 
+    // 1. Kart Üzerindeki Kalp Tıklaması (Toggle Like)
+    async function toggleCardHeart(e, songId, btn) {
+        e.stopPropagation(); // Kartın tıklanmasını (şarkı oynatılmasını) ENGELLER!
+        const icon = btn.querySelector('i');
+
+        try {
+            const res = await fetch(`${API_BASE}/api/LikedSongs/toggle/${songId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+
+            if (!res.ok) throw new Error('İşlem başarısız');
+            const data = await res.json();
+
+            if (data.isLiked) {
+                btn.classList.add('liked');
+                icon.className = 'bi bi-heart-fill text-danger';
+                showToast(data.message || "Beğenilenlere eklendi ✓");
+            } else {
+                btn.classList.remove('liked');
+                icon.className = 'bi bi-heart';
+                showToast(data.message || "Beğeni kaldırıldı");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Beğeni işlemi başarısız oldu.', true);
+        }
+    }
+
+    // 2. Alt Player'daki Kalp Tıklaması
+    async function toggleHeart(btn) {
+        if (!currentPlayingSongId) {
+            showToast('Şarkı oynatılmıyor.', true);
+            return;
+        }
+        const icon = btn.querySelector('i');
+
+        try {
+            const res = await fetch(`${API_BASE}/api/LikedSongs/toggle/${currentPlayingSongId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+
+            if (!res.ok) throw new Error('İşlem başarısız');
+            const data = await res.json();
+
+            if (data.isLiked) {
+                btn.classList.add('liked');
+                icon.className = 'bi bi-heart-fill text-danger';
+                showToast(data.message || "Beğenilenlere eklendi ✓");
+            } else {
+                btn.classList.remove('liked');
+                icon.className = 'bi bi-heart';
+                showToast(data.message || "Beğeni kaldırıldı");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Beğeni işlemi başarısız oldu.', true);
+        }
+    }
+
+    // 3. Çalma Listesine Ekle Modal Açılış
     async function openAddToPlaylist(e, songId) {
-        e.stopPropagation(); // kart tıklamasını engelle
+        e.stopPropagation(); // Kart tıklamasını engeller
         pendingSongId = songId;
 
         const list = document.getElementById('atpList');
@@ -507,6 +577,11 @@
             list.innerHTML = '<div class="atp-empty" style="color:#f87171">Listeler yüklenemedi.</div>';
         }
     }
+
+    // Window objesine bağlayarak kesinleştiriyoruz
+    window.toggleCardHeart = toggleCardHeart;
+    window.toggleHeart = toggleHeart;
+    window.openAddToPlaylist = openAddToPlaylist;
 
     async function addSongToPlaylist(playlistId, playlistName) {
         if (!pendingSongId) return;
@@ -553,34 +628,16 @@
 
     function closeAtpModal() { document.getElementById('atpModal').classList.remove('show'); }
     function closeAtpOnBackdrop(e) { if (e.target === document.getElementById('atpModal')) closeAtpModal(); }
+    function escHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-    function escHtml(str) {
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    /* ── Toast bildirimi ── */
     function showToast(msg, isError = false) {
         const t = document.createElement('div');
         t.textContent = msg;
-        t.style.cssText = `
-            position:fixed;bottom:calc(var(--player-h) + 16px);left:50%;
-            transform:translateX(-50%);
-            background:${isError ? '#ef4444' : 'var(--accent)'};
-            color:${isError ? '#fff' : '#0c0c0e'};
-            padding:10px 20px;border-radius:100px;
-            font-size:.82rem;font-weight:700;
-            font-family:'Plus Jakarta Sans',sans-serif;
-            z-index:9999;animation:toastIn .25s ease;
-            box-shadow:0 4px 20px rgba(0,0,0,.4);
-            white-space:nowrap;
-        `;
+        t.style.cssText = `position:fixed;bottom:calc(var(--player-h) + 16px);left:50%;transform:translateX(-50%);background:${isError ? '#ef4444' : 'var(--accent)'};color:${isError ? '#fff' : '#0c0c0e'};padding:10px 20px;border-radius:100px;font-size:.82rem;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap;`;
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 2800);
     }
 
-    /* ══════════════════════════════════════
-       DİNLEME GEÇMİŞİ
-    ══════════════════════════════════════ */
     async function saveToHistory(songId) {
         try {
             await fetch(`${API_BASE}/api/ListeningHistory`, {
@@ -591,7 +648,6 @@
         } catch (err) { console.error('saveToHistory:', err); }
     }
 
-    /* ── Kart tıklama ── */
     function handleCardClick(card) {
         const canAccess    = card.getAttribute('data-can-access') === 'true';
         const requiredRole = card.getAttribute('data-required-role');
@@ -606,19 +662,26 @@
         );
     }
 
-    /* ── Oynatma ── */
     function playSong(songId, title, artist, coverUrl, audioUrl, requiredRole) {
         if (!canUserAccess(requiredRole)) { showPkgModal(requiredRole); return; }
+
+        currentPlayingSongId = parseInt(songId);
+
+        const playerLikeBtn = document.querySelector('.player-like-btn');
+        if (playerLikeBtn) {
+            playerLikeBtn.classList.remove('liked');
+            playerLikeBtn.querySelector('i').className = 'bi bi-heart';
+        }
 
         const idx = PLAYABLE.findIndex(s => String(s.songId) === String(songId));
         if (idx !== -1) currentPlayableIndex = idx;
 
         document.getElementById('playerSong').textContent   = title;
         document.getElementById('playerArtist').textContent = artist;
+        
+        // TALEP: İstek üzerine alt taraftaki çalma barından kapak resmi (Cover) yükleme mantığı tamamen temizlenmiştir!
         const coverEl = document.getElementById('playerCover');
-        coverEl.innerHTML = coverUrl
-            ? `<img src="${coverUrl}" alt="${title}" onerror="this.parentElement.textContent='🎵'">`
-            : '🎵';
+        if(coverEl) coverEl.innerHTML = '🎵'; 
 
         fetch(`${API_BASE}/api/Songs/${songId}`, {
             headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' }
@@ -653,7 +716,6 @@
         playSong(s.songId, s.title, s.artistName, s.coverImageUrl, s.audioUrl, s.requiredRole);
     }
 
-    /* ── Paket Modal ── */
     function showPkgModal(requiredRole) {
         document.getElementById('modalCurrentRole').textContent  = USER_ROLE;
         document.getElementById('modalRequiredRole').textContent = requiredRole;
@@ -703,11 +765,10 @@
     function setVolume(e){if(!ytPlayer?.setVolume)return;const rect=document.getElementById('volTrack').getBoundingClientRect();volumeVal=Math.min(100,Math.max(0,((e.clientX-rect.left)/rect.width)*100));isMuted=false;ytPlayer.unMute();ytPlayer.setVolume(volumeVal);document.getElementById('volFill').style.width=volumeVal+'%';updateVolIcon();}
     function toggleMute(){if(!ytPlayer)return;if(ytPlayer.isMuted()){ytPlayer.unMute();ytPlayer.setVolume(volumeVal);document.getElementById('volFill').style.width=volumeVal+'%';isMuted=false;}else{ytPlayer.mute();document.getElementById('volFill').style.width='0%';isMuted=true;}updateVolIcon();}
     function updateVolIcon(){document.getElementById('volIcon').className=isMuted||volumeVal===0?'bi bi-volume-mute-fill':'bi bi-volume-up-fill';}
-    function toggleHeart(btn){btn.classList.toggle('liked');btn.querySelector('i').className=btn.classList.contains('liked')?'bi bi-heart-fill':'bi bi-heart';}
     function formatTime(secs){const m=Math.floor(secs/60),s=Math.floor(secs%60);return m+':'+String(s).padStart(2,'0');}
     function getYoutubeId(url){if(!url)return null;if(url.length===11&&!url.includes('/')&&!url.includes('?'))return url;const m=url.match(/^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);return(m&&m[2].length===11)?m[2]:null;}
 
-    /* ── Arama & Filtreleme ── */
+    /* ── DOM Arama ve Filtreleme İşlemleri ── */
     document.addEventListener('DOMContentLoaded', function () {
         const chips       = document.querySelectorAll('.chip');
         const searchInput = document.getElementById('searchInput');
@@ -735,5 +796,7 @@
         if(searchInput) searchInput.addEventListener('input', applyFilters);
     });
 </script>
+
+```
 </body>
 </html>

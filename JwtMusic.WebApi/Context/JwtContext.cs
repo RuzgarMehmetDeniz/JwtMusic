@@ -18,9 +18,17 @@ namespace JwtMusic.WebApi.Context
         public DbSet<ListeningHistory> ListeningHistories { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<PlaylistSong> PlaylistSongs { get; set; }
+        public DbSet<LikedSong> LikedSongs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            // Bir kullanıcı bir şarkıyı sadece 1 kere beğenebilir
+            modelBuilder.Entity<LikedSong>()
+                .HasIndex(l => new { l.UserId, l.SongId })
+                .IsUnique();
+
             // Identity tablolarının kurallarını ezmemek için bu base çağrısı ŞART
             base.OnModelCreating(modelBuilder);
 

@@ -1,0 +1,425 @@
+﻿@model List<JwtMusic.Models.Dtos.SongDto> 
+
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
+            <span class="logo-wordmark">Canlı Müzik</span>
+        </div>
+        <nav class="sidebar-section">
+            <span class="sidebar-label">Keşfet</span>
+            <a href="#" class="nav-item"><i class="bi bi-house"></i> Ana Sayfa</a>
+            <a href="/Artist/ArtistList" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
+            <a href="/Song/SongList" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
+            <a href="/Recommendation/Index" class="nav-item"><i class="bi bi-stars"></i> Önerilenler</a>
+        </nav>
+        <div class="sidebar-divider"></div>
+        <nav class="sidebar-section">
+            <span class="sidebar-label">Kitaplık</span>
+            <a href="/LikedSongs/Index" class="nav-item active"><i class="bi bi-heart-fill"></i> Beğendiklerim</a>
+            <a href="/Playlist/Index" class="nav-item"><i class="bi bi-collection-play"></i> Çalma Listeleri</a>
+            <a href="/History/Index" class="nav-item"><i class="bi bi-clock-history"></i> Dinleme Geçmişi</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <span class="topbar-breadcrumb">Kitaplık / Beğendiklerim</span>
+            <div class="topbar-right">
+                <div class="search-field">
+                    <i class="bi bi-search"></i>
+                    <input class="search-input" type="text" id="searchInput" placeholder="Şarkı veya sanatçı ara..." autocomplete="off">
+                </div>
+                <button class="topbar-icon-btn" title="Bildirimler"><i class="bi bi-bell"></i></button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-header">
+                <h1>Beğendiğim Şarkılar</h1>
+                <p>
+                    @if (Model != null)
+                    {
+                        @($"{Model.Count} şarkı listeleniyor")
+                    }
+                    else
+                    {
+                        @("Şarkılar yükleniyor...")
+                    }
+                </p>
+            </div>
+
+            <div class="filters-row" id="filters">
+                <button class="chip active" data-filter="all">Tümü</button>
+                <button class="chip" data-filter="pop">Pop</button>
+                <button class="chip" data-filter="r&b">R&amp;B</button>
+                <button class="chip" data-filter="rock">Rock</button>
+                <button class="chip" data-filter="hip-hop">Hip-Hop</button>
+                <button class="chip" data-filter="electronic">Elektronik</button>
+                <button class="chip" data-filter="alternative">Alternatif</button>
+            </div>
+
+            <div class="artist-grid" id="artistGrid">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        // Bio alanı üzerinden cleanGenre türetme (Orijinal koddaki algoritma)
+                        var rawBio = item.Bio ?? ""; 
+                        var cleanGenre = rawBio.ToString().ToLower()
+                            .Replace(" ", "").Replace("-", "").Replace("&", "")
+                            .Replace("ı", "i").Replace("ğ", "g").Replace("ü", "u")
+                            .Replace("ş", "s").Replace("ö", "o").Replace("ç", "c");
+
+                        // Sanatçı adı ilişkisini güvenli şekilde alma
+                        var artistName = item.ArtistName ?? (item.Artist != null ? item.Artist.Name : "Bilinmeyen Sanatçı");
+
+                        <div class="artist-card" data-genre="@cleanGenre" data-name="@item.Title" data-artist="@artistName" id="card-@item.SongId">
+                            <div class="card-img-wrap">
+                                <img src="@item.ImageUrl" alt="@item.Title" class="card-img"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="img-fallback" style="display:none;">🎵</div>
+
+                                <div class="card-loading-overlay" id="loading-@item.SongId">
+                                    <div class="spinner"></div>
+                                </div>
+
+                                <div class="card-overlay">
+                                    <button class="overlay-btn liked" title="Beğenmekten Vazgeç"
+                                            onclick="toggleLike(@item.SongId, this); event.preventDefault(); event.stopPropagation();">
+                                        <i class="bi bi-heart-fill"></i>
+                                    </button>
+
+                                    <button class="overlay-btn overlay-btn-play"
+                                            title="Çal"
+                                            onclick="playSelectedSong(@item.SongId, '@Html.Raw(item.Title.Replace("'", "\\'"))', '@Html.Raw(artistName.Replace("'", "\\'"))', this); event.stopPropagation();">
+                                        <i class="bi bi-play-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="card-name">@item.Title</div>
+                                <div class="card-genre">@artistName</div>
+                                <div class="card-meta">
+                                    <span class="card-listeners">
+                                        <i class="bi bi-music-note-beamed"></i> @(string.IsNullOrEmpty(item.Duration) ? "Dinle" : item.Duration)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="no-results" style="display:flex;">
+                        <i class="bi bi-heart-break"></i>
+                        <strong>Henüz şarkı beğenilmemiş</strong>
+                        <p>Beğendiğiniz şarkılar burada listelenir.</p>
+                    </div>
+                }
+
+                <div id="noResults" class="no-results">
+                    <i class="bi bi-music-note-beamed"></i>
+                    <strong>Sonuç yok</strong>
+                    <p>Bu arama veya filtre için şarkı bulunamadı.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="player" id="player">
+        <div class="player-track">
+            <div class="player-info" style="margin-left: 12px;">
+                <div class="player-song" id="playerSong">Bir şarkı seçin</div>
+                <div class="player-artist" id="playerArtist">—</div>
+            </div>
+            <button class="player-like-btn liked" id="heartBtn" onclick="toggleHeart(this)" title="Beğen">
+                <i class="bi bi-heart-fill"></i>
+            </button>
+            <div class="waveform paused" id="waveform">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <div class="player-center">
+            <div class="player-controls">
+                <button class="ctrl-btn" title="Karıştır"><i class="bi bi-shuffle"></i></button>
+                <button class="ctrl-btn" title="Önceki" onclick="prevTrack()"><i class="bi bi-skip-start-fill"></i></button>
+                <button class="ctrl-btn ctrl-btn-play" id="playBtn" onclick="togglePlay()" title="Oynat / Durdur">
+                    <i class="bi bi-play-fill" id="playIcon"></i>
+                </button>
+                <button class="ctrl-btn" title="Sonraki" onclick="nextTrack()"><i class="bi bi-skip-end-fill"></i></button>
+                <button class="ctrl-btn" title="Tekrarla"><i class="bi bi-repeat"></i></button>
+            </div>
+            <div class="player-progress">
+                <span class="time-lbl" id="currentTime">0:00</span>
+                <div class="progress-track" id="progressBar" onclick="seekTo(event)">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="time-lbl" id="totalTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="player-right">
+            <button class="ctrl-btn" title="Sıra"><i class="bi bi-collection"></i></button>
+            <button class="ctrl-btn" title="Cihazlar"><i class="bi bi-tv"></i></button>
+            <div class="vol-wrap">
+                <button class="vol-btn" onclick="toggleMute()" id="volBtn" title="Ses">
+                    <i class="bi bi-volume-up-fill" id="volIcon"></i>
+                </button>
+                <div class="vol-track" id="volTrack" onclick="setVolume(event)">
+                    <div class="vol-fill" id="volFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ytPlayer" style="display:none; position:absolute; pointer-events:none;"></div>
+
+    <script>
+        /* ══════════════════════════════════════════
+           YouTube IFrame API Orijinal Kurulumu
+        ══════════════════════════════════════════ */
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+
+        let ytPlayer;
+        let ytReady = false;
+        let pendingVideoId = null;  
+        let volumeVal = 70;
+        let isMuted = false;
+        let progressInterval;
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                height: '0', width: '0',
+                playerVars: { controls: 0, disablekb: 1, rel: 0 },
+                events: {
+                    onReady: function() {
+                        ytReady = true;
+                        ytPlayer.setVolume(volumeVal);
+                        document.getElementById('volFill').style.width = volumeVal + '%';
+                        if (pendingVideoId) {
+                            ytPlayer.loadVideoById(pendingVideoId);
+                            pendingVideoId = null;
+                        }
+                    },
+                    onStateChange: function(e) {
+                        if (e.data === YT.PlayerState.PLAYING) {
+                            document.getElementById('playIcon').className = 'bi bi-pause-fill';
+                            document.getElementById('waveform').classList.remove('paused');
+                            startProgressLoop();
+                        } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.BUFFERING) {
+                            document.getElementById('playIcon').className = 'bi bi-play-fill';
+                            document.getElementById('waveform').classList.add('paused');
+                        } else if (e.data === YT.PlayerState.ENDED) {
+                            document.getElementById('playIcon').className = 'bi bi-play-fill';
+                            document.getElementById('waveform').classList.add('paused');
+                            clearInterval(progressInterval);
+                        }
+                    },
+                    onError: function(e) { console.error('YouTube hatası:', e.data); }
+                }
+            });
+        }
+
+        /* ══════════════════════════════════════════
+           Controller / DTO Yapısından Gelen Şarkı Listesi JSON'ı
+        ══════════════════════════════════════════ */
+        const ALL_SONGS = @Html.Raw(ViewBag.SongsJson ?? "[]");
+
+        /* ══════════════════════════════════════════
+           SEÇİLEN ŞARKIYI OYNATMA MANTIĞI
+        ══════════════════════════════════════════ */
+        function playSelectedSong(songId, songTitle, artistName, btn) {
+            const loadingEl = document.getElementById('loading-' + songId);
+            if (loadingEl) loadingEl.classList.add('active');
+
+            try {
+                // ALL_SONGS JSON dizisinden eşleşen şarkıyı bul (Senin DTO alan isimlerine esnek uyum sağlar)
+                const targetSong = ALL_SONGS.find(s => (s.SongId == songId || s.songId == songId));
+
+                if (!targetSong) {
+                    console.error('Şarkı JSON listesinde bulunamadı.');
+                    return;
+                }
+
+                // DTO alan adlarına göre audio url seçimi
+                const audioUrl = targetSong.AudioUrl ?? targetSong.audioUrl ?? '';
+                const videoId = getYoutubeId(audioUrl);
+                
+                if (!videoId) {
+                    console.error('Geçersiz YouTube URL:', audioUrl);
+                    return;
+                }
+
+                // Player text alanlarını güncelle (Kapak resmi kaldırıldığı için resim güncelleme mantığı yok)
+                document.getElementById('playerSong').textContent = songTitle;
+                document.getElementById('playerArtist').textContent = artistName;
+
+                // Oynatmayı Başlat
+                if (ytReady && ytPlayer && ytPlayer.loadVideoById) {
+                    ytPlayer.loadVideoById(videoId);
+                } else {
+                    pendingVideoId = videoId;
+                }
+
+            } catch (err) {
+                console.error('Şarkı yüklenirken hata oluştu:', err);
+            } finally {
+                if (loadingEl) loadingEl.classList.remove('active');
+            }
+        }
+
+        /* ══════════════════════════════════════════
+           Orijinal Player Kontrolleri & Navigasyon
+        ══════════════════════════════════════════ */
+        function togglePlay() {
+            if (!ytPlayer || !ytPlayer.getPlayerState) return;
+            const state = ytPlayer.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) {
+                ytPlayer.pauseVideo();
+            } else {
+                ytPlayer.playVideo();
+            }
+        }
+
+        function prevTrack() {
+            if (ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(0, true);
+        }
+
+        function nextTrack() {
+            // İleride sonraki şarkıya geçiş mantığı genişletilebilir
+        }
+
+        function startProgressLoop() {
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (!ytPlayer || !ytPlayer.getCurrentTime) return;
+                const cur = ytPlayer.getCurrentTime();
+                const dur = ytPlayer.getDuration();
+                if (dur > 0) {
+                    document.getElementById('progressFill').style.width = (cur / dur * 100) + '%';
+                    document.getElementById('currentTime').textContent = formatTime(cur);
+                    document.getElementById('totalTime').textContent   = formatTime(dur);
+                }
+            }, 500);
+        }
+
+        function seekTo(e) {
+            if (!ytPlayer || !ytPlayer.getDuration) return;
+            const bar  = document.getElementById('progressBar');
+            const rect = bar.getBoundingClientRect();
+            const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+            ytPlayer.seekTo(ratio * ytPlayer.getDuration(), true);
+            document.getElementById('progressFill').style.width = (ratio * 100) + '%';
+        }
+
+        function setVolume(e) {
+            if (!ytPlayer || !ytPlayer.setVolume) return;
+            const track = document.getElementById('volTrack');
+            const rect  = track.getBoundingClientRect();
+            volumeVal = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
+            isMuted = false;
+            ytPlayer.unMute();
+            ytPlayer.setVolume(volumeVal);
+            document.getElementById('volFill').style.width = volumeVal + '%';
+            updateVolIcon();
+        }
+
+        function toggleMute() {
+            if (!ytPlayer) return;
+            if (ytPlayer.isMuted()) {
+                ytPlayer.unMute(); ytPlayer.setVolume(volumeVal);
+                document.getElementById('volFill').style.width = volumeVal + '%';
+                isMuted = false;
+            } else {
+                ytPlayer.mute();
+                document.getElementById('volFill').style.width = '0%';
+                isMuted = true;
+            }
+            updateVolIcon();
+        }
+
+        function updateVolIcon() {
+            const icon = document.getElementById('volIcon');
+            icon.className = (isMuted || volumeVal === 0) ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
+        }
+
+        function toggleHeart(btn) {
+            btn.classList.toggle('liked');
+            btn.querySelector('i').className = btn.classList.contains('liked') ? 'bi bi-heart-fill' : 'bi bi-heart';
+        }
+
+        // Beğeniyi Kaldırma API Metodu (Gerekirse backend fetch fonksiyonunu buraya entegre edebilirsin)
+        function toggleLike(songId, btn) {
+            btn.classList.toggle('liked');
+            const isLiked = btn.classList.contains('liked');
+            btn.querySelector('i').className = isLiked ? 'bi bi-heart-fill' : 'bi bi-heart';
+        }
+
+        function formatTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = Math.floor(secs % 60);
+            return m + ':' + String(s).padStart(2, '0');
+        }
+
+        function getYoutubeId(url) {
+            if (!url) return null;
+            if (url.length === 11 && !url.includes('/') && !url.includes('?')) return url;
+            const m = url.match(/^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+            return (m && m[2].length === 11) ? m[2] : null;
+        }
+
+        /* ══════════════════════════════════════════
+           Orijinal Arama Filtresi & Genre Seçimi
+        ══════════════════════════════════════════ */
+        document.addEventListener("DOMContentLoaded", function () {
+            const chips       = document.querySelectorAll(".chip");
+            const searchInput = document.getElementById("searchInput");
+            const noResults   = document.getElementById("noResults");
+            if (noResults) noResults.style.display = "none";
+
+            function applyFilters() {
+                const activeChip = document.querySelector(".chip.active");
+                const selectedFilter = activeChip
+                    ? activeChip.getAttribute("data-filter").toLowerCase().replace("-","").replace("&","").replace(" ","").trim()
+                    : "all";
+                const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+                const cards = document.querySelectorAll(".artist-grid .artist-card");
+                let visible = 0;
+
+                cards.forEach(card => {
+                    const genre = (card.getAttribute("data-genre") || "").toLowerCase();
+                    const title = (card.getAttribute("data-name") || "").toLowerCase();
+                    const artist = (card.getAttribute("data-artist") || "").toLowerCase();
+                    
+                    const genreMatch = selectedFilter === "all" || genre.includes(selectedFilter);
+                    const searchMatch = title.includes(query) || artist.includes(query);
+
+                    if (genreMatch && searchMatch) { 
+                        card.classList.remove("hide"); 
+                        visible++; 
+                    } else {
+                        card.classList.add("hide");
+                    }
+                });
+
+                if (noResults) noResults.style.display = visible === 0 ? "flex" : "none";
+            }
+
+            chips.forEach(chip => {
+                chip.addEventListener("click", function () {
+                    chips.forEach(c => c.classList.remove("active"));
+                    this.classList.add("active");
+                    applyFilters();
+                });
+            });
+
+            if (searchInput) searchInput.addEventListener("input", applyFilters);
+        });
+    </script>
+</body>
