@@ -1,9 +1,8 @@
-﻿using JwtMusic.WebApi.Dtos;
+﻿using JwtMusic.WebApi.Dtos.ArtistDtos;
 using JwtMusic.WebApi.Services.ArtistServices;
 using JwtMusic.WebApi.Services.SongServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 namespace JwtMusic.WebApi.Controllers
 {
     [Route("api/[controller]")]
@@ -13,7 +12,6 @@ namespace JwtMusic.WebApi.Controllers
     {
         private readonly IArtistService _artistService;
         private readonly ISongService _songService;
-
         public ArtistController(IArtistService artistService, ISongService songService)
         {
             _artistService = artistService;
@@ -28,11 +26,11 @@ namespace JwtMusic.WebApi.Controllers
             return Ok(values);
         }
 
-        // 2. EKSİK OLAN METOT: ID'ye Göre Tekil Sanatçı Getirme (Detay Sayfası İçin)
+        // 2. ID'ye Göre Tekil Sanatçı Getirme (Detay Sayfası İçin)
         [HttpGet("{id}")]
         public async Task<IActionResult> GetArtistById(int id)
         {
-            var value = await _artistService.GetByIdArtistAsync(id); // Servisinde bu metodun adını kontrol et
+            var value = await _artistService.GetByIdArtistAsync(id);
             if (value == null)
             {
                 return NotFound("Sanatçı bulunamadı.");
@@ -42,11 +40,40 @@ namespace JwtMusic.WebApi.Controllers
 
         // 3. Yeni Sanatçı Ekleme
         [HttpPost]
-        [AllowAnonymous] // Eğer sanatçı eklerken token istemiyorsan kalabilir, istiyorsan bunu sil
+        [AllowAnonymous]
         public async Task<IActionResult> CreateArtist(CreateArtistDto createArtistDto)
         {
             await _artistService.CreateArtistAsync(createArtistDto);
             return Ok("İşlem Başarılı");
+        }
+
+        // 4. Sanatçı Güncelleme
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateArtist(int id, UpdateArtistDto updateArtistDto)
+        {
+            var existing = await _artistService.GetByIdArtistAsync(id);
+            if (existing == null)
+            {
+                return NotFound("Sanatçı bulunamadı.");
+            }
+
+            updateArtistDto.ArtistId = id;
+            await _artistService.UpdateArtistAsync(updateArtistDto);
+            return Ok("Sanatçı güncellendi.");
+        }
+
+        // 5. Sanatçı Silme
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteArtist(int id)
+        {
+            var existing = await _artistService.GetByIdArtistAsync(id);
+            if (existing == null)
+            {
+                return NotFound("Sanatçı bulunamadı.");
+            }
+
+            await _artistService.DeleteArtistAsync(id);
+            return Ok("Sanatçı silindi.");
         }
     }
 }

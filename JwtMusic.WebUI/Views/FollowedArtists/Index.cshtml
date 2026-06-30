@@ -1,5 +1,5 @@
-﻿@using JwtMusic.WebUI.Dtos.AccountDtos
-@model ResultAccountDto
+﻿@using JwtMusic.WebUI.Dtos
+@model List<ResultArtistDto>
 @{
     Layout = null;
     var token = ViewBag.Token as string ?? "";
@@ -9,14 +9,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayarlar — Canlı Müzik</title>
+    <title>Takip Ettiklerim — Canlı Müzik</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        /* ─── TOKENS (same system as ArtistDetail) ──────────── */
         :root {
             --bg-root: #0c0c0e;
             --bg-sidebar: #111113;
@@ -40,7 +39,6 @@
             --radius-sm: 8px;
             --radius-pill: 100px;
             --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
-            --danger: #e0584f;
         }
 
         *, *::before, *::after {
@@ -65,6 +63,10 @@
             grid-template-areas:
                 "sidebar main"
                 "player  player";
+        }
+
+        img {
+            display: block;
         }
 
         a {
@@ -284,12 +286,6 @@
             gap: 16px;
         }
 
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         .topbar-breadcrumb {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 700;
@@ -298,22 +294,58 @@
             letter-spacing: -0.3px;
         }
 
+        .search-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+            .search-field i {
+                position: absolute;
+                left: 12px;
+                color: var(--text-3);
+                font-size: 0.8rem;
+                pointer-events: none;
+            }
+
+        .search-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-1);
+            border-radius: var(--radius-pill);
+            padding: 7px 14px 7px 32px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            width: 210px;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition), width var(--transition);
+        }
+
+            .search-input::placeholder {
+                color: var(--text-3);
+            }
+
+            .search-input:focus {
+                border-color: var(--accent-border);
+                box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+                width: 260px;
+            }
+
         /* ─── CONTENT ────────────────────────────────────── */
         .content {
             padding: 28px 28px 40px;
             flex: 1;
-            max-width: 760px;
         }
 
         .page-intro {
-            margin-bottom: 26px;
+            margin-bottom: 24px;
         }
 
             .page-intro h1 {
                 font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 1.7rem;
+                font-size: 1.8rem;
                 font-weight: 800;
-                letter-spacing: -0.6px;
+                letter-spacing: -0.7px;
                 color: var(--text-1);
             }
 
@@ -323,315 +355,143 @@
                 margin-top: 6px;
             }
 
-        /* ─── TABS ───────────────────────────────────────── */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 26px;
+        /* ─── ARTIST GRID ────────────────────────────────── */
+        .artist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 20px;
         }
 
-        .tab-btn {
-            background: none;
-            border: none;
-            color: var(--text-2);
-            font-size: 0.84rem;
-            font-weight: 600;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            padding: 11px 16px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            transition: color var(--transition);
-        }
-
-            .tab-btn i {
-                font-size: 0.9rem;
-            }
-
-            .tab-btn:hover {
-                color: var(--text-1);
-            }
-
-            .tab-btn.active {
-                color: var(--text-1);
-                border-bottom-color: var(--accent);
-            }
-
-        .tab-panel {
-            display: none;
-        }
-
-            .tab-panel.active {
-                display: block;
-                animation: fadeIn 0.2s ease;
-            }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(4px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ─── CARD / FORM ────────────────────────────────── */
-        .settings-card {
+        .artist-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-card);
-            padding: 24px;
-            margin-bottom: 18px;
+            padding: 16px;
+            transition: background var(--transition), border-color var(--transition), transform 0.2s;
+            cursor: pointer;
         }
 
-            .settings-card h3 {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 0.92rem;
-                font-weight: 700;
+            .artist-card:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--border-hover);
+                transform: translateY(-2px);
+            }
+
+        .artist-photo {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .artist-photo-fallback {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 14px;
+        }
+
+        .artist-card-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .artist-card-meta {
+            font-size: 0.74rem;
+            color: var(--text-2);
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .artist-card-meta i {
+                color: var(--accent);
+                font-size: 0.7rem;
+            }
+
+        .unfollow-btn {
+            margin-top: 12px;
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+            border-radius: var(--radius-pill);
+            padding: 7px 14px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all var(--transition);
+        }
+
+            .unfollow-btn:hover {
+                background: rgba(224,88,79,0.12);
+                border-color: rgba(224,88,79,0.32);
+                color: #e0584f;
+            }
+
+        /* ─── EMPTY STATE ────────────────────────────────── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5rem 2rem;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-card);
+            color: var(--text-3);
+        }
+
+            .empty-state i {
+                font-size: 2.2rem;
+                margin-bottom: 14px;
+                display: block;
+                color: var(--text-3);
+            }
+
+            .empty-state p {
+                font-size: 0.88rem;
+                color: var(--text-2);
                 margin-bottom: 18px;
-                display: flex;
+            }
+
+            .empty-state a {
+                display: inline-flex;
                 align-items: center;
                 gap: 8px;
-                color: var(--text-1);
-            }
-
-                .settings-card h3 i {
-                    color: var(--accent);
-                }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-            .form-group label {
-                display: block;
-                font-size: 0.72rem;
-                color: var(--text-2);
-                margin-bottom: 6px;
-                font-weight: 500;
-            }
-
-            .form-group input {
-                width: 100%;
-                background: var(--bg-input);
-                border: 1px solid var(--border);
-                border-radius: var(--radius-sm);
-                padding: 10px 14px;
-                color: var(--text-1);
-                font-size: 0.85rem;
-                font-family: 'Inter', sans-serif;
-                outline: none;
-                transition: border-color var(--transition), box-shadow var(--transition);
-            }
-
-                .form-group input:focus {
-                    border-color: var(--accent-border);
-                    box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
-                }
-
-                .form-group input:disabled {
-                    color: var(--text-2);
-                    cursor: not-allowed;
-                }
-
-        .form-row {
-            display: flex;
-            gap: 14px;
-        }
-
-            .form-row .form-group {
-                flex: 1;
-            }
-
-        .hint-text {
-            font-size: 0.74rem;
-            color: var(--text-3);
-            margin-top: 2px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: var(--radius-pill);
-            border: none;
-            font-size: 0.82rem;
-            font-weight: 700;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            cursor: pointer;
-            transition: background var(--transition), transform 0.15s;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #0c0c0e;
-            box-shadow: var(--accent-glow);
-        }
-
-            .btn-primary:hover {
-                background: #d4b360;
-                transform: scale(1.02);
-            }
-
-        .btn-danger {
-            background: rgba(224,88,79,0.12);
-            color: var(--danger);
-            border: 1px solid rgba(224,88,79,0.32);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-            .btn-danger:hover {
-                background: rgba(224,88,79,0.2);
-            }
-
-        /* ─── MEMBERSHIP ─────────────────────────────────── */
-        .plan-badge-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, var(--accent-dim), rgba(201,168,76,0.04));
-            border: 1px solid var(--accent-border);
-            border-radius: var(--radius-card);
-            padding: 18px 20px;
-            margin-bottom: 18px;
-        }
-
-            .plan-badge-row .plan-name {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 1.05rem;
-                font-weight: 800;
-                color: var(--text-1);
-            }
-
-            .plan-badge-row .plan-sub {
-                font-size: 0.74rem;
-                color: var(--text-2);
-                margin-top: 2px;
-            }
-
-        .roles-list {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-
-        .role-chip {
-            font-size: 0.72rem;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            padding: 4px 12px;
-            border-radius: var(--radius-pill);
-            color: var(--text-2);
-        }
-
-        /* ─── NOTIFICATIONS ──────────────────────────────── */
-        .toggle-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-            .toggle-row:last-child {
-                border-bottom: none;
-            }
-
-            .toggle-row .toggle-label {
-                font-size: 0.85rem;
-                font-weight: 500;
-                color: var(--text-1);
-            }
-
-            .toggle-row .toggle-desc {
-                font-size: 0.74rem;
-                color: var(--text-2);
-                margin-top: 2px;
-            }
-
-        .switch {
-            position: relative;
-            width: 40px;
-            height: 23px;
-            flex-shrink: 0;
-        }
-
-            .switch input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-            }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            transition: 0.2s;
-        }
-
-            .slider::before {
-                content: "";
-                position: absolute;
-                height: 16px;
-                width: 16px;
-                left: 2px;
-                top: 2px;
-                background: var(--text-2);
-                border-radius: 50%;
-                transition: 0.2s;
-            }
-
-        input:checked + .slider {
-            background: var(--accent-dim);
-            border-color: var(--accent-border);
-        }
-
-            input:checked + .slider::before {
-                transform: translateX(17px);
                 background: var(--accent);
-            }
-
-        /* ─── LOGOUT ─────────────────────────────────────── */
-        .logout-card {
-            background: rgba(224,88,79,0.05);
-            border: 1px solid rgba(224,88,79,0.22);
-            border-radius: var(--radius-card);
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-            .logout-card h3 {
-                color: var(--danger);
-                margin-bottom: 4px;
-                font-family: 'Plus Jakarta Sans', sans-serif;
+                color: #0c0c0e;
+                border-radius: var(--radius-pill);
+                padding: 10px 22px;
+                font-size: 0.85rem;
                 font-weight: 700;
-                font-size: 0.92rem;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                box-shadow: var(--accent-glow);
+                transition: background var(--transition), transform 0.15s;
             }
 
-            .logout-card p {
-                font-size: 0.8rem;
-                color: var(--text-2);
-            }
+                .empty-state a:hover {
+                    background: #d4b360;
+                    transform: scale(1.02);
+                }
 
-        /* ─── PLAYER (static, app-wide consistency) ────────── */
+        /* ─── PLAYER (static) ───────────────────────────────── */
         .player {
             grid-area: player;
             background: #111113;
@@ -703,7 +563,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: default;
         }
 
         .player-progress {
@@ -793,10 +652,6 @@
             .player-right {
                 display: none;
             }
-
-            .content {
-                max-width: 100%;
-            }
         }
 
         @@media (max-width: 600px) {
@@ -808,10 +663,13 @@
                 padding: 10px 14px;
             }
 
-            .form-row {
-                flex-direction: column;
-                gap: 0;
+            .search-input {
+                width: 140px;
             }
+
+                .search-input:focus {
+                    width: 160px;
+                }
         }
     </style>
 </head>
@@ -825,6 +683,7 @@
         </div>
         <nav class="sidebar-section">
             <span class="sidebar-label">Keşfet</span>
+            <a href="/Song/SongList" class="nav-item"><i class="bi bi-house"></i> Ana Sayfa</a>
             <a href="/Artist/ArtistList" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
             <a href="/Song/SongList" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
             <a href="/Recommendation/Index" class="nav-item"><i class="bi bi-stars"></i> Önerilenler</a>
@@ -833,13 +692,13 @@
         <nav class="sidebar-section">
             <span class="sidebar-label">Kitaplık</span>
             <a href="/LikedSongs/Index" class="nav-item"><i class="bi bi-heart"></i> Beğendiklerim</a>
-                        <a href="/FollowedArtists/Index" class="nav-item"><i class="bi bi-person-check"></i> Takip Ettiklerim</a>
+            <a href="/FollowedArtists/Index" class="nav-item active"><i class="bi bi-person-check"></i> Takip Ettiklerim</a>
             <a href="/Playlist/Index" class="nav-item"><i class="bi bi-collection-play"></i> Çalma Listeleri</a>
             <a href="/History/Index" class="nav-item"><i class="bi bi-clock-history"></i> Dinleme Geçmişi</a>
         </nav>
         <div class="sidebar-divider"></div>
         <nav class="sidebar-section">
-            <a href="/Settings/Index" class="nav-item active"><i class="bi bi-gear"></i> Ayarlar</a>
+            <a href="/Settings/Index" class="nav-item"><i class="bi bi-gear"></i> Ayarlar</a>
             <a href="/Login/Logout" class="nav-item" onclick="return confirm('Çıkış yapmak istediğinize emin misiniz?');">
                 <i class="bi bi-box-arrow-right"></i> Çıkış Yap
             </a>
@@ -847,19 +706,10 @@
 
         <div class="sidebar-footer">
             <div class="user-row">
-                <div class="user-avatar">
-                    @if (!string.IsNullOrEmpty(Model?.ImageUrl))
-                    {
-                        <img src="@Model.ImageUrl" alt="avatar" />
-                    }
-                    else
-                    {
-                        @((Model?.FirstName?.Length > 0 ? Model.FirstName[0] : 'K').ToString().ToUpper())
-                    }
-                </div>
+                <div class="user-avatar">K</div>
                 <div class="user-info">
-                    <div class="user-name">@Model?.FirstName @Model?.LastName</div>
-                    <div class="user-plan">@(Model?.Roles?.FirstOrDefault() ?? "Basic")</div>
+                    <div class="user-name">Hesabım</div>
+                    <div class="user-plan">Profilim</div>
                 </div>
             </div>
         </div>
@@ -868,134 +718,61 @@
     <main class="main">
 
         <div class="topbar">
-            <div class="topbar-left">
-                <span class="topbar-breadcrumb">Ayarlar</span>
+            <span class="topbar-breadcrumb">Takip Ettiklerim</span>
+            <div class="search-field">
+                <i class="bi bi-search"></i>
+                <input class="search-input" type="text" id="artistSearchInput" oninput="filterArtists()" placeholder="Sanatçılarda ara..." autocomplete="off">
             </div>
         </div>
 
         <div class="content">
             <div class="page-intro">
-                <h1>Ayarlar</h1>
-                <p>Hesabını, üyeliğini ve bildirim tercihlerini buradan yönet.</p>
+                <h1>Takip Ettiklerim</h1>
+                <p>@(Model != null ? Model.Count : 0) sanatçıyı takip ediyorsun.</p>
             </div>
 
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="account"><i class="bi bi-person"></i> Hesap Bilgileri</button>
-                <button class="tab-btn" data-tab="membership"><i class="bi bi-stars"></i> Üyelik</button>
-                <button class="tab-btn" data-tab="notifications"><i class="bi bi-bell"></i> Bildirimler</button>
-                <button class="tab-btn" data-tab="logout"><i class="bi bi-box-arrow-right"></i> Çıkış Yap</button>
-            </div>
-
-            <!-- Hesap Bilgileri -->
-            <div class="tab-panel active" id="tab-account">
-                <div class="settings-card">
-                    <h3><i class="bi bi-person-badge"></i> Kişisel Bilgiler</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Ad</label>
-                            <input type="text" value="@Model?.FirstName" disabled />
-                        </div>
-                        <div class="form-group">
-                            <label>Soyad</label>
-                            <input type="text" value="@Model?.LastName" disabled />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Kullanıcı Adı</label>
-                        <input type="text" value="@Model?.UserName" disabled />
-                    </div>
-                    <div class="form-group">
-                        <label>E-posta</label>
-                        <input type="email" value="@Model?.Email" disabled />
-                    </div>
-                    <p class="hint-text"><i class="bi bi-info-circle"></i> Bilgilerini güncellemek için şu an destek ekibiyle iletişime geçmen gerekiyor.</p>
-                </div>
-            </div>
-
-            <!-- Üyelik -->
-            <div class="tab-panel" id="tab-membership">
-                <div class="settings-card">
-                    <h3><i class="bi bi-stars"></i> Üyelik Durumu</h3>
-                    <div class="plan-badge-row">
-                        <div>
-                            <div class="plan-name">@(Model?.Roles?.FirstOrDefault() ?? "Basic") Paket</div>
-                            <div class="plan-sub">Şu anki üyelik seviyen</div>
-                        </div>
-                        <button class="btn btn-primary" onclick="alert('Paket yükseltme akışı yakında!')">Paketi Yükselt</button>
-                    </div>
-                    <div class="form-group">
-                        <label>Rollerin</label>
-                        <div class="roles-list">
-                            @if (Model?.Roles != null && Model.Roles.Any())
+            @if (Model != null && Model.Any())
+            {
+                <div class="artist-grid" id="artistGrid">
+                    @foreach (var artist in Model)
+                    {
+                        <div class="artist-card" data-name="@artist.Name.ToLower()" onclick="goToArtist(@artist.ArtistId)">
+                            @if (!string.IsNullOrEmpty(artist.ImageUrl))
                             {
-                                foreach (var role in Model.Roles)
-                                {
-                                    <span class="role-chip">@role</span>
-                                }
+                                <img src="@artist.ImageUrl" alt="@artist.Name" class="artist-photo"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="artist-photo-fallback" style="display:none;">🎵</div>
                             }
                             else
                             {
-                                <span class="role-chip">Basic</span>
+                                <div class="artist-photo-fallback">🎵</div>
                             }
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Bildirimler -->
-            <div class="tab-panel" id="tab-notifications">
-                <div class="settings-card">
-                    <h3><i class="bi bi-bell"></i> Bildirim Tercihleri</h3>
-                    <div class="toggle-row">
-                        <div>
-                            <div class="toggle-label">Yeni Şarkı Bildirimleri</div>
-                            <div class="toggle-desc">Takip ettiğin sanatçılar yeni şarkı çıkardığında haber ver.</div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="toggle-row">
-                        <div>
-                            <div class="toggle-label">E-posta Bildirimleri</div>
-                            <div class="toggle-desc">Önemli güncellemeleri e-posta ile al.</div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="toggle-row">
-                        <div>
-                            <div class="toggle-label">Çalma Listesi Güncellemeleri</div>
-                            <div class="toggle-desc">Takip ettiğin çalma listeleri güncellendiğinde bildirim al.</div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <p class="hint-text" style="margin-top: 10px;"><i class="bi bi-info-circle"></i> Bu tercihler şu an görsel taslak — backend bağlantısı yakında eklenecek.</p>
-                </div>
-            </div>
+                            <div class="artist-card-name">@artist.Name</div>
+                            <div class="artist-card-meta">
+                                <i class="bi bi-person-fill"></i>
+                                <span>@artist.MonthlyListeners.ToString("N0") aylık dinleyici</span>
+                            </div>
 
-            <!-- Çıkış Yap -->
-            <div class="tab-panel" id="tab-logout">
-                <div class="logout-card">
-                    <div>
-                        <h3>Çıkış Yap</h3>
-                        <p>Hesabından güvenli bir şekilde çıkış yapmak üzeresin.</p>
-                    </div>
-                    <a href="/Login/Logout" class="btn btn-danger" onclick="return confirm('Çıkış yapmak istediğine emin misin?');">
-                        <i class="bi bi-box-arrow-right"></i> Çıkış Yap
-                    </a>
+                            <button class="unfollow-btn" onclick="event.stopPropagation(); unfollowArtist(@artist.ArtistId, this)">
+                                <i class="bi bi-person-dash"></i> Takipten Çık
+                            </button>
+                        </div>
+                    }
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-person-x"></i>
+                    <p>Henüz hiçbir sanatçıyı takip etmiyorsun.</p>
+                    <a href="/Artist/ArtistList"><i class="bi bi-people"></i> Sanatçılara Göz At</a>
+                </div>
+            }
         </div>
     </main>
 
-    <!-- PLAYER (statik — global player diğer sayfalarda aktif) -->
+    <!-- PLAYER (statik) -->
     <div class="player">
         <div class="player-track">
             <div class="player-cover">🎵</div>
@@ -1015,19 +792,51 @@
         <div class="player-right"></div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabPanels = document.querySelectorAll('.tab-panel');
+        const token = '@token';
 
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabPanels.forEach(p => p.classList.remove('active'));
+        function goToArtist(artistId) {
+            window.location.href = '/Artist/ArtistDetail/' + artistId;
+        }
 
-                btn.classList.add('active');
-                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        function unfollowArtist(artistId, btn) {
+            $.ajax({
+                url: 'https://localhost:7185/api/Follows/toggle/' + artistId,
+                type: 'POST',
+                beforeSend: function (xhr) {
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    }
+                },
+                success: function (response) {
+                    if (!response.isFollowing) {
+                        const card = btn.closest('.artist-card');
+                        card.style.transition = 'opacity 0.25s, transform 0.25s';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.92)';
+                        setTimeout(() => {
+                            card.remove();
+                            const grid = document.getElementById('artistGrid');
+                            if (grid && grid.children.length === 0) {
+                                location.reload();
+                            }
+                        }, 250);
+                    }
+                },
+                error: function () {
+                    alert('Takipten çıkma işlemi sırasında bir hata oluştu.');
+                }
             });
-        });
+        }
+
+        function filterArtists() {
+            const q = document.getElementById('artistSearchInput').value.toLowerCase().trim();
+            document.querySelectorAll('.artist-card').forEach(card => {
+                const name = card.getAttribute('data-name') || '';
+                card.style.display = name.includes(q) ? '' : 'none';
+            });
+        }
     </script>
 </body>
 </html>

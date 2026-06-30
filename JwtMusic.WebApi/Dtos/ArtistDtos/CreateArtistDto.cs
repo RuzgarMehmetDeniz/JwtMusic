@@ -1,4 +1,4 @@
-﻿namespace JwtMusic.WebApi.Dtos
+﻿namespace JwtMusic.WebApi.Dtos.ArtistDtos
 {
     public class CreateArtistDto
     {

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using JwtMusic.WebApi.Dtos;
+using JwtMusic.WebApi.Dtos.ArtistDtos;
 using JwtMusic.WebApi.Entities;
 
 namespace JwtMusic.WebApi.Mapping
