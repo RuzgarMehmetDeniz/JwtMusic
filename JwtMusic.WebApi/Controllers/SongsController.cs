@@ -144,10 +144,16 @@ namespace JwtMusic.WebApi.Controllers
         }
 
         // 4. Şarkı Güncelle
-        [HttpPut]
-        public async Task<IActionResult> UpdateSong(UpdateSongDto updateSongDto)
+        [HttpPut("{id}")] // <-- ID bilgisini artık URL'den bekliyoruz (Örn: api/Songs/160)
+        public async Task<IActionResult> UpdateSong(int id, UpdateSongDto updateSongDto)
         {
-            var song = await _context.Songs.FindAsync(updateSongDto.SongId);
+            // Güvenlik Kontrolü: URL'den gelen ID ile JSON içinden gelen ID uyuşuyor mu?
+            if (id != updateSongDto.SongId)
+            {
+                return BadRequest("URL'deki ID ile gönderilen verideki (Body) ID uyuşmuyor.");
+            }
+
+            var song = await _context.Songs.FindAsync(id);
             if (song == null)
                 return NotFound("Güncellenmek istenen şarkı bulunamadı.");
 

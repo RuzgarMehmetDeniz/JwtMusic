@@ -29,7 +29,6 @@ namespace JwtMusic.WebUI.Controllers
             return client;
         }
 
-        // ─── Index (Listele + Sayfalama) ─────────────────────────────────────
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var token = GetToken();
@@ -65,7 +64,6 @@ namespace JwtMusic.WebUI.Controllers
             return View(paged);
         }
 
-        // ─── Create GET ───────────────────────────────────────────────────────
         public async Task<IActionResult> Create()
         {
             var token = GetToken();
@@ -76,7 +74,6 @@ namespace JwtMusic.WebUI.Controllers
             return View(new CreateSongDto { ReleaseDate = DateTime.Today });
         }
 
-        // ─── Create POST ──────────────────────────────────────────────────────
         [HttpPost]
         public async Task<IActionResult> Create(CreateSongDto dto)
         {
@@ -105,25 +102,34 @@ namespace JwtMusic.WebUI.Controllers
             await SetArtistsAndRoles();
             return View(dto);
         }
-
-        // ─── Update GET ───────────────────────────────────────────────────────
+        [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
             var token = GetToken();
             if (string.IsNullOrEmpty(token))
-                return RedirectToAction("SingIn", "Login");
+                return RedirectToAction("Index", "Login"); // Giriş sayfasına güvenli yönlendirme
 
             var client = GetClient();
+            // KRİTİK HATA DÜZELTMESİ: Veriyi çekerken de API [Authorize] olduğu için token eklemek zorundayız!
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            // API adresi çağrılırken BaseAddress çakışmasını önlemek için absolute URL garantileniyor
             var response = await client.GetAsync($"https://localhost:7185/api/Songs/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["ErrorMessage"] = "Şarkı bulunamadı.";
+                TempData["ErrorMessage"] = $"Şarkı bilgileri getirilemedi. API Kodu: {(int)response.StatusCode}";
                 return RedirectToAction("Index");
             }
 
             var json = await response.Content.ReadAsStringAsync();
             var song = JsonConvert.DeserializeObject<ResultSongDto>(json);
+
+            if (song == null)
+            {
+                TempData["ErrorMessage"] = "Şarkı verisi çözümlenemedi.";
+                return RedirectToAction("Index");
+            }
 
             var dto = new UpdateSongDto
             {
@@ -131,7 +137,7 @@ namespace JwtMusic.WebUI.Controllers
                 Title = song.Title,
                 CoverImageUrl = song.CoverImageUrl,
                 AudioUrl = song.AudioUrl,
-                Duration = song.Duration.ToString(@"hh\:mm\:ss"),
+                Duration = song.Duration.ToString(), // API'den TimeSpan geliyorsa ToString() yeterlidir
                 ReleaseDate = song.ReleaseDate,
                 ArtistId = song.ArtistId,
                 RequiredRoleId = song.RequiredRoleId
@@ -141,15 +147,15 @@ namespace JwtMusic.WebUI.Controllers
             return View(dto);
         }
 
-        // ─── Update POST ──────────────────────────────────────────────────────
         [HttpPost]
         public async Task<IActionResult> Update(int id, UpdateSongDto dto)
         {
             var token = GetToken();
             if (string.IsNullOrEmpty(token))
-                return RedirectToAction("SingIn", "Login");
+                return RedirectToAction("Index", "Login");
 
             var client = GetClient();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             if (!ModelState.IsValid)
             {
@@ -157,9 +163,13 @@ namespace JwtMusic.WebUI.Controllers
                 return View(dto);
             }
 
+            // Güvenlik ve eşleşme için id'yi dto'ya dolduruyoruz
             dto.SongId = id;
             var content = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
-            var response = await client.PutAsync("https://localhost:7185/api/Songs", content);
+
+            // CRITICAL: Tam URL yazmak yerine sadece "api/Songs/{id}" yazıyoruz!
+            // GetClient() zaten localhost:7185 kısmını otomatik ekliyor.
+            var response = await client.PutAsync($"https://localhost:7185/api/Songs/{id}", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -167,12 +177,12 @@ namespace JwtMusic.WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
-            TempData["ErrorMessage"] = $"Şarkı güncellenemedi. ({(int)response.StatusCode})";
+            // Eğer yine hata alırsan hatanın kodunu görebilmek için:
+            TempData["ErrorMessage"] = $"Şarkı güncellenemedi. API Kodu: {(int)response.StatusCode}";
             await SetArtistsAndRoles();
             return View(dto);
         }
 
-        // ─── Delete POST ──────────────────────────────────────────────────────
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -191,7 +201,6 @@ namespace JwtMusic.WebUI.Controllers
             return RedirectToAction("Index");
         }
 
-        // ─── Yardımcı: Sanatçı ve Rol listelerini ViewBag'e yaz ───────────────
         private async Task SetArtistsAndRoles()
         {
             var client = GetClient();
