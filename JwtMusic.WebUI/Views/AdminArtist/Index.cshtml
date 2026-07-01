@@ -1,7 +1,13 @@
-﻿@model List<JwtMusic.WebUI.Dtos.ArtistDtos.GetByIdArtistDto>
+﻿@using JwtMusic.WebUI.Dtos.ArtistDtos
+@model List<ResultArtistDto>
 @{
     Layout = null;
-    var token = ViewBag.Token as string ?? "";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    int pageSize = ViewBag.PageSize;
+    int totalCount = ViewBag.TotalCount;
+    int rangeStart = totalCount == 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
+    int rangeEnd = Math.Min(currentPage * pageSize, totalCount);
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -19,13 +25,14 @@
             --bg-input: #1a1a1c;
             --bg-row-hover: #18181c;
             --accent: #c9a84c;
-            --accent-dim: rgba(201,168,76,0.12);
-            --accent-border: rgba(201,168,76,0.28);
+            --accent-dim: rgba(201,168,76,.12);
+            --accent-border: rgba(201,168,76,.28);
             --text-1: #e8e8ea;
             --text-2: #8a8a94;
             --text-3: #46464e;
-            --border: rgba(255,255,255,0.07);
+            --border: rgba(255,255,255,.07);
             --danger: #e0584f;
+            --success: #3fb27f;
             --radius: 10px;
             --sidebar-w: 220px;
         }
@@ -37,7 +44,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter',sans-serif;
             background: var(--bg-root);
             color: var(--text-1);
             display: grid;
@@ -55,7 +62,6 @@
             cursor: pointer;
         }
 
-        /* SIDEBAR */
         .sidebar {
             background: var(--bg-sidebar);
             border-right: 1px solid var(--border);
@@ -83,19 +89,19 @@
 
             .logo-mark i {
                 color: #0c0c0e;
-                font-size: 0.8rem;
+                font-size: .8rem;
             }
 
         .logo-wordmark {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans',sans-serif;
             font-weight: 800;
-            font-size: 0.85rem;
+            font-size: .85rem;
         }
 
         .sidebar-tag {
-            font-size: 0.6rem;
+            font-size: .6rem;
             font-weight: 700;
-            letter-spacing: 0.08em;
+            letter-spacing: .08em;
             color: var(--accent);
             text-transform: uppercase;
             margin: 0 8px 14px;
@@ -108,19 +114,19 @@
             padding: 8px 10px;
             border-radius: 7px;
             color: var(--text-2);
-            font-size: 0.82rem;
+            font-size: .82rem;
             font-weight: 500;
             margin-bottom: 2px;
         }
 
             .nav-item i {
                 width: 16px;
-                font-size: 0.92rem;
+                font-size: .92rem;
                 text-align: center;
             }
 
             .nav-item:hover {
-                background: rgba(255,255,255,0.04);
+                background: rgba(255,255,255,.04);
                 color: var(--text-1);
             }
 
@@ -141,9 +147,30 @@
             border-top: 1px solid var(--border);
         }
 
-        /* MAIN */
         main {
             padding: 28px 32px 60px;
+        }
+
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: .82rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-success {
+            background: rgba(63,178,127,.1);
+            border: 1px solid rgba(63,178,127,.3);
+            color: var(--success);
+        }
+
+        .alert-error {
+            background: rgba(224,88,79,.1);
+            border: 1px solid rgba(224,88,79,.3);
+            color: var(--danger);
         }
 
         .page-head {
@@ -156,14 +183,14 @@
         }
 
             .page-head h1 {
-                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-family: 'Plus Jakarta Sans',sans-serif;
                 font-size: 1.4rem;
                 font-weight: 800;
             }
 
             .page-head p {
                 color: var(--text-2);
-                font-size: 0.82rem;
+                font-size: .82rem;
                 margin-top: 4px;
             }
 
@@ -174,9 +201,9 @@
             border: none;
             border-radius: 8px;
             padding: 9px 16px;
-            font-size: 0.82rem;
+            font-size: .82rem;
             font-weight: 600;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter',sans-serif;
         }
 
         .btn-accent {
@@ -188,28 +215,17 @@
                 background: #d4b360;
             }
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-2);
-        }
-
-            .btn-outline:hover {
-                color: var(--text-1);
-                border-color: var(--text-3);
-            }
-
         .btn-danger-sm {
-            background: rgba(224,88,79,0.1);
-            border: 1px solid rgba(224,88,79,0.3);
+            background: rgba(224,88,79,.1);
+            border: 1px solid rgba(224,88,79,.3);
             color: var(--danger);
             padding: 6px 10px;
-            font-size: 0.78rem;
+            font-size: .78rem;
             border-radius: 7px;
         }
 
             .btn-danger-sm:hover {
-                background: rgba(224,88,79,0.18);
+                background: rgba(224,88,79,.18);
             }
 
         .btn-edit-sm {
@@ -217,19 +233,14 @@
             border: 1px solid var(--border);
             color: var(--text-2);
             padding: 6px 10px;
-            font-size: 0.78rem;
+            font-size: .78rem;
             border-radius: 7px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
         }
 
             .btn-edit-sm:hover {
                 color: var(--text-1);
-                border-color: var(--text-3);
             }
 
-        /* TABLE */
         .table-wrap {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -244,9 +255,9 @@
 
         thead th {
             text-align: left;
-            font-size: 0.72rem;
+            font-size: .72rem;
             font-weight: 600;
-            letter-spacing: 0.04em;
+            letter-spacing: .04em;
             text-transform: uppercase;
             color: var(--text-3);
             padding: 12px 16px;
@@ -255,7 +266,7 @@
 
         tbody td {
             padding: 11px 16px;
-            font-size: 0.85rem;
+            font-size: .85rem;
             border-bottom: 1px solid var(--border);
             color: var(--text-1);
             vertical-align: middle;
@@ -276,37 +287,38 @@
         }
 
         .artist-thumb {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             object-fit: cover;
             background: var(--bg-input);
             flex-shrink: 0;
         }
 
+        .artist-thumb-fallback {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--text-3);
+        }
+
         .id-col {
             color: var(--text-3);
-            font-size: 0.78rem;
+            font-size: .78rem;
             width: 56px;
         }
 
         .bio-col {
             color: var(--text-2);
-            max-width: 260px;
+            max-width: 220px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }
-
-        .role-badge {
-            display: inline-block;
-            font-size: 0.72rem;
-            font-weight: 600;
-            padding: 3px 9px;
-            border-radius: 20px;
-            background: var(--accent-dim);
-            color: var(--accent);
-            border: 1px solid var(--accent-border);
         }
 
         .actions-col {
@@ -321,7 +333,18 @@
             color: var(--text-3);
         }
 
-        /* PAGINATION */
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: .7rem;
+            color: var(--accent);
+            background: var(--accent-dim);
+            border: 1px solid var(--accent-border);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
         .pagination-bar {
             display: flex;
             align-items: center;
@@ -333,7 +356,7 @@
         }
 
         .pagination-info {
-            font-size: 0.78rem;
+            font-size: .78rem;
             color: var(--text-3);
         }
 
@@ -350,7 +373,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 7px;
-            font-size: 0.8rem;
+            font-size: .8rem;
             color: var(--text-2);
             border: 1px solid transparent;
             padding: 0 8px;
@@ -369,76 +392,50 @@
             }
 
             .page-link.disabled {
-                opacity: 0.35;
+                opacity: .35;
                 pointer-events: none;
             }
 
         .page-dots {
             color: var(--text-3);
-            font-size: 0.8rem;
+            font-size: .8rem;
             padding: 0 4px;
-        }
-
-        .alert-error {
-            background: rgba(224,88,79,0.1);
-            border: 1px solid rgba(224,88,79,0.3);
-            color: var(--danger);
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            margin-bottom: 16px;
-        }
-
-        .alert-success {
-            background: rgba(76,201,120,0.1);
-            border: 1px solid rgba(76,201,120,0.3);
-            color: #4cc978;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            margin-bottom: 16px;
         }
     </style>
 </head>
 <body>
-
     <aside class="sidebar">
         <div class="sidebar-logo">
             <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
             <span class="logo-wordmark">Canlı Müzik</span>
         </div>
         <div class="sidebar-tag">Admin Panel</div>
-
         <a href="/AdminArtist/Index" class="nav-item active"><i class="bi bi-people"></i> Sanatçılar</a>
         <a href="/AdminSong/Index" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
         <a href="/AdminUser/Index" class="nav-item"><i class="bi bi-person-gear"></i> Kullanıcılar</a>
-
         <div class="sidebar-divider"></div>
-
         <div class="sidebar-back">
             <a href="/Song/SongList" class="nav-item"><i class="bi bi-box-arrow-left"></i> Siteye Dön</a>
         </div>
     </aside>
 
     <main>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success"><i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> @TempData["ErrorMessage"]</div>
+        }
+
         <div class="page-head">
             <div>
                 <h1>Sanatçı Yönetimi</h1>
-                <p>@ViewBag.TotalCount sanatçı kayıtlı — sayfa @ViewBag.CurrentPage / @(ViewBag.TotalPages > 0 ? ViewBag.TotalPages : 1)</p>
+                <p>@totalCount sanatçı kayıtlı — sayfa @currentPage / @(totalPages > 0 ? totalPages : 1)</p>
             </div>
-            <a href="/AdminArtist/Create" class="btn btn-accent">
-                <i class="bi bi-plus-lg"></i> Yeni Sanatçı
-            </a>
+            <a href="/AdminArtist/Create" class="btn btn-accent"><i class="bi bi-plus-lg"></i> Yeni Sanatçı</a>
         </div>
-
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert-error">@TempData["ErrorMessage"]</div>
-        }
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert-success">@TempData["SuccessMessage"]</div>
-        }
 
         <div class="table-wrap">
             <table>
@@ -448,7 +445,7 @@
                         <th>Sanatçı</th>
                         <th>Bio</th>
                         <th>Aylık Dinleyici</th>
-                        <th>Rol</th>
+                        <th>Durum</th>
                         <th style="text-align:right;">İşlemler</th>
                     </tr>
                 </thead>
@@ -463,24 +460,36 @@
                                     <div class="artist-cell">
                                         @if (!string.IsNullOrEmpty(artist.ImageUrl))
                                         {
-                                            <img src="@artist.ImageUrl" class="artist-thumb" alt="@artist.Name" />
+                                            <img src="@artist.ImageUrl" class="artist-thumb" alt="@artist.Name"
+                                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                            <div class="artist-thumb-fallback" style="display:none;"><i class="bi bi-person"></i></div>
                                         }
                                         else
                                         {
-                                            <div class="artist-thumb"></div>
+                                            <div class="artist-thumb-fallback"><i class="bi bi-person"></i></div>
                                         }
                                         <span>@artist.Name</span>
                                     </div>
                                 </td>
                                 <td class="bio-col">@(string.IsNullOrEmpty(artist.Bio) ? "—" : artist.Bio)</td>
-                                <td>@artist.MonthlyListeners.ToString("N0")</td>
-                                <td><span class="role-badge">@(string.IsNullOrEmpty(artist.RequiredRole) ? "—" : artist.RequiredRole)</span></td>
+                                <td style="color:var(--text-2);">@artist.MonthlyListeners.ToString("N0")</td>
+                                <td>
+                                    @if (artist.IsVerified)
+                                    {
+                                        <span class="verified-badge"><i class="bi bi-patch-check-fill"></i> Doğrulandı</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--text-3);font-size:.78rem;">—</span>
+                                    }
+                                </td>
                                 <td>
                                     <div class="actions-col">
                                         <a href="/AdminArtist/Update/@artist.ArtistId" class="btn-edit-sm">
-                                            <i class="bi bi-pencil"></i> Düzenle
+                                            <i class="bi bi-pencil"></i> Güncelle
                                         </a>
-                                        <form method="post" action="/AdminArtist/Delete/@artist.ArtistId" onsubmit="return confirm('Bu sanatçıyı silmek istediğine emin misin?');">
+                                        <form method="post" action="/AdminArtist/Delete/@artist.ArtistId"
+                                              onsubmit="return confirm('@artist.Name sanatçısını silmek istediğine emin misin?');">
                                             <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i> Sil</button>
                                         </form>
                                     </div>
@@ -490,60 +499,48 @@
                     }
                     else
                     {
-                        <tr class="empty-row">
-                            <td colspan="6">Henüz sanatçı eklenmemiş.</td>
-                        </tr>
+                        <tr class="empty-row"><td colspan="6">Henüz sanatçı eklenmemiş.</td></tr>
                     }
                 </tbody>
             </table>
 
-            @{
-                int currentPage = ViewBag.CurrentPage;
-                int totalPages = ViewBag.TotalPages;
-                int pageSize = ViewBag.PageSize;
-                int totalCount = ViewBag.TotalCount;
-                int rangeStart = totalCount == 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
-                int rangeEnd = Math.Min(currentPage * pageSize, totalCount);
-            }
-
             @if (totalPages > 1)
             {
                 <div class="pagination-bar">
-                    <span class="pagination-info">@rangeStart–@rangeEnd / @totalCount kayıt gösteriliyor</span>
+                    <span class="pagination-info">@rangeStart–@rangeEnd / @totalCount kayıt</span>
                     <div class="pagination-pages">
-                        <a class="page-link @(currentPage <= 1 ? "disabled" : "")" href="/AdminArtist/Index?page=@(currentPage - 1)&pageSize=@pageSize">
+                        <a class="page-link @(currentPage <= 1 ? "disabled" : "")"
+                           href="/AdminArtist/Index?page=@(currentPage - 1)&pageSize=@pageSize">
                             <i class="bi bi-chevron-left"></i>
                         </a>
-
                         @{
-                            int startPage = Math.Max(1, currentPage - 2);
-                            int endPage = Math.Min(totalPages, currentPage + 2);
+                            int sp = Math.Max(1, currentPage - 2);
+                            int ep = Math.Min(totalPages, currentPage + 2);
                         }
-
-                        @if (startPage > 1)
+                        @if (sp > 1)
                         {
                             <a class="page-link" href="/AdminArtist/Index?page=1&pageSize=@pageSize">1</a>
-                            if (startPage > 2)
+                            if (sp > 2)
                             {
+
                                 <span class="page-dots">…</span>
                             }
                         }
-
-                        @for (int p = startPage; p <= endPage; p++)
+                        @for (int p = sp; p <= ep; p++)
                         {
-                            <a class="page-link @(p == currentPage ? "active" : "")" href="/AdminArtist/Index?page=@p&pageSize=@pageSize">@p</a>
+                            <a class="page-link @(p == currentPage ? "active" : "")"
+                               href="/AdminArtist/Index?page=@p&pageSize=@pageSize">@p</a>
                         }
-
-                        @if (endPage < totalPages)
+                        @if (ep < totalPages)
                         {
-                            if (endPage < totalPages - 1)
+                            if (ep < totalPages - 1)
                             {
                                 <span class="page-dots">…</span>
                             }
                             <a class="page-link" href="/AdminArtist/Index?page=@totalPages&pageSize=@pageSize">@totalPages</a>
                         }
-
-                        <a class="page-link @(currentPage >= totalPages ? "disabled" : "")" href="/AdminArtist/Index?page=@(currentPage + 1)&pageSize=@pageSize">
+                        <a class="page-link @(currentPage >= totalPages ? "disabled" : "")"
+                           href="/AdminArtist/Index?page=@(currentPage + 1)&pageSize=@pageSize">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </div>
@@ -551,6 +548,5 @@
             }
         </div>
     </main>
-
 </body>
 </html>

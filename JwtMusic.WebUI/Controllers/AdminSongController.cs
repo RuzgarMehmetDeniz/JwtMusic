@@ -102,34 +102,25 @@ namespace JwtMusic.WebUI.Controllers
             await SetArtistsAndRoles();
             return View(dto);
         }
-        [HttpGet]
+        // ─── Update GET ───────────────────────────────────────────────────────
         public async Task<IActionResult> Update(int id)
         {
             var token = GetToken();
             if (string.IsNullOrEmpty(token))
-                return RedirectToAction("Index", "Login"); // Giriş sayfasına güvenli yönlendirme
+                return RedirectToAction("SingIn", "Login");
 
             var client = GetClient();
-            // KRİTİK HATA DÜZELTMESİ: Veriyi çekerken de API [Authorize] olduğu için token eklemek zorundayız!
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            // API adresi çağrılırken BaseAddress çakışmasını önlemek için absolute URL garantileniyor
+            // Şarkıyı çek
             var response = await client.GetAsync($"https://localhost:7185/api/Songs/{id}");
-
             if (!response.IsSuccessStatusCode)
             {
-                TempData["ErrorMessage"] = $"Şarkı bilgileri getirilemedi. API Kodu: {(int)response.StatusCode}";
+                TempData["ErrorMessage"] = "Şarkı bulunamadı.";
                 return RedirectToAction("Index");
             }
 
             var json = await response.Content.ReadAsStringAsync();
             var song = JsonConvert.DeserializeObject<ResultSongDto>(json);
-
-            if (song == null)
-            {
-                TempData["ErrorMessage"] = "Şarkı verisi çözümlenemedi.";
-                return RedirectToAction("Index");
-            }
 
             var dto = new UpdateSongDto
             {
@@ -137,7 +128,7 @@ namespace JwtMusic.WebUI.Controllers
                 Title = song.Title,
                 CoverImageUrl = song.CoverImageUrl,
                 AudioUrl = song.AudioUrl,
-                Duration = song.Duration.ToString(), // API'den TimeSpan geliyorsa ToString() yeterlidir
+                Duration = song.Duration.ToString(@"hh\:mm\:ss"),
                 ReleaseDate = song.ReleaseDate,
                 ArtistId = song.ArtistId,
                 RequiredRoleId = song.RequiredRoleId
@@ -147,28 +138,21 @@ namespace JwtMusic.WebUI.Controllers
             return View(dto);
         }
 
+        // ─── Update POST ──────────────────────────────────────────────────────
         [HttpPost]
         public async Task<IActionResult> Update(int id, UpdateSongDto dto)
         {
             var token = GetToken();
             if (string.IsNullOrEmpty(token))
-                return RedirectToAction("Index", "Login");
+                return RedirectToAction("SingIn", "Login");
 
             var client = GetClient();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-            if (!ModelState.IsValid)
-            {
-                await SetArtistsAndRoles();
-                return View(dto);
-            }
-
-            // Güvenlik ve eşleşme için id'yi dto'ya dolduruyoruz
             dto.SongId = id;
-            var content = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
 
-            // CRITICAL: Tam URL yazmak yerine sadece "api/Songs/{id}" yazıyoruz!
-            // GetClient() zaten localhost:7185 kısmını otomatik ekliyor.
+            var content = new StringContent(
+                JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
+
+            // API: PUT /api/Songs/{id}
             var response = await client.PutAsync($"https://localhost:7185/api/Songs/{id}", content);
 
             if (response.IsSuccessStatusCode)
@@ -177,8 +161,7 @@ namespace JwtMusic.WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Eğer yine hata alırsan hatanın kodunu görebilmek için:
-            TempData["ErrorMessage"] = $"Şarkı güncellenemedi. API Kodu: {(int)response.StatusCode}";
+            TempData["ErrorMessage"] = $"Şarkı güncellenemedi. ({(int)response.StatusCode})";
             await SetArtistsAndRoles();
             return View(dto);
         }

@@ -1,13 +1,17 @@
-﻿@model JwtMusic.WebUI.Dtos.ArtistDtos.UpdateArtistDto
+﻿@using JwtMusic.WebUI.Dtos.ArtistDtos
+@using System.Linq
+@model UpdateArtistDto
 @{
     Layout = null;
+    var roles = ViewBag.Roles as List<Dictionary<string, string>> ?? new List<Dictionary<string, string>>();
+    bool currentRoleFound = roles.Any(r => r["Id"] == Model.RequiredRole);
 }
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanatçıyı Güncelle — Admin</title>
+    <title>Sanatçı Güncelle — Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
@@ -16,14 +20,16 @@
             --bg-sidebar: #111113;
             --bg-card: #16161a;
             --bg-input: #1a1a1c;
+            --bg-row-hover: #18181c;
             --accent: #c9a84c;
-            --accent-dim: rgba(201,168,76,0.12);
-            --accent-border: rgba(201,168,76,0.28);
+            --accent-dim: rgba(201,168,76,.12);
+            --accent-border: rgba(201,168,76,.28);
             --text-1: #e8e8ea;
             --text-2: #8a8a94;
             --text-3: #46464e;
-            --border: rgba(255,255,255,0.07);
+            --border: rgba(255,255,255,.07);
             --danger: #e0584f;
+            --success: #3fb27f;
             --radius: 10px;
             --sidebar-w: 220px;
         }
@@ -35,7 +41,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter',sans-serif;
             background: var(--bg-root);
             color: var(--text-1);
             display: grid;
@@ -80,19 +86,19 @@
 
             .logo-mark i {
                 color: #0c0c0e;
-                font-size: 0.8rem;
+                font-size: .8rem;
             }
 
         .logo-wordmark {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans',sans-serif;
             font-weight: 800;
-            font-size: 0.85rem;
+            font-size: .85rem;
         }
 
         .sidebar-tag {
-            font-size: 0.6rem;
+            font-size: .6rem;
             font-weight: 700;
-            letter-spacing: 0.08em;
+            letter-spacing: .08em;
             color: var(--accent);
             text-transform: uppercase;
             margin: 0 8px 14px;
@@ -105,19 +111,19 @@
             padding: 8px 10px;
             border-radius: 7px;
             color: var(--text-2);
-            font-size: 0.82rem;
+            font-size: .82rem;
             font-weight: 500;
             margin-bottom: 2px;
         }
 
             .nav-item i {
                 width: 16px;
-                font-size: 0.92rem;
+                font-size: .92rem;
                 text-align: center;
             }
 
             .nav-item:hover {
-                background: rgba(255,255,255,0.04);
+                background: rgba(255,255,255,.04);
                 color: var(--text-1);
             }
 
@@ -140,239 +146,61 @@
 
         main {
             padding: 28px 32px 60px;
-            display: flex;
-            justify-content: center;
         }
 
-        .form-wrap {
-            width: 100%;
-            max-width: 520px;
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: .82rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-success {
+            background: rgba(63,178,127,.1);
+            border: 1px solid rgba(63,178,127,.3);
+            color: var(--success);
+        }
+
+        .alert-error {
+            background: rgba(224,88,79,.1);
+            border: 1px solid rgba(224,88,79,.3);
+            color: var(--danger);
         }
 
         .page-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .breadcrumb {
-            font-size: 0.78rem;
-            color: var(--text-3);
-            margin-bottom: 8px;
-            display: flex;
+            .page-head h1 {
+                font-family: 'Plus Jakarta Sans',sans-serif;
+                font-size: 1.4rem;
+                font-weight: 800;
+            }
+
+            .page-head p {
+                color: var(--text-2);
+                font-size: .82rem;
+                margin-top: 4px;
+            }
+
+        .id-badge {
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-        }
-
-            .breadcrumb a {
-                color: var(--text-2);
-            }
-
-                .breadcrumb a:hover {
-                    color: var(--accent);
-                }
-
-        .page-head h1 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 800;
-        }
-
-        .page-head p {
-            color: var(--text-2);
-            font-size: 0.82rem;
-            margin-top: 4px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-        }
-
-        .field {
-            margin-bottom: 18px;
-        }
-
-            .field label {
-                display: block;
-                font-size: 0.78rem;
-                font-weight: 600;
-                color: var(--text-2);
-                margin-bottom: 7px;
-            }
-
-            .field input, .field textarea {
-                width: 100%;
-                background: var(--bg-input);
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                padding: 10px 13px;
-                color: var(--text-1);
-                font-size: 0.86rem;
-                font-family: 'Inter', sans-serif;
-                outline: none;
-            }
-
-                .field input:focus, .field textarea:focus {
-                    border-color: var(--accent-border);
-                }
-
-            .field textarea {
-                resize: vertical;
-                min-height: 90px;
-            }
-
-        .field-hint {
-            font-size: 0.72rem;
+            font-size: .72rem;
             color: var(--text-3);
-            margin-top: 5px;
-        }
-
-        .field-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        .checkbox-field {
-            display: flex;
-            align-items: center;
-            gap: 9px;
             background: var(--bg-input);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 11px 13px;
-        }
-
-            .checkbox-field input[type="checkbox"] {
-                width: 16px;
-                height: 16px;
-                accent-color: var(--accent);
-                cursor: pointer;
-            }
-
-            .checkbox-field label {
-                margin: 0;
-                cursor: pointer;
-                color: var(--text-1);
-                font-size: 0.84rem;
-                font-weight: 500;
-            }
-
-        /* DROPDOWN */
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-trigger {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 13px;
-            color: var(--text-1);
-            font-size: 0.86rem;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            user-select: none;
-        }
-
-            .dropdown-trigger.placeholder {
-                color: var(--text-3);
-            }
-
-            .dropdown-trigger:hover {
-                border-color: var(--text-3);
-            }
-
-        .dropdown.open .dropdown-trigger {
-            border-color: var(--accent-border);
-        }
-
-        .dropdown-trigger i {
-            font-size: 0.8rem;
-            color: var(--text-3);
-            transition: transform 0.15s;
-        }
-
-        .dropdown.open .dropdown-trigger i {
-            transform: rotate(180deg);
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: calc(100% + 6px);
-            left: 0;
-            right: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 5px;
-            z-index: 50;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            max-height: 220px;
-            overflow-y: auto;
-        }
-
-        .dropdown.open .dropdown-menu {
-            display: block;
-        }
-
-        .dropdown-option {
-            padding: 9px 11px;
-            border-radius: 6px;
-            font-size: 0.84rem;
-            color: var(--text-1);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-            .dropdown-option:hover {
-                background: var(--bg-input);
-            }
-
-            .dropdown-option.selected {
-                background: var(--accent-dim);
-                color: var(--accent);
-                font-weight: 600;
-            }
-
-        .preview-wrap {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 18px;
-            padding: 14px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
-
-        .preview-img {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--bg-root);
-            border: 1px solid var(--border);
-        }
-
-        .preview-label {
-            font-size: 0.76rem;
-            color: var(--text-3);
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 22px;
+            padding: 4px 10px;
+            border-radius: 20px;
         }
 
         .btn {
@@ -381,10 +209,10 @@
             gap: 7px;
             border: none;
             border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 0.84rem;
+            padding: 9px 16px;
+            font-size: .82rem;
             font-weight: 600;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter',sans-serif;
         }
 
         .btn-accent {
@@ -396,180 +224,213 @@
                 background: #d4b360;
             }
 
-        .btn-outline {
-            background: transparent;
+        .btn-cancel {
+            background: var(--bg-input);
             border: 1px solid var(--border);
             color: var(--text-2);
         }
 
-            .btn-outline:hover {
+            .btn-cancel:hover {
                 color: var(--text-1);
-                border-color: var(--text-3);
             }
 
-        .alert-error {
-            background: rgba(224,88,79,0.1);
-            border: 1px solid rgba(224,88,79,0.3);
-            color: var(--danger);
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.82rem;
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 26px;
+            max-width: 640px;
+        }
+
+        .form-row {
             margin-bottom: 18px;
         }
+
+            .form-row label {
+                display: block;
+                font-size: .78rem;
+                font-weight: 600;
+                color: var(--text-2);
+                margin-bottom: 7px;
+            }
+
+        .form-control {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: .85rem;
+            color: var(--text-1);
+            font-family: 'Inter',sans-serif;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--accent-border);
+                background: #1d1d20;
+            }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%238a8a94' stroke-width='1.5' fill='none' fill-rule='evenodd'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+            .check-row input[type="checkbox"] {
+                width: 17px;
+                height: 17px;
+                accent-color: var(--accent);
+            }
+
+            .check-row label {
+                margin-bottom: 0;
+                color: var(--text-1);
+                font-weight: 500;
+                font-size: .84rem;
+            }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .hint {
+            font-size: .72rem;
+            color: var(--text-3);
+            margin-top: 5px;
+        }
+
+        .preview-thumb {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+            .preview-thumb img {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: var(--bg-root);
+            }
+
+            .preview-thumb span {
+                font-size: .82rem;
+                color: var(--text-2);
+            }
     </style>
 </head>
 <body>
-
     <aside class="sidebar">
         <div class="sidebar-logo">
             <div class="logo-mark"><i class="bi bi-soundwave"></i></div>
             <span class="logo-wordmark">Canlı Müzik</span>
         </div>
         <div class="sidebar-tag">Admin Panel</div>
-
         <a href="/AdminArtist/Index" class="nav-item active"><i class="bi bi-people"></i> Sanatçılar</a>
         <a href="/AdminSong/Index" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
         <a href="/AdminUser/Index" class="nav-item"><i class="bi bi-person-gear"></i> Kullanıcılar</a>
-
         <div class="sidebar-divider"></div>
-
         <div class="sidebar-back">
             <a href="/Song/SongList" class="nav-item"><i class="bi bi-box-arrow-left"></i> Siteye Dön</a>
         </div>
     </aside>
 
     <main>
-        <div class="form-wrap">
-            <div class="page-head">
-                <div class="breadcrumb">
-                    <a href="/AdminArtist/Index">Sanatçılar</a>
-                    <i class="bi bi-chevron-right" style="font-size:0.65rem;"></i>
-                    <span>Düzenle</span>
-                </div>
-                <h1>Sanatçıyı Güncelle</h1>
-                <p>#@Model?.ArtistId numaralı sanatçının bilgilerini düzenle.</p>
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> @TempData["ErrorMessage"]</div>
+        }
+
+        <div class="page-head">
+            <div>
+                <h1>Sanatçı Güncelle</h1>
+                <p>@Model.Name için kayıtları düzenle</p>
             </div>
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert-error">@TempData["ErrorMessage"]</div>
-            }
-
-            <div class="card">
-                <div class="preview-wrap">
-                    <img id="previewImg" class="preview-img" src="@Model?.ImageUrl" alt="" style="@(string.IsNullOrEmpty(Model?.ImageUrl) ? "display:none;" : "")" />
-                    <div id="previewFallback" class="preview-img" style="display:@(string.IsNullOrEmpty(Model?.ImageUrl) ? "flex" : "none"); align-items:center; justify-content:center;">
-                        <i class="bi bi-image" style="color: var(--text-3);"></i>
-                    </div>
-                    <span class="preview-label">Resim URL'si girince önizleme burada görünecek</span>
-                </div>
-
-                <form method="post" action="/AdminArtist/Update/@Model?.ArtistId">
-                    <div class="field">
-                        <label>Sanatçı Adı</label>
-                        <input type="text" name="name" placeholder="Örn. Taylor Swift" value="@Model?.Name" required />
-                    </div>
-                    <div class="field">
-                        <label>Bio</label>
-                        <textarea name="bio" placeholder="Sanatçı hakkında kısa bilgi...">@Model?.Bio</textarea>
-                    </div>
-                    <div class="field">
-                        <label>Resim URL</label>
-                        <input type="text" name="imageUrl" id="imageUrlInput" placeholder="https://..." value="@Model?.ImageUrl" oninput="updatePreview(this.value)" />
-                        <div class="field-hint">Sanatçı kartlarında ve detay sayfasında bu görsel kullanılacak.</div>
-                    </div>
-
-                    <div class="field-row">
-                        <div class="field">
-                            <label>Aylık Dinleyici Sayısı</label>
-                            <input type="number" name="monthlyListeners" min="0" value="@(Model?.MonthlyListeners ?? 0)" />
-                        </div>
-                        <div class="field">
-                            <label>Gerekli Rol</label>
-                            <div class="dropdown" id="roleDropdown">
-                                <div class="dropdown-trigger @(string.IsNullOrEmpty(Model?.RequiredRole) ? "placeholder" : "")" onclick="toggleDropdown('roleDropdown')">
-                                    <span id="roleDropdownLabel">@(string.IsNullOrEmpty(Model?.RequiredRole) ? "-- Seçiniz --" : Model.RequiredRole)</span>
-                                    <i class="bi bi-chevron-down"></i>
-                                </div>
-                                <div class="dropdown-menu">
-                                    @if (ViewBag.Roles != null)
-                                    {
-                                        foreach (var role in (List<JwtMusic.WebUI.Dtos.RolesDtos.RoleDto>)ViewBag.Roles)
-                                        {
-                                            <div class="dropdown-option @(Model?.RequiredRole == role.Name ? "selected" : "")" data-value="@role.Name" onclick="selectRole('roleDropdown', '@role.Name')">
-                                                <span>@role.Name</span>
-                                            </div>
-                                        }
-                                    }
-                                </div>
-                                <input type="hidden" name="requiredRole" id="roleDropdownValue" value="@Model?.RequiredRole" required />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <div class="checkbox-field">
-                            <input type="checkbox" name="isVerified" id="isVerified" value="true" checked="@(Model?.IsVerified == true)" />
-                            <label for="isVerified">Doğrulanmış sanatçı</label>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <a href="/AdminArtist/Index" class="btn btn-outline">Vazgeç</a>
-                        <button type="submit" class="btn btn-accent"><i class="bi bi-check-lg"></i> Güncelle</button>
-                    </div>
-                </form>
-            </div>
+            <span class="id-badge"><i class="bi bi-hash"></i> ID @Model.ArtistId</span>
         </div>
+
+        <form class="form-card" method="post" action="/AdminArtist/Update/@Model.ArtistId">
+            <input type="hidden" name="ArtistId" value="@Model.ArtistId" />
+
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="preview-thumb">
+                    <img src="@Model.ImageUrl" alt="@Model.Name" onerror="this.style.display='none';" />
+                    <span>Mevcut görsel önizlemesi</span>
+                </div>
+            }
+
+            <div class="form-row">
+                <label for="Name">Sanatçı Adı</label>
+                <input class="form-control" id="Name" name="Name" value="@Model.Name" placeholder="Örn. Sezen Aksu" />
+            </div>
+
+            <div class="form-row">
+                <label for="ImageUrl">Görsel URL</label>
+                <input class="form-control" id="ImageUrl" name="ImageUrl" value="@Model.ImageUrl" placeholder="https://..." />
+                <div class="hint">Sanatçı fotoğrafının bağlantısı</div>
+            </div>
+
+            <div class="form-row">
+                <label for="Bio">Biyografi</label>
+                <textarea class="form-control" id="Bio" name="Bio" placeholder="Sanatçı hakkında kısa bilgi...">@Model.Bio</textarea>
+            </div>
+
+            <div class="form-row">
+                <label for="MonthlyListeners">Aylık Dinleyici Sayısı</label>
+                <input class="form-control" type="number" id="MonthlyListeners" name="MonthlyListeners" value="@Model.MonthlyListeners" min="0" />
+            </div>
+
+            <div class="form-row">
+                <label for="RequiredRole">Gerekli Rol</label>
+                <select class="form-control" id="RequiredRole" name="RequiredRole" required>
+                    <option value="">Rol Seçiniz</option>
+                    @foreach (var role in roles)
+                    {
+                        <option value="@role["Id"]" selected="@(Model.RequiredRole == role["Id"])">@role["Name"]</option>
+                    }
+                    @if (!currentRoleFound && !string.IsNullOrEmpty(Model.RequiredRole))
+                    {
+                        <option value="@Model.RequiredRole" selected="selected">@Model.RequiredRole (listede yok)</option>
+                    }
+                </select>
+                <div class="hint">Bu sanatçıya erişim için gereken minimum üyelik</div>
+            </div>
+
+            <div class="form-row check-row">
+                <input type="checkbox" id="IsVerified" name="IsVerified" value="true" checked="@Model.IsVerified" />
+                <input type="hidden" name="IsVerified" value="false" />
+                <label for="IsVerified">Doğrulanmış sanatçı</label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-accent"><i class="bi bi-check-lg"></i> Güncelle</button>
+                <a href="/AdminArtist/Index" class="btn btn-cancel">Vazgeç</a>
+            </div>
+        </form>
     </main>
-
-    <script>
-        function updatePreview(url) {
-            const img = document.getElementById('previewImg');
-            const fallback = document.getElementById('previewFallback');
-            if (!url) { img.style.display = 'none'; fallback.style.display = 'flex'; return; }
-            img.onload = function () { img.style.display = 'block'; fallback.style.display = 'none'; };
-            img.onerror = function () { img.style.display = 'none'; fallback.style.display = 'flex'; };
-            img.src = url;
-        }
-
-        function toggleDropdown(id) {
-            const dropdown = document.getElementById(id);
-            const isOpen = dropdown.classList.contains('open');
-            document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-            if (!isOpen) dropdown.classList.add('open');
-        }
-
-        function selectRole(dropdownId, value) {
-            const dropdown = document.getElementById(dropdownId);
-            const label = dropdown.querySelector('[id$="Label"]');
-            const hiddenInput = dropdown.querySelector('input[type="hidden"]');
-            const trigger = dropdown.querySelector('.dropdown-trigger');
-
-            label.textContent = value;
-            hiddenInput.value = value;
-            trigger.classList.remove('placeholder');
-
-            dropdown.querySelectorAll('.dropdown-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.dataset.value === value);
-            });
-
-            dropdown.classList.remove('open');
-        }
-
-        document.addEventListener('click', function (e) {
-            if (!e.target.closest('.dropdown')) {
-                document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-            }
-        });
-
-        document.querySelector('form').addEventListener('submit', function (e) {
-            const hiddenInput = document.getElementById('roleDropdownValue');
-            if (!hiddenInput.value) {
-                e.preventDefault();
-                alert('Lütfen bir rol seçiniz.');
-            }
-        });
-    </script>
 </body>
 </html>

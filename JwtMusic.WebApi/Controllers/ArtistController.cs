@@ -3,6 +3,7 @@ using JwtMusic.WebApi.Services.ArtistServices;
 using JwtMusic.WebApi.Services.SongServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 namespace JwtMusic.WebApi.Controllers
 {
     [Route("api/[controller]")]
@@ -12,6 +13,7 @@ namespace JwtMusic.WebApi.Controllers
     {
         private readonly IArtistService _artistService;
         private readonly ISongService _songService;
+
         public ArtistController(IArtistService artistService, ISongService songService)
         {
             _artistService = artistService;
@@ -40,7 +42,6 @@ namespace JwtMusic.WebApi.Controllers
 
         // 3. Yeni Sanatçı Ekleme
         [HttpPost]
-        [AllowAnonymous]
         public async Task<IActionResult> CreateArtist(CreateArtistDto createArtistDto)
         {
             await _artistService.CreateArtistAsync(createArtistDto);
@@ -56,7 +57,6 @@ namespace JwtMusic.WebApi.Controllers
             {
                 return NotFound("Sanatçı bulunamadı.");
             }
-
             updateArtistDto.ArtistId = id;
             await _artistService.UpdateArtistAsync(updateArtistDto);
             return Ok("Sanatçı güncellendi.");
@@ -71,7 +71,6 @@ namespace JwtMusic.WebApi.Controllers
             {
                 return NotFound("Sanatçı bulunamadı.");
             }
-
             await _artistService.DeleteArtistAsync(id);
             return Ok("Sanatçı silindi.");
         }
