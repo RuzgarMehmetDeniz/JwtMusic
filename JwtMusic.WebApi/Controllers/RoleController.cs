@@ -14,6 +14,18 @@ namespace JwtMusic.WebApi.Controllers
         {
             _roleManager = roleManager;
         }
+
+        // Tüm rolleri listele
+        [HttpGet]
+        public IActionResult GetAllRoles()
+        {
+            var roles = _roleManager.Roles
+                .Select(r => new { r.Id, r.Name })
+                .ToList();
+
+            return Ok(roles);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateRole(string roleName)
         {
@@ -26,6 +38,5 @@ namespace JwtMusic.WebApi.Controllers
 
             return Ok("Başarılı");
         }
-
     }
 }

@@ -1,4 +1,4 @@
-﻿@model List<JwtMusic.WebUI.Dtos.ArtistDtos.ResultArtistDto>
+﻿@model List<JwtMusic.WebUI.Dtos.ArtistDtos.GetByIdArtistDto>
 @{
     Layout = null;
     var token = ViewBag.Token as string ?? "";
@@ -219,6 +219,9 @@
             padding: 6px 10px;
             font-size: 0.78rem;
             border-radius: 7px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
             .btn-edit-sm:hover {
@@ -295,6 +298,17 @@
             white-space: nowrap;
         }
 
+        .role-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 20px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid var(--accent-border);
+        }
+
         .actions-col {
             display: flex;
             gap: 6px;
@@ -365,74 +379,24 @@
             padding: 0 4px;
         }
 
-        /* MODAL */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
+        .alert-error {
+            background: rgba(224,88,79,0.1);
+            border: 1px solid rgba(224,88,79,0.3);
+            color: var(--danger);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            margin-bottom: 16px;
         }
 
-            .modal-overlay.open {
-                display: flex;
-            }
-
-        .modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            width: 420px;
-            max-width: 92vw;
-            padding: 22px;
-        }
-
-            .modal-box h2 {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 1.05rem;
-                font-weight: 700;
-                margin-bottom: 16px;
-            }
-
-        .field {
-            margin-bottom: 13px;
-        }
-
-            .field label {
-                display: block;
-                font-size: 0.74rem;
-                color: var(--text-2);
-                margin-bottom: 5px;
-            }
-
-            .field input, .field textarea {
-                width: 100%;
-                background: var(--bg-input);
-                border: 1px solid var(--border);
-                border-radius: 7px;
-                padding: 9px 12px;
-                color: var(--text-1);
-                font-size: 0.84rem;
-                font-family: 'Inter', sans-serif;
-                outline: none;
-            }
-
-                .field input:focus, .field textarea:focus {
-                    border-color: var(--accent-border);
-                }
-
-            .field textarea {
-                resize: vertical;
-                min-height: 64px;
-            }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 18px;
+        .alert-success {
+            background: rgba(76,201,120,0.1);
+            border: 1px solid rgba(76,201,120,0.3);
+            color: #4cc978;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            margin-bottom: 16px;
         }
     </style>
 </head>
@@ -462,16 +426,18 @@
                 <h1>Sanatçı Yönetimi</h1>
                 <p>@ViewBag.TotalCount sanatçı kayıtlı — sayfa @ViewBag.CurrentPage / @(ViewBag.TotalPages > 0 ? ViewBag.TotalPages : 1)</p>
             </div>
-            <button class="btn btn-accent" onclick="openCreateModal()">
+            <a href="/AdminArtist/Create" class="btn btn-accent">
                 <i class="bi bi-plus-lg"></i> Yeni Sanatçı
-            </button>
+            </a>
         </div>
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div style="background: rgba(224,88,79,0.1); border: 1px solid rgba(224,88,79,0.3); color: #e0584f; padding: 10px 14px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 16px;">
-                @TempData["ErrorMessage"]
-            </div>
+            <div class="alert-error">@TempData["ErrorMessage"]</div>
+        }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert-success">@TempData["SuccessMessage"]</div>
         }
 
         <div class="table-wrap">
@@ -482,6 +448,7 @@
                         <th>Sanatçı</th>
                         <th>Bio</th>
                         <th>Aylık Dinleyici</th>
+                        <th>Rol</th>
                         <th style="text-align:right;">İşlemler</th>
                     </tr>
                 </thead>
@@ -507,12 +474,12 @@
                                 </td>
                                 <td class="bio-col">@(string.IsNullOrEmpty(artist.Bio) ? "—" : artist.Bio)</td>
                                 <td>@artist.MonthlyListeners.ToString("N0")</td>
+                                <td><span class="role-badge">@(string.IsNullOrEmpty(artist.RequiredRole) ? "—" : artist.RequiredRole)</span></td>
                                 <td>
                                     <div class="actions-col">
-                                        <button class="btn-edit-sm"
-                                                onclick="openUpdateModal(@artist.ArtistId, '@Html.Raw(artist.Name.Replace("'", "\\'"))', '@Html.Raw((artist.Bio ?? "").Replace("'", "\\'"))', '@Html.Raw((artist.ImageUrl ?? "").Replace("'", "\\'"))')">
+                                        <a href="/AdminArtist/Update/@artist.ArtistId" class="btn-edit-sm">
                                             <i class="bi bi-pencil"></i> Düzenle
-                                        </button>
+                                        </a>
                                         <form method="post" action="/AdminArtist/Delete/@artist.ArtistId" onsubmit="return confirm('Bu sanatçıyı silmek istediğine emin misin?');">
                                             <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i> Sil</button>
                                         </form>
@@ -524,7 +491,7 @@
                     else
                     {
                         <tr class="empty-row">
-                            <td colspan="5">Henüz sanatçı eklenmemiş.</td>
+                            <td colspan="6">Henüz sanatçı eklenmemiş.</td>
                         </tr>
                     }
                 </tbody>
@@ -585,78 +552,5 @@
         </div>
     </main>
 
-    <!-- Yeni Sanatçı Modal -->
-    <div class="modal-overlay" id="createModal">
-        <div class="modal-box">
-            <h2>Yeni Sanatçı Ekle</h2>
-            <form method="post" action="/AdminArtist/Create">
-                <div class="field">
-                    <label>Sanatçı Adı</label>
-                    <input type="text" name="name" required />
-                </div>
-                <div class="field">
-                    <label>Bio</label>
-                    <textarea name="bio"></textarea>
-                </div>
-                <div class="field">
-                    <label>Resim URL</label>
-                    <input type="text" name="imageUrl" />
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('createModal')">Vazgeç</button>
-                    <button type="submit" class="btn btn-accent">Kaydet</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Güncelle Modal -->
-    <div class="modal-overlay" id="updateModal">
-        <div class="modal-box">
-            <h2>Sanatçıyı Güncelle</h2>
-            <form method="post" id="updateForm">
-                <div class="field">
-                    <label>Sanatçı Adı</label>
-                    <input type="text" name="name" id="updateName" required />
-                </div>
-                <div class="field">
-                    <label>Bio</label>
-                    <textarea name="bio" id="updateBio"></textarea>
-                </div>
-                <div class="field">
-                    <label>Resim URL</label>
-                    <input type="text" name="imageUrl" id="updateImageUrl" />
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('updateModal')">Vazgeç</button>
-                    <button type="submit" class="btn btn-accent">Güncelle</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openCreateModal() {
-            document.getElementById('createModal').classList.add('open');
-        }
-
-        function openUpdateModal(id, name, bio, imageUrl) {
-            document.getElementById('updateForm').action = '/AdminArtist/Update/' + id;
-            document.getElementById('updateName').value = name;
-            document.getElementById('updateBio').value = bio;
-            document.getElementById('updateImageUrl').value = imageUrl;
-            document.getElementById('updateModal').classList.add('open');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
-        }
-
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', e => {
-                if (e.target === overlay) overlay.classList.remove('open');
-            });
-        });
-    </script>
 </body>
 </html>

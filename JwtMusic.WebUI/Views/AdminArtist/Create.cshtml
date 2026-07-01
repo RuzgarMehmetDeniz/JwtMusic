@@ -1,6 +1,6 @@
-﻿@{
+﻿@model JwtMusic.WebUI.Dtos.ArtistDtos.CreateArtistDto
+@{
     Layout = null;
-    var token = ViewBag.Token as string ?? "";
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -53,7 +53,6 @@
             cursor: pointer;
         }
 
-        /* SIDEBAR */
         .sidebar {
             background: var(--bg-sidebar);
             border-right: 1px solid var(--border);
@@ -139,7 +138,6 @@
             border-top: 1px solid var(--border);
         }
 
-        /* MAIN */
         main {
             padding: 28px 32px 60px;
             display: flex;
@@ -213,7 +211,6 @@
                 font-size: 0.86rem;
                 font-family: 'Inter', sans-serif;
                 outline: none;
-                transition: border-color 0.2s;
             }
 
                 .field input:focus, .field textarea:focus {
@@ -230,6 +227,121 @@
             color: var(--text-3);
             margin-top: 5px;
         }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 11px 13px;
+        }
+
+            .checkbox-field input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                accent-color: var(--accent);
+                cursor: pointer;
+            }
+
+            .checkbox-field label {
+                margin: 0;
+                cursor: pointer;
+                color: var(--text-1);
+                font-size: 0.84rem;
+                font-weight: 500;
+            }
+
+        /* DROPDOWN */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-trigger {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 13px;
+            color: var(--text-1);
+            font-size: 0.86rem;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+            .dropdown-trigger.placeholder {
+                color: var(--text-3);
+            }
+
+            .dropdown-trigger:hover {
+                border-color: var(--text-3);
+            }
+
+        .dropdown.open .dropdown-trigger {
+            border-color: var(--accent-border);
+        }
+
+        .dropdown-trigger i {
+            font-size: 0.8rem;
+            color: var(--text-3);
+            transition: transform 0.15s;
+        }
+
+        .dropdown.open .dropdown-trigger i {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px;
+            z-index: 50;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-option {
+            padding: 9px 11px;
+            border-radius: 6px;
+            font-size: 0.84rem;
+            color: var(--text-1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .dropdown-option:hover {
+                background: var(--bg-input);
+            }
+
+            .dropdown-option.selected {
+                background: var(--accent-dim);
+                color: var(--accent);
+                font-weight: 600;
+            }
 
         .preview-wrap {
             display: flex;
@@ -355,16 +467,51 @@
                 <form method="post" action="/AdminArtist/Create">
                     <div class="field">
                         <label>Sanatçı Adı</label>
-                        <input type="text" name="name" placeholder="Örn. Taylor Swift" required />
+                        <input type="text" name="name" placeholder="Örn. Taylor Swift" value="@Model?.Name" required />
                     </div>
                     <div class="field">
                         <label>Bio</label>
-                        <textarea name="bio" placeholder="Sanatçı hakkında kısa bilgi..."></textarea>
+                        <textarea name="bio" placeholder="Sanatçı hakkında kısa bilgi...">@Model?.Bio</textarea>
                     </div>
                     <div class="field">
                         <label>Resim URL</label>
-                        <input type="text" name="imageUrl" id="imageUrlInput" placeholder="https://..." oninput="updatePreview(this.value)" />
+                        <input type="text" name="imageUrl" id="imageUrlInput" placeholder="https://..." value="@Model?.ImageUrl" oninput="updatePreview(this.value)" />
                         <div class="field-hint">Sanatçı kartlarında ve detay sayfasında bu görsel kullanılacak.</div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label>Aylık Dinleyici Sayısı</label>
+                            <input type="number" name="monthlyListeners" min="0" value="@(Model?.MonthlyListeners ?? 0)" />
+                        </div>
+                        <div class="field">
+                            <label>Gerekli Rol</label>
+                            <div class="dropdown" id="roleDropdown">
+                                <div class="dropdown-trigger placeholder" onclick="toggleDropdown('roleDropdown')">
+                                    <span id="roleDropdownLabel">-- Seçiniz --</span>
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                                <div class="dropdown-menu">
+                                    @if (ViewBag.Roles != null)
+                                    {
+                                        foreach (var role in (List<JwtMusic.WebUI.Dtos.RolesDtos.RoleDto>)ViewBag.Roles)
+                                        {
+                                            <div class="dropdown-option" data-value="@role.Name" onclick="selectRole('roleDropdown', '@role.Name')">
+                                                <span>@role.Name</span>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <input type="hidden" name="requiredRole" id="roleDropdownValue" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="checkbox-field">
+                            <input type="checkbox" name="isVerified" id="isVerified" value="true" />
+                            <label for="isVerified">Doğrulanmış sanatçı</label>
+                        </div>
                     </div>
 
                     <div class="form-actions">
@@ -380,23 +527,49 @@
         function updatePreview(url) {
             const img = document.getElementById('previewImg');
             const fallback = document.getElementById('previewFallback');
-
-            if (!url) {
-                img.style.display = 'none';
-                fallback.style.display = 'flex';
-                return;
-            }
-
-            img.onload = function () {
-                img.style.display = 'block';
-                fallback.style.display = 'none';
-            };
-            img.onerror = function () {
-                img.style.display = 'none';
-                fallback.style.display = 'flex';
-            };
+            if (!url) { img.style.display = 'none'; fallback.style.display = 'flex'; return; }
+            img.onload = function () { img.style.display = 'block'; fallback.style.display = 'none'; };
+            img.onerror = function () { img.style.display = 'none'; fallback.style.display = 'flex'; };
             img.src = url;
         }
+
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const isOpen = dropdown.classList.contains('open');
+            document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+            if (!isOpen) dropdown.classList.add('open');
+        }
+
+        function selectRole(dropdownId, value) {
+            const dropdown = document.getElementById(dropdownId);
+            const label = dropdown.querySelector('[id$="Label"]');
+            const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+            const trigger = dropdown.querySelector('.dropdown-trigger');
+
+            label.textContent = value;
+            hiddenInput.value = value;
+            trigger.classList.remove('placeholder');
+
+            dropdown.querySelectorAll('.dropdown-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.value === value);
+            });
+
+            dropdown.classList.remove('open');
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const hiddenInput = document.getElementById('roleDropdownValue');
+            if (!hiddenInput.value) {
+                e.preventDefault();
+                alert('Lütfen bir rol seçiniz.');
+            }
+        });
     </script>
 </body>
 </html>

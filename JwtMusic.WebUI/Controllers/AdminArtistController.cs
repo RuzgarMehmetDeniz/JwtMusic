@@ -1,4 +1,5 @@
 ﻿using JwtMusic.WebUI.Dtos.ArtistDtos;
+using JwtMusic.WebUI.Dtos.RolesDtos;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
@@ -10,7 +11,6 @@ namespace JwtMusic.WebUI.Controllers
     public class AdminArtistController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private const string ApiBaseUrl = "https://localhost:7185/api/Artist";
 
         public AdminArtistController(IHttpClientFactory httpClientFactory)
         {
@@ -28,7 +28,17 @@ namespace JwtMusic.WebUI.Controllers
             return client;
         }
 
-        // Sanatçı listesi (sayfalı)
+        // Rolleri API'den çekmek için ortak metod
+        private async Task<List<RoleDto>> GetRolesAsync(HttpClient client)
+        {
+            var response = await client.GetAsync("https://localhost:7185/api/Role");
+            if (!response.IsSuccessStatusCode)
+                return new List<RoleDto>();
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<RoleDto>>(json) ?? new List<RoleDto>();
+        }
+
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var token = GetToken();
@@ -36,34 +46,55 @@ namespace JwtMusic.WebUI.Controllers
                 return RedirectToAction("SingIn", "Login");
 
             var client = GetClient();
-            var response = await client.GetAsync(ApiBaseUrl);
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden)
+            var listResponse = await client.GetAsync("https://localhost:7185/api/Artist");
+
+            if (listResponse.StatusCode == HttpStatusCode.Unauthorized || listResponse.StatusCode == HttpStatusCode.Forbidden)
                 return RedirectToAction("SingIn", "Login");
 
-            var allArtists = new List<ResultArtistDto>();
+            var allArtistsSummary = new List<ResultArtistDto>();
 
-            if (response.IsSuccessStatusCode)
+            if (listResponse.IsSuccessStatusCode)
             {
-                var json = await response.Content.ReadAsStringAsync();
-                allArtists = JsonConvert.DeserializeObject<List<ResultArtistDto>>(json) ?? new List<ResultArtistDto>();
+                var json = await listResponse.Content.ReadAsStringAsync();
+                allArtistsSummary = JsonConvert.DeserializeObject<List<ResultArtistDto>>(json) ?? new List<ResultArtistDto>();
             }
             else
             {
-                TempData["ErrorMessage"] = $"Sanatçı listesi alınamadı. ({(int)response.StatusCode})";
+                TempData["ErrorMessage"] = $"Sanatçı listesi alınamadı. ({(int)listResponse.StatusCode})";
+                ViewBag.CurrentPage = page;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalCount = 0;
+                ViewBag.TotalPages = 0;
+                return View(new List<GetByIdArtistDto>());
             }
 
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
 
-            var totalCount = allArtists.Count;
+            var totalCount = allArtistsSummary.Count;
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
             if (totalPages > 0 && page > totalPages) page = totalPages;
 
-            var pagedArtists = allArtists
+            var pagedIds = allArtistsSummary
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(a => a.ArtistId)
                 .ToList();
+
+            var pagedArtists = new List<GetByIdArtistDto>();
+            foreach (var id in pagedIds)
+            {
+                var detailResponse = await client.GetAsync($"https://localhost:7185/api/Artist/{id}");
+
+                if (detailResponse.IsSuccessStatusCode)
+                {
+                    var detailJson = await detailResponse.Content.ReadAsStringAsync();
+                    var artist = JsonConvert.DeserializeObject<GetByIdArtistDto>(detailJson);
+                    if (artist != null)
+                        pagedArtists.Add(artist);
+                }
+            }
 
             ViewBag.CurrentPage = page;
             ViewBag.PageSize = pageSize;
@@ -73,7 +104,6 @@ namespace JwtMusic.WebUI.Controllers
             return View(pagedArtists);
         }
 
-        // Id'ye göre tek sanatçı getirme (detay/güncelleme formu için)
         public async Task<IActionResult> Detail(int id)
         {
             var token = GetToken();
@@ -81,7 +111,7 @@ namespace JwtMusic.WebUI.Controllers
                 return RedirectToAction("SingIn", "Login");
 
             var client = GetClient();
-            var response = await client.GetAsync($"{ApiBaseUrl}/{id}");
+            var response = await client.GetAsync($"https://localhost:7185/api/Artist/{id}");
 
             if (!response.IsSuccessStatusCode)
                 return RedirectToAction("Index");
@@ -92,7 +122,19 @@ namespace JwtMusic.WebUI.Controllers
             return View(artist);
         }
 
-        // Yeni sanatçı ekleme
+        // Yeni sanatçı ekleme formu (GET)
+        public async Task<IActionResult> Create()
+        {
+            var token = GetToken();
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("SingIn", "Login");
+
+            var client = GetClient();
+            ViewBag.Roles = await GetRolesAsync(client);
+
+            return View(new CreateArtistDto());
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateArtistDto dto)
         {
@@ -101,18 +143,62 @@ namespace JwtMusic.WebUI.Controllers
                 return RedirectToAction("SingIn", "Login");
 
             var client = GetClient();
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Roles = await GetRolesAsync(client);
+                return View(dto);
+            }
+
             var content = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(ApiBaseUrl, content);
+            var response = await client.PostAsync("https://localhost:7185/api/Artist", content);
 
-            TempData[response.IsSuccessStatusCode ? "SuccessMessage" : "ErrorMessage"] =
-                response.IsSuccessStatusCode
-                    ? "Sanatçı başarıyla eklendi."
-                    : $"Sanatçı eklenemedi. ({(int)response.StatusCode}) {await response.Content.ReadAsStringAsync()}";
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Sanatçı başarıyla eklendi.";
+                return RedirectToAction("Index");
+            }
 
-            return RedirectToAction("Index");
+            TempData["ErrorMessage"] = $"Sanatçı eklenemedi. ({(int)response.StatusCode}) {await response.Content.ReadAsStringAsync()}";
+            ViewBag.Roles = await GetRolesAsync(client);
+            return View(dto);
         }
 
-        // Sanatçı güncelleme
+        // Güncelleme formu (GET)
+        public async Task<IActionResult> Update(int id)
+        {
+            var token = GetToken();
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("SingIn", "Login");
+
+            var client = GetClient();
+            var response = await client.GetAsync($"https://localhost:7185/api/Artist/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Sanatçı bulunamadı.";
+                return RedirectToAction("Index");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var artist = JsonConvert.DeserializeObject<GetByIdArtistDto>(json);
+
+            var updateDto = new UpdateArtistDto
+            {
+                ArtistId = artist.ArtistId,
+                Name = artist.Name,
+                Bio = artist.Bio,
+                ImageUrl = artist.ImageUrl,
+                MonthlyListeners = artist.MonthlyListeners,
+                IsVerified = artist.IsVerified,
+                RequiredRole = artist.RequiredRole
+            };
+
+            ViewBag.Roles = await GetRolesAsync(client);
+
+            return View(updateDto);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Update(int id, UpdateArtistDto dto)
         {
@@ -120,21 +206,30 @@ namespace JwtMusic.WebUI.Controllers
             if (string.IsNullOrEmpty(token))
                 return RedirectToAction("SingIn", "Login");
 
+            var client = GetClient();
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Roles = await GetRolesAsync(client);
+                return View(dto);
+            }
+
             dto.ArtistId = id;
 
-            var client = GetClient();
             var content = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
-            var response = await client.PutAsync($"{ApiBaseUrl}/{id}", content);
+            var response = await client.PutAsync($"https://localhost:7185/api/Artist/{id}", content);
 
-            TempData[response.IsSuccessStatusCode ? "SuccessMessage" : "ErrorMessage"] =
-                response.IsSuccessStatusCode
-                    ? "Sanatçı başarıyla güncellendi."
-                    : $"Sanatçı güncellenemedi. ({(int)response.StatusCode}) {await response.Content.ReadAsStringAsync()}";
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Sanatçı başarıyla güncellendi.";
+                return RedirectToAction("Index");
+            }
 
-            return RedirectToAction("Index");
+            TempData["ErrorMessage"] = $"Sanatçı güncellenemedi. ({(int)response.StatusCode}) {await response.Content.ReadAsStringAsync()}";
+            ViewBag.Roles = await GetRolesAsync(client);
+            return View(dto);
         }
 
-        // Sanatçı silme
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -143,7 +238,7 @@ namespace JwtMusic.WebUI.Controllers
                 return RedirectToAction("SingIn", "Login");
 
             var client = GetClient();
-            var response = await client.DeleteAsync($"{ApiBaseUrl}/{id}");
+            var response = await client.DeleteAsync($"https://localhost:7185/api/Artist/{id}");
 
             TempData[response.IsSuccessStatusCode ? "SuccessMessage" : "ErrorMessage"] =
                 response.IsSuccessStatusCode
