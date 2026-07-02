@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using System.Reflection;
 using JwtMusic.WebApi.Context;
 using JwtMusic.WebApi.Entities;
 using JwtMusic.WebApi.Services.ArtistFollowService;
@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddControllers()
+    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
 builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<JwtContext>().AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>

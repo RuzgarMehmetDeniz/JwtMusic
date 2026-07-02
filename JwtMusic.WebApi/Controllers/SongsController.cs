@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-// using JwtMusic.WebApi.DAL; // Kendi AppDbContext sınıfının olduğu namespace'i buraya eklemelisin
 
 namespace JwtMusic.WebApi.Controllers
 {
@@ -42,7 +41,6 @@ namespace JwtMusic.WebApi.Controllers
         }
 
         // 1. Tüm Şarkıları Listele
-        // Roles tablosuyla JOIN yaparak RequiredRoleName'i çekiyoruz
         [HttpGet]
         public async Task<IActionResult> SongList()
         {
@@ -121,10 +119,26 @@ namespace JwtMusic.WebApi.Controllers
             });
         }
 
-        // 3. Yeni Şarkı Ekle
+        // 3. Yeni Şarkı Ekle (Validasyon Haberli)
         [HttpPost]
         public async Task<IActionResult> CreateSong(CreateSongDto createSongDto)
         {
+            // FluentValidation hatası varsa buraya düşer ve haber verir
+            if (!ModelState.IsValid)
+            {
+                var errorList = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new
+                {
+                    IsSuccess = false,
+                    Message = "Validasyon hataları oluştu.",
+                    Errors = errorList
+                });
+            }
+
             var song = new Song
             {
                 Title = createSongDto.Title,
@@ -143,10 +157,26 @@ namespace JwtMusic.WebApi.Controllers
             return Ok("Şarkı başarıyla listeye eklendi.");
         }
 
-        // 4. Şarkı Güncelle
-        [HttpPut("{id}")] // <-- ID bilgisini artık URL'den bekliyoruz (Örn: api/Songs/160)
+        // 4. Şarkı Güncelle (Validasyon Haberli)
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSong(int id, UpdateSongDto updateSongDto)
         {
+            // İlk olarak validasyon kontrolünü yapıp haber veriyoruz
+            if (!ModelState.IsValid)
+            {
+                var errorList = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new
+                {
+                    IsSuccess = false,
+                    Message = "Validasyon hataları oluştu.",
+                    Errors = errorList
+                });
+            }
+
             // Güvenlik Kontrolü: URL'den gelen ID ile JSON içinden gelen ID uyuşuyor mu?
             if (id != updateSongDto.SongId)
             {

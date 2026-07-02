@@ -44,6 +44,24 @@ namespace JwtMusic.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateArtist(CreateArtistDto createArtistDto)
         {
+            // Validasyondan geçemezse buraya düşer ve hataları haber verir
+            if (!ModelState.IsValid)
+            {
+                // FluentValidation'ın ürettiği tüm hata mesajlarını listeye topluyoruz
+                var errorList = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                // Dış dünyaya (UI veya Postman'e) hataları dönüyoruz
+                return BadRequest(new
+                {
+                    IsSuccess = false,
+                    Message = "Validasyon hataları oluştu.",
+                    Errors = errorList
+                });
+            }
+
             await _artistService.CreateArtistAsync(createArtistDto);
             return Ok("İşlem Başarılı");
         }
@@ -52,6 +70,21 @@ namespace JwtMusic.WebApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateArtist(int id, UpdateArtistDto updateArtistDto)
         {
+            if (!ModelState.IsValid)
+            {
+                var errorList = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new
+                {
+                    IsSuccess = false,
+                    Message = "Validasyon hataları oluştu.",
+                    Errors = errorList
+                });
+            }
+
             var existing = await _artistService.GetByIdArtistAsync(id);
             if (existing == null)
             {
