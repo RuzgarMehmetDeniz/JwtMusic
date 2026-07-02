@@ -126,8 +126,14 @@ Admin paneli üzerinden sistemdeki tüm veriler üzerinde sayfalama altyapısıy
 ## 🛡️ Hata ve Durum Yönetimi (Error Pages)
 
 Uygulama, hatalı veya yetkisiz istek senaryolarında kullanıcı deneyimini bozmamak adına hem API durum kodlarını yönetir hem de UI tarafında şu özel tasarım hata sayfalarını sunar:
-* **401 Unauthorized Page:** Kimlik doğrulaması yapılmamış veya JWT token'ı geçersiz/süresi dolmuş kullanıcıları karşılayan ve giriş ekranına yönlendiren güvenli sayfa.
-* **404 Not Found Page:** Sistemde karşılığı olmayan, URL satırından yanlış yazılmış ya da silinmiş isteklerde devreye giren enstrüman ikonlu özel **"Sayfa Bulunamadı"** sayfası.
-* **500 Internal Server Error Page:** Backend tarafında oluşabilecek beklenmedik sistem hatalarında, kullanıcıya kod karmaşası yansıtmak yerine kurumsal bir arayüz sunan hata sayfası.
 
-```
+ 401 Unauthorized Page:** Kimlik doğrulaması yapılmamış veya JWT token'ı geçersiz/süresi dolmuş kullanıcıları karşılayan ve giriş ekranına yönlendiren güvenli sayfa.
+ 
+<img width="706" height="745" alt="image" src="https://github.com/user-attachments/assets/4565942c-260d-42bb-a4a3-a30f82881f52" />
+
+404 Not Found Page:** Sistemde karşılığı olmayan, URL satırından yanlış yazılmış ya da silinmiş isteklerde devreye giren enstrüman ikonlu özel **"Sayfa Bulunamadı"** sayfası.
+
+<img width="686" height="682" alt="image" src="https://github.com/user-attachments/assets/c1383e05-86b7-4972-b505-b07eff38d320" />
+
+500 Internal Server Error Page:** Backend tarafında oluşabilecek beklenmedik sistem hatalarında, kullanıcıya kod karmaşası yansıtmak yerine kurumsal bir arayüz sunan hata sayfası.
+
