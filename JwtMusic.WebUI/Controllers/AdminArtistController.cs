@@ -29,7 +29,6 @@ namespace JwtMusic.WebUI.Controllers
             return client;
         }
 
-        // Index
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var token = GetToken();
@@ -73,7 +72,6 @@ namespace JwtMusic.WebUI.Controllers
             return View(paged);
         }
 
-        // Create GET
         public async Task<IActionResult> Create()
         {
             var token = GetToken();
@@ -85,13 +83,18 @@ namespace JwtMusic.WebUI.Controllers
             return View(new CreateArtistDto());
         }
 
-        // Create POST
         [HttpPost]
         public async Task<IActionResult> Create(CreateArtistDto dto)
         {
             var token = GetToken();
             if (string.IsNullOrEmpty(token))
                 return RedirectToAction("SingIn", "Login");
+
+            if (!ModelState.IsValid)
+            {
+                await SetRolesAsync();
+                return View(dto);
+            }
 
             var client = GetClient();
             var content = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
@@ -109,7 +112,6 @@ namespace JwtMusic.WebUI.Controllers
             return View(dto);
         }
 
-        // Update GET
         public async Task<IActionResult> Update(int id)
         {
             var token = GetToken();
@@ -150,7 +152,6 @@ namespace JwtMusic.WebUI.Controllers
             return View(dto);
         }
 
-        // Update POST
         [HttpPost]
         public async Task<IActionResult> Update(int id, UpdateArtistDto dto)
         {
@@ -159,6 +160,13 @@ namespace JwtMusic.WebUI.Controllers
                 return RedirectToAction("SingIn", "Login");
 
             dto.ArtistId = id;
+
+            ModelState.Remove(nameof(dto.ArtistId));
+            if (!TryValidateModel(dto))
+            {
+                await SetRolesAsync();
+                return View(dto);
+            }
 
             var client = GetClient();
             var content = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
@@ -176,7 +184,6 @@ namespace JwtMusic.WebUI.Controllers
             return View(dto);
         }
 
-        // Delete POST
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -194,10 +201,6 @@ namespace JwtMusic.WebUI.Controllers
 
             return RedirectToAction("Index");
         }
-
-        // Roller (dropdown icin) - Create ve Update view'larinda kullanilacak
-        // API'nin alan adlarini (RoleId/Id/roleId vb.) bilmedigimiz icin
-        // birden fazla olasi ismi deneyerek esnek bir sekilde okuyoruz.
         private async Task SetRolesAsync()
         {
             var client = GetClient();

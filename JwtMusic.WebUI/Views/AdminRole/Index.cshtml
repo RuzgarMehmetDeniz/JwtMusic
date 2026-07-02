@@ -1,20 +1,14 @@
-﻿@using JwtMusic.WebUI.Dtos.ArtistDtos
-@model List<ResultArtistDto>
+﻿@using JwtMusic.WebUI.Dtos.RolesDtos
+@model List<ResultRoleDto>
 @{
     Layout = null;
-    int currentPage = ViewBag.CurrentPage;
-    int totalPages = ViewBag.TotalPages;
-    int pageSize = ViewBag.PageSize;
-    int totalCount = ViewBag.TotalCount;
-    int rangeStart = totalCount == 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
-    int rangeEnd = Math.Min(currentPage * pageSize, totalCount);
 }
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanatçı Yönetimi — Admin</title>
+    <title>Rol Yönetimi — Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
@@ -280,45 +274,26 @@
             background: var(--bg-row-hover);
         }
 
-        .artist-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .artist-thumb {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--bg-input);
-            flex-shrink: 0;
-        }
-
-        .artist-thumb-fallback {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--bg-input);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            color: var(--text-3);
-        }
-
         .id-col {
             color: var(--text-3);
-            font-size: .78rem;
-            width: 56px;
-        }
-
-        .bio-col {
-            color: var(--text-2);
+            font-size: .75rem;
             max-width: 220px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-dim);
+            border: 1px solid var(--accent-border);
+            padding: 4px 12px;
+            border-radius: 20px;
         }
 
         .actions-col {
@@ -332,75 +307,6 @@
             padding: 40px;
             color: var(--text-3);
         }
-
-        .verified-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: .7rem;
-            color: var(--accent);
-            background: var(--accent-dim);
-            border: 1px solid var(--accent-border);
-            padding: 2px 8px;
-            border-radius: 20px;
-        }
-
-        .pagination-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            border-top: 1px solid var(--border);
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .pagination-info {
-            font-size: .78rem;
-            color: var(--text-3);
-        }
-
-        .pagination-pages {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .page-link {
-            min-width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 7px;
-            font-size: .8rem;
-            color: var(--text-2);
-            border: 1px solid transparent;
-            padding: 0 8px;
-        }
-
-            .page-link:hover {
-                background: var(--bg-input);
-                color: var(--text-1);
-            }
-
-            .page-link.active {
-                background: var(--accent-dim);
-                border-color: var(--accent-border);
-                color: var(--accent);
-                font-weight: 700;
-            }
-
-            .page-link.disabled {
-                opacity: .35;
-                pointer-events: none;
-            }
-
-        .page-dots {
-            color: var(--text-3);
-            font-size: .8rem;
-            padding: 0 4px;
-        }
     </style>
 </head>
 <body>
@@ -411,10 +317,10 @@
         </div>
         <div class="sidebar-tag">Admin Panel</div>
 
-        <a href="/AdminDashboard/Index" class="nav-item"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-        <a href="/AdminArtist/Index" class="nav-item active"><i class="bi bi-people"></i> Sanatçılar</a>
+        <a href="/AdminDashboard/Index" class="nav-item "><i class="bi bi-grid-1x2"></i> Dashboard</a>
+        <a href="/AdminArtist/Index" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
         <a href="/AdminSong/Index" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
-        <a href="/AdminRole/Index" class="nav-item"><i class="bi bi-shield-lock"></i> Roller</a>
+        <a href="/AdminRole/Index" class="nav-item active"><i class="bi bi-shield-lock"></i> Roller</a>
         <a href="/AdminUser/Index" class="nav-item"><i class="bi bi-person-gear"></i> Kullanıcılar</a>
 
         <div class="sidebar-divider"></div>
@@ -439,65 +345,36 @@
 
         <div class="page-head">
             <div>
-                <h1>Sanatçı Yönetimi</h1>
-                <p>@totalCount sanatçı kayıtlı — sayfa @currentPage / @(totalPages > 0 ? totalPages : 1)</p>
+                <h1>Rol Yönetimi</h1>
+                <p>@(Model?.Count ?? 0) rol kayıtlı</p>
             </div>
-            <a href="/AdminArtist/Create" class="btn btn-accent"><i class="bi bi-plus-lg"></i> Yeni Sanatçı</a>
+            <a href="/AdminRole/Create" class="btn btn-accent"><i class="bi bi-plus-lg"></i> Yeni Rol</a>
         </div>
 
         <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
-                        <th class="id-col">ID</th>
-                        <th>Sanatçı</th>
-                        <th>Bio</th>
-                        <th>Aylık Dinleyici</th>
-                        <th>Durum</th>
+                        <th>Rol Adı</th>
+                        <th>ID</th>
                         <th style="text-align:right;">İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model != null && Model.Any())
                     {
-                        foreach (var artist in Model)
+                        foreach (var role in Model)
                         {
                             <tr>
-                                <td class="id-col">#@artist.ArtistId</td>
-                                <td>
-                                    <div class="artist-cell">
-                                        @if (!string.IsNullOrEmpty(artist.ImageUrl))
-                                        {
-                                            <img src="@artist.ImageUrl" class="artist-thumb" alt="@artist.Name"
-                                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                                            <div class="artist-thumb-fallback" style="display:none;"><i class="bi bi-person"></i></div>
-                                        }
-                                        else
-                                        {
-                                            <div class="artist-thumb-fallback"><i class="bi bi-person"></i></div>
-                                        }
-                                        <span>@artist.Name</span>
-                                    </div>
-                                </td>
-                                <td class="bio-col">@(string.IsNullOrEmpty(artist.Bio) ? "—" : artist.Bio)</td>
-                                <td style="color:var(--text-2);">@artist.MonthlyListeners.ToString("N0")</td>
-                                <td>
-                                    @if (artist.IsVerified)
-                                    {
-                                        <span class="verified-badge"><i class="bi bi-patch-check-fill"></i> Doğrulandı</span>
-                                    }
-                                    else
-                                    {
-                                        <span style="color:var(--text-3);font-size:.78rem;">—</span>
-                                    }
-                                </td>
+                                <td><span class="role-badge"><i class="bi bi-shield-check"></i> @role.Name</span></td>
+                                <td class="id-col">@role.Id</td>
                                 <td>
                                     <div class="actions-col">
-                                        <a href="/AdminArtist/Update/@artist.ArtistId" class="btn-edit-sm">
+                                        <a href="/AdminRole/Update/@role.Id" class="btn-edit-sm">
                                             <i class="bi bi-pencil"></i> Güncelle
                                         </a>
-                                        <form method="post" action="/AdminArtist/Delete/@artist.ArtistId"
-                                              onsubmit="return confirm('@artist.Name sanatçısını silmek istediğine emin misin?');">
+                                        <form method="post" action="/AdminRole/Delete/@role.Id"
+                                              onsubmit="return confirm('@role.Name rolünü silmek istediğine emin misin?');">
                                             <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i> Sil</button>
                                         </form>
                                     </div>
@@ -507,53 +384,10 @@
                     }
                     else
                     {
-                        <tr class="empty-row"><td colspan="6">Henüz sanatçı eklenmemiş.</td></tr>
+                        <tr class="empty-row"><td colspan="3">Henüz rol eklenmemiş.</td></tr>
                     }
                 </tbody>
             </table>
-
-            @if (totalPages > 1)
-            {
-                <div class="pagination-bar">
-                    <span class="pagination-info">@rangeStart–@rangeEnd / @totalCount kayıt</span>
-                    <div class="pagination-pages">
-                        <a class="page-link @(currentPage <= 1 ? "disabled" : "")"
-                           href="/AdminArtist/Index?page=@(currentPage - 1)&pageSize=@pageSize">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                        @{
-                            int sp = Math.Max(1, currentPage - 2);
-                            int ep = Math.Min(totalPages, currentPage + 2);
-                        }
-                        @if (sp > 1)
-                        {
-                            <a class="page-link" href="/AdminArtist/Index?page=1&pageSize=@pageSize">1</a>
-                            if (sp > 2)
-                            {
-
-                                <span class="page-dots">…</span>
-                            }
-                        }
-                        @for (int p = sp; p <= ep; p++)
-                        {
-                            <a class="page-link @(p == currentPage ? "active" : "")"
-                               href="/AdminArtist/Index?page=@p&pageSize=@pageSize">@p</a>
-                        }
-                        @if (ep < totalPages)
-                        {
-                            if (ep < totalPages - 1)
-                            {
-                                <span class="page-dots">…</span>
-                            }
-                            <a class="page-link" href="/AdminArtist/Index?page=@totalPages&pageSize=@pageSize">@totalPages</a>
-                        }
-                        <a class="page-link @(currentPage >= totalPages ? "disabled" : "")"
-                           href="/AdminArtist/Index?page=@(currentPage + 1)&pageSize=@pageSize">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </div>
-                </div>
-            }
         </div>
     </main>
 </body>

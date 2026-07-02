@@ -1,15 +1,15 @@
-﻿@using JwtMusic.WebUI.Dtos.ArtistDtos
-@model CreateArtistDto
+﻿@using JwtMusic.WebUI.Dtos.AccountDtos
+@model UpdateAccountDto
 @{
     Layout = null;
-    var roles = ViewBag.Roles as List<Dictionary<string, string>> ?? new List<Dictionary<string, string>>();
+    var allRoles = ViewBag.AllRoles as List<string> ?? new List<string>();
 }
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeni Sanatçı — Admin</title>
+    <title>Kullanıcı Güncelle — Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
@@ -18,7 +18,6 @@
             --bg-sidebar: #111113;
             --bg-card: #16161a;
             --bg-input: #1a1a1c;
-            --bg-row-hover: #18181c;
             --accent: #c9a84c;
             --accent-dim: rgba(201,168,76,.12);
             --accent-border: rgba(201,168,76,.28);
@@ -156,42 +155,19 @@
             gap: 8px;
         }
 
-        .alert-success {
-            background: rgba(63,178,127,.1);
-            border: 1px solid rgba(63,178,127,.3);
-            color: var(--success);
-        }
-
         .alert-error {
             background: rgba(224,88,79,.1);
             border: 1px solid rgba(224,88,79,.3);
             color: var(--danger);
         }
 
-        .validation-summary {
-            background: rgba(224,88,79,.1);
-            border: 1px solid rgba(224,88,79,.3);
-            color: var(--danger);
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: .8rem;
-            margin-bottom: 16px;
-        }
-
-            .validation-summary ul {
-                margin: 0;
-                padding-left: 18px;
-            }
-
-        .field-error {
-            color: var(--danger);
-            font-size: .74rem;
-            display: block;
-            margin-top: 5px;
-        }
-
         .page-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
             .page-head h1 {
@@ -205,6 +181,22 @@
                 font-size: .82rem;
                 margin-top: 4px;
             }
+
+        .id-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .7rem;
+            color: var(--text-3);
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 20px;
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
         .btn {
             display: inline-flex;
@@ -242,20 +234,26 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 26px;
-            max-width: 640px;
+            max-width: 560px;
         }
 
         .form-row {
             margin-bottom: 18px;
         }
 
-            .form-row label {
-                display: block;
-                font-size: .78rem;
-                font-weight: 600;
-                color: var(--text-2);
-                margin-bottom: 7px;
-            }
+        .form-row-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-row label {
+            display: block;
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 7px;
+        }
 
         .form-control {
             width: 100%;
@@ -274,42 +272,6 @@
                 background: #1d1d20;
             }
 
-            .form-control.input-validation-error {
-                border-color: var(--danger);
-            }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 90px;
-        }
-
-        select.form-control {
-            appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%238a8a94' stroke-width='1.5' fill='none' fill-rule='evenodd'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 32px;
-        }
-
-        .check-row {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-        }
-
-            .check-row input[type="checkbox"] {
-                width: 17px;
-                height: 17px;
-                accent-color: var(--accent);
-            }
-
-            .check-row label {
-                margin-bottom: 0;
-                color: var(--text-1);
-                font-weight: 500;
-                font-size: .84rem;
-            }
-
         .form-actions {
             display: flex;
             gap: 10px;
@@ -323,6 +285,40 @@
             color: var(--text-3);
             margin-top: 5px;
         }
+
+        .role-checks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .role-check-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 12px 6px 10px;
+        }
+
+            .role-check-item input[type="checkbox"] {
+                width: 15px;
+                height: 15px;
+                accent-color: var(--accent);
+            }
+
+            .role-check-item label {
+                margin-bottom: 0;
+                font-size: .8rem;
+                color: var(--text-1);
+                font-weight: 500;
+            }
+
+        .no-roles-hint {
+            font-size: .78rem;
+            color: var(--text-3);
+        }
     </style>
 </head>
 <body>
@@ -333,11 +329,11 @@
         </div>
         <div class="sidebar-tag">Admin Panel</div>
 
-        <a href="/AdminDashboard/Index" class="nav-item"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-        <a href="/AdminArtist/Index" class="nav-item active"><i class="bi bi-people"></i> Sanatçılar</a>
-        <a href="/AdminSong/Index" class="nav-item"><i class="bi bi-music-note-list"></i> Şarkılar</a>
-        <a href="/AdminRole/Index" class="nav-item"><i class="bi bi-shield-lock"></i> Roller</a>
-        <a href="/AdminUser/Index" class="nav-item"><i class="bi bi-person-gear"></i> Kullanıcılar</a>
+        <a href="/AdminDashboard/Index" class="nav-item "><i class="bi bi-grid-1x2"></i> Dashboard</a>
+        <a href="/AdminArtist/Index" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
+        <a href="/AdminSong/Index" class="nav-item "><i class="bi bi-music-note-list"></i> Şarkılar</a>
+        <a href="/AdminRole/Index" class="nav-item "><i class="bi bi-shield-lock"></i> Roller</a>
+        <a href="/AdminUser/Index" class="nav-item active"><i class="bi bi-person-gear"></i> Kullanıcılar</a>
 
         <div class="sidebar-divider"></div>
 
@@ -356,71 +352,69 @@
         }
 
         <div class="page-head">
-            <h1>Yeni Sanatçı Ekle</h1>
-            <p>Yeni bir sanatçı kaydı oluştur</p>
+            <div>
+                <h1>Kullanıcı Güncelle</h1>
+                <p>@Model.Name @Model.Surname bilgilerini düzenle</p>
+            </div>
+            <span class="id-badge"><i class="bi bi-hash"></i> @Model.Id</span>
         </div>
 
-        <form class="form-card" asp-controller="AdminArtist" asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <form class="form-card" method="post" action="/AdminUser/Update/@Model.Id">
+            <input type="hidden" name="Id" value="@Model.Id" />
 
-            <div class="form-row">
-                <label asp-for="Name">Sanatçı Adı</label>
-                <input asp-for="Name" class="form-control" placeholder="Örn. Sezen Aksu" />
-                <span asp-validation-for="Name" class="field-error"></span>
+            <div class="form-row-2col">
+                <div class="form-row">
+                    <label for="Name">Ad</label>
+                    <input class="form-control" id="Name" name="Name" value="@Model.Name" />
+                </div>
+                <div class="form-row">
+                    <label for="Surname">Soyad</label>
+                    <input class="form-control" id="Surname" name="Surname" value="@Model.Surname" />
+                </div>
             </div>
 
             <div class="form-row">
-                <label asp-for="ImageUrl">Görsel URL</label>
-                <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
-                <span asp-validation-for="ImageUrl" class="field-error"></span>
-                <div class="hint">Sanatçı fotoğrafının bağlantısı</div>
+                <label for="UserName">Kullanıcı Adı</label>
+                <input class="form-control" id="UserName" name="UserName" value="@Model.UserName" />
             </div>
 
             <div class="form-row">
-                <label asp-for="Bio">Biyografi</label>
-                <textarea asp-for="Bio" class="form-control" placeholder="Sanatçı hakkında kısa bilgi..."></textarea>
-                <span asp-validation-for="Bio" class="field-error"></span>
+                <label for="Email">Email</label>
+                <input class="form-control" type="email" id="Email" name="Email" value="@Model.Email" />
             </div>
 
             <div class="form-row">
-                <label asp-for="MonthlyListeners">Aylık Dinleyici Sayısı</label>
-                <input asp-for="MonthlyListeners" class="form-control" type="number" min="0" />
-                <span asp-validation-for="MonthlyListeners" class="field-error"></span>
+                <label for="ImageUrl">Profil Görseli URL</label>
+                <input class="form-control" id="ImageUrl" name="ImageUrl" value="@Model.ImageUrl" placeholder="https://..." />
             </div>
 
             <div class="form-row">
-                <label asp-for="RequiredRole">Gerekli Rol</label>
-                <select asp-for="RequiredRole" class="form-control">
-                    <option value="">Rol Seçiniz</option>
-                    @foreach (var role in roles)
-                    {
-                        <option value="@role["Id"]">@role["Name"]</option>
-                    }
-                </select>
-                <span asp-validation-for="RequiredRole" class="field-error"></span>
-                @if (!roles.Any())
+                <label>Roller</label>
+                @if (allRoles.Any())
                 {
-                    <div class="hint" style="color: var(--danger);">
-                        Rol listesi boş geldi — API'den rol çekilemiyor olabilir, önce bunu kontrol edin.
+                    <div class="role-checks">
+                        @foreach (var roleName in allRoles)
+                        {
+                            bool isChecked = Model.Roles != null && Model.Roles.Contains(roleName);
+                            <div class="role-check-item">
+                                <input type="checkbox" id="role_@roleName" name="Roles" value="@roleName" checked="@isChecked" />
+                                <label for="role_@roleName">@roleName</label>
+                            </div>
+                        }
                     </div>
                 }
-                <div class="hint">Bu sanatçıya erişim için gereken minimum üyelik</div>
-            </div>
-
-            <div class="form-row check-row">
-                <input asp-for="IsVerified" class="form-control" style="width:17px;height:17px;" />
-                <label asp-for="IsVerified">Doğrulanmış sanatçı</label>
+                else
+                {
+                    <div class="no-roles-hint">Sistemde tanımlı rol bulunamadı.</div>
+                }
+                <div class="hint">İşaretli roller kullanıcıya atanır, işaretsiz bırakılanlar kaldırılır</div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-accent"><i class="bi bi-check-lg"></i> Kaydet</button>
-                <a href="/AdminArtist/Index" class="btn btn-cancel">Vazgeç</a>
+                <button type="submit" class="btn btn-accent"><i class="bi bi-check-lg"></i> Güncelle</button>
+                <a href="/AdminUser/Index" class="btn btn-cancel">Vazgeç</a>
             </div>
         </form>
     </main>
-
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
 </body>
 </html>

@@ -1,4 +1,7 @@
-﻿using JwtMusic.WebApi.Context;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using JwtMusic.WebApi.Context;
+using JwtMusic.WebUI.Validators.ArtistValidatorDtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +12,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<ArtistCreateValidator>();
 
 var app = builder.Build();
 

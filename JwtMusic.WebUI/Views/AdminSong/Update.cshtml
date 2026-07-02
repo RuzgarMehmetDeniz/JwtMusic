@@ -362,15 +362,22 @@
             <span class="logo-wordmark">Canlı Müzik</span>
         </div>
         <div class="sidebar-tag">Admin Panel</div>
+
+        <a href="/AdminDashboard/Index" class="nav-item "><i class="bi bi-grid-1x2"></i> Dashboard</a>
         <a href="/AdminArtist/Index" class="nav-item"><i class="bi bi-people"></i> Sanatçılar</a>
         <a href="/AdminSong/Index" class="nav-item active"><i class="bi bi-music-note-list"></i> Şarkılar</a>
+        <a href="/AdminRole/Index" class="nav-item "><i class="bi bi-shield-lock"></i> Roller</a>
         <a href="/AdminUser/Index" class="nav-item"><i class="bi bi-person-gear"></i> Kullanıcılar</a>
+
         <div class="sidebar-divider"></div>
+
         <div class="sidebar-back">
             <a href="/Song/SongList" class="nav-item"><i class="bi bi-box-arrow-left"></i> Siteye Dön</a>
+            <a href="/Login/Logout" class="nav-item nav-item-danger" onclick="return confirm('Çıkış yapmak istediğinize emin misiniz?');">
+                <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+            </a>
         </div>
     </aside>
-
     <main>
         <div class="form-wrap">
             <div class="page-head">
